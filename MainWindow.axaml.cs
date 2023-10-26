@@ -19,6 +19,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Mapsui.Projections;
+using SmartTrainApplication.Data;
+using NetTopologySuite.Geometries;
+using Mapsui.Nts.Extensions;
 
 namespace SmartTrainApplication
 {
@@ -285,7 +288,7 @@ namespace SmartTrainApplication
             map.Widgets.Add(delete);
 
 
-            var train = new ButtonWidget
+            var Export = new ButtonWidget
             {
                 MarginY = 210,
                 MarginX = 5,
@@ -294,33 +297,83 @@ namespace SmartTrainApplication
                 CornerRadius = 2,
                 HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
                 VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
-                Text = "Train",
+                Text = "Export",
                 BackColor = Color.LightGray,
             };
-            train.WidgetTouched += (_, e) =>
+            Export.WidgetTouched += (_, e) =>
             {
-                map.Navigator.PanLock = true;
-                train.BackColor = Color.Red;
-                _mapControl?.RefreshGraphics();
-
-                // TODO: Take all features and save them to a file
-                // Currently this deletes all features -Metso
+                // TODO: Add naming and multible feature saving with it
                 var selectedFeatures = _editManager.Layer?.GetFeatures();
                 if (selectedFeatures.Any())
                 {
                     foreach (var selectedFeature in selectedFeatures)
                     {
+                        GeometryFeature testFeature = selectedFeature as GeometryFeature;
+                        
+                        // If there is multiple feature this overrides all others and only gets the frist one
+                        // Fix when routes can be named -Metso
+                        DataManager.Export(testFeature.Geometry.ToString());
+
+                        // Currently this deletes all features -Metso
                         _editManager.Layer?.TryRemove(selectedFeature);
                     }
                 }
 
                 e.Handled = true;
             };
-            map.Widgets.Add(train);
+            map.Widgets.Add(Export);
+            
+            var Import = new ButtonWidget
+            {
+                MarginY = 230,
+                MarginX = 5,
+                Height = 18,
+                Width = 120,
+                CornerRadius = 2,
+                HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+                VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+                Text = "Import",
+                BackColor = Color.LightGray,
+            };
+            Import.WidgetTouched += (_, e) =>
+            {
+                string GeometryData = DataManager.Import();
+
+                map.Layers.Add(CreateImportLayer(GeometryData));
+
+                e.Handled = true;
+            };
+            map.Widgets.Add(Import);
 
             // Mouse Position Widget
             map.Widgets.Add(new MouseCoordinatesWidget(map));
 
+        }
+
+        private static WritableLayer CreateImportLayer(string wkt)
+        {
+            var importLayer = new WritableLayer
+            {
+                Name = "Import",
+                Style = CreateImportStyle()
+            };
+
+            var lineString = new WKTReader().Read(wkt);
+            IFeature feature = new GeometryFeature { Geometry = lineString };
+            importLayer.Add(feature);
+
+            return importLayer;
+        }
+
+        public static IStyle CreateImportStyle()
+        {
+            return new VectorStyle
+            {
+                Fill = null,
+                Outline = null,
+                #pragma warning disable CS8670 // Object or collection initializer implicitly dereferences possibly null member.
+                Line = { Color = Color.FromString("Red"), Width = 4 }
+            };
         }
 
         public static Map CreateMap()
