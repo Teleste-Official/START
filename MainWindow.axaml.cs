@@ -22,6 +22,7 @@ using Mapsui.Projections;
 using SmartTrainApplication.Data;
 using NetTopologySuite.Geometries;
 using Mapsui.Nts.Extensions;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SmartTrainApplication
 {
@@ -314,7 +315,7 @@ namespace SmartTrainApplication
                         // Fix when routes can be named -Metso
                         DataManager.Export(testFeature.Geometry.ToString());
 
-                        // Currently this deletes all features -Metso
+                        // Currently this deletes all features, from the editlayer -Metso
                         _editManager.Layer?.TryRemove(selectedFeature);
                     }
                 }
@@ -338,29 +339,84 @@ namespace SmartTrainApplication
             Import.WidgetTouched += (_, e) =>
             {
                 string GeometryData = DataManager.Import();
+                var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
+                if (importLayer == null){
+                    // Import layer doesnt exist yet, create the import layer
+                    map.Layers.Add(CreateImportLayer());
+                    importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
+                }
 
-                map.Layers.Add(CreateImportLayer(GeometryData));
+                var lineString = new WKTReader().Read(GeometryData);
+                IFeature feature = new GeometryFeature { Geometry = lineString };
+                importLayer.Add(feature);
 
                 e.Handled = true;
             };
             map.Widgets.Add(Import);
+
+            var EditImport = new ButtonWidget
+            {
+                MarginY = 250,
+                MarginX = 5,
+                Height = 18,
+                Width = 120,
+                CornerRadius = 2,
+                HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+                VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+                Text = "Edit Import",
+                BackColor = Color.LightGray,
+            };
+            EditImport.WidgetTouched += (_, e) =>
+            {
+                // Get the import layer if it exists
+                var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
+                if (importLayer != null)
+                {
+                    // Throw the imported feature into edit layer for editing
+                    _editManager.Layer.AddRange(importLayer.GetFeatures().Copy());
+                    importLayer.Clear();
+                }
+                e.Handled = true;
+            };
+            map.Widgets.Add(EditImport);
+
+            var ApplyEditImport = new ButtonWidget
+            {
+                MarginY = 270,
+                MarginX = 5,
+                Height = 18,
+                Width = 120,
+                CornerRadius = 2,
+                HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+                VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+                Text = "Apply Import Edit",
+                BackColor = Color.LightGray,
+            };
+            ApplyEditImport.WidgetTouched += (_, e) =>
+            {
+                // Get the import layer if it exists
+                var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
+                if (importLayer != null)
+                {
+                    importLayer.AddRange(_editManager.Layer.GetFeatures().Copy());
+                    _editManager.Layer.Clear();
+                }
+                e.Handled = true;
+            };
+            map.Widgets.Add(ApplyEditImport);
 
             // Mouse Position Widget
             map.Widgets.Add(new MouseCoordinatesWidget(map));
 
         }
 
-        private static WritableLayer CreateImportLayer(string wkt)
+        private static WritableLayer CreateImportLayer()
         {
             var importLayer = new WritableLayer
             {
                 Name = "Import",
                 Style = CreateImportStyle()
             };
-
-            var lineString = new WKTReader().Read(wkt);
-            IFeature feature = new GeometryFeature { Geometry = lineString };
-            importLayer.Add(feature);
 
             return importLayer;
         }
