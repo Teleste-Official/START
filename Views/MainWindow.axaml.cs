@@ -8,6 +8,8 @@ namespace SmartTrainApplication
         {
             InitializeComponent();
 
+
+            // TODO: move these to a seperate container/view -Metso
             var mapViewControl = new MapViewControl();
 
             this.Content = mapViewControl;
