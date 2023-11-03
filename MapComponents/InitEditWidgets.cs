@@ -12,6 +12,7 @@ using Mapsui.Widgets.ButtonWidget;
 using Mapsui.Widgets.MouseCoordinatesWidget;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SmartTrainApplication;
 
@@ -307,6 +308,8 @@ public partial class MapViewControl
         };
         EditImport.WidgetTouched += (_, e) =>
         {
+            // Move this to it's own function so it can be used in "AddTunnel" - Metso
+
             // Get the import layer if it exists
             var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
             if (importLayer != null)
@@ -334,6 +337,8 @@ public partial class MapViewControl
         };
         ApplyEditImport.WidgetTouched += (_, e) =>
         {
+            // Move this to it's own function so it can be used in "ConfirmTunnel" - Metso
+
             // Get the import layer if it exists
             var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
             if (importLayer != null)
@@ -345,6 +350,106 @@ public partial class MapViewControl
             e.Handled = true;
         };
         map.Widgets.Add(ApplyEditImport);
+
+        var AddTunnel = new ButtonWidget
+        {
+            MarginY = 290,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Add Tunnels",
+            BackColor = Color.LightGray,
+        };
+        AddTunnel.WidgetTouched += (_, e) =>
+        {
+            var features = _targetLayer?.GetFeatures().Copy() ?? Array.Empty<IFeature>();
+
+            foreach (var feature in features)
+            {
+                feature.RenderedGeometry.Clear();
+            }
+
+            _tempFeatures = new List<IFeature>(features);
+
+            _editManager.EditMode = EditMode.AddPoint;
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(AddTunnel);
+
+        var ConfirmTunnel = new ButtonWidget
+        {
+            MarginY = 310,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Confirm Tunnels",
+            BackColor = Color.LightGray,
+        };
+        ConfirmTunnel.WidgetTouched += (_, e) =>
+        {
+            var tunnelLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Tunnel");
+            var tunnelstringLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
+            if (tunnelLayer == null)
+            {
+                // Import layer doesnt exist yet, create the import layer
+                map.Layers.Add(CreateTunnelLayer());
+                tunnelLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Tunnel");
+            }
+            if (tunnelstringLayer == null)
+            {
+                // Import layer doesnt exist yet, create the import layer
+                map.Layers.Add(CreateTunnelstringLayer());
+                tunnelstringLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
+            }
+
+            // Take created tunnel point
+            tunnelLayer.AddRange(_editManager.Layer.GetFeatures().Copy());
+            // Clear the editlayer
+            _editManager.Layer?.Clear();
+
+            // List of the tunnel points added
+            List<string> tunnelPoints = new List<string>();
+
+            var features = tunnelLayer?.GetFeatures().Copy();
+
+            foreach (var feature in features)
+            {
+                GeometryFeature testFeature = feature as GeometryFeature;
+
+                string test = testFeature.Geometry.ToString();
+                tunnelPoints.Add(test);
+            }
+
+            // Add tunnels to data
+            List<string> tunnelStrings = DataManager.AddTunnels(tunnelPoints);
+
+            foreach (var tunnelString in tunnelStrings)
+            {
+                var lineString = new WKTReader().Read(tunnelString);
+                IFeature feature = new GeometryFeature { Geometry = lineString };
+                tunnelstringLayer.Add(feature);
+            }
+
+            // THIS REMOVES THE TUNNEL POINTS FROM THE LAYER, see if we want this or not -Metso
+            tunnelLayer.Clear();
+
+
+            _mapControl?.RefreshGraphics();
+
+            _editManager.EditMode = EditMode.None;
+
+            _tempFeatures = null;
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(ConfirmTunnel);
 
         // Mouse Position Widget
         map.Widgets.Add(new MouseCoordinatesWidget(map));

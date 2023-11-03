@@ -28,6 +28,35 @@ public partial class MapViewControl
         };
     }
 
+    private static WritableLayer CreateTunnelLayer()
+    {
+        return new WritableLayer
+        {
+            Name = "Tunnel",
+            Style = CreatePointStyle()
+        };
+    }
+
+    private static WritableLayer CreateTunnelstringLayer()
+    {
+        return new WritableLayer
+        {
+            Name = "Tunnelstring",
+            Style = CreateTunnelstringStyle()
+        };
+    }
+
+    public static IStyle CreateTunnelstringStyle()
+    {
+        return new VectorStyle
+        {
+            Fill = null,
+            Outline = null,
+#pragma warning disable CS8670 // Object or collection initializer implicitly dereferences possibly null member.
+            Line = { Color = Color.FromString("Blue"), Width = 4 }
+        };
+    }
+
     private static WritableLayer CreateEditLayer()
     {
         return new WritableLayer

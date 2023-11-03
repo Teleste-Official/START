@@ -14,4 +14,9 @@ public class RouteCoordinate
         Latitude = Y;
         Type = "NORMAL";
     }
+
+    public void SetType(string Type)
+    {
+        this.Type = Type;
+    }
 }

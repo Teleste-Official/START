@@ -1,7 +1,9 @@
 ﻿using Mapsui;
+using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +15,9 @@ namespace SmartTrainApplication.Data
 {
     internal class DataManager
     {
+        public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
+        public static TrainRoute CurrentTrainRoute;
+
         /// <summary>
         /// Export the created lines into a file.
         /// </summary>
@@ -75,6 +80,9 @@ namespace SmartTrainApplication.Data
             var Json_options = new JsonSerializerOptions { IncludeFields = true };
             TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(FileAsString, Json_options);
 
+            // Set the imported train route as the currently selected one
+            CurrentTrainRoute = ImportedTrainRoute;
+
             // Turn the coordinates back to a geometry string
             string GeometryString = "LINESTRING (";
             foreach (var coord in ImportedTrainRoute.Coords)
@@ -84,6 +92,99 @@ namespace SmartTrainApplication.Data
             GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
 
             return GeometryString;
+        }
+
+        public static List<string> AddTunnels(List<string> TunnelPoints)
+        {
+            foreach (var PointString in TunnelPoints)
+            {
+                // Parse the line string into individual values
+                string[] ParsedGeometry = PointString.Split("(");
+                string Geometry = ParsedGeometry[1].Remove(ParsedGeometry[1].Length - 1);
+                string[] xy = Geometry.Split(" ");
+                RoutePoint routePoint = new RoutePoint(xy[0], xy[1]);
+
+                double closestDiff = 1000000;
+                int pointStatusToBeChanged = -1;
+                List<double> diffpoints = new List<double>();
+
+                for (int i = 0; i < CurrentTrainRoute.Coords.Count; i++)
+                {
+                    double diff = CalculateDistance(new RoutePoint(CurrentTrainRoute.Coords[i].Longitude, CurrentTrainRoute.Coords[i].Latitude), routePoint);
+                    diffpoints.Add(diff);
+                    if (i == 0)
+                    {
+                        closestDiff = diff;
+                        pointStatusToBeChanged = i;
+                    }
+                    else
+                    {
+                        if (diff < closestDiff)
+                        {
+                            closestDiff = diff;
+                            pointStatusToBeChanged = i;
+                        }
+                    }
+                }
+
+                if(pointStatusToBeChanged != -1)
+                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE");
+            }
+
+            FixTunnelTypes();
+            List<string> tunnelStrings = new List<string>();
+
+
+            int EntranceCount = 0;
+            string GeometryString = "LINESTRING (";
+            foreach (var coord in CurrentTrainRoute.Coords)
+            {
+                if (coord.Type == "TUNNEL" || coord.Type == "TUNNEL_ENTRANCE")
+                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+
+                if (coord.Type == "TUNNEL_ENTRANCE")
+                    EntranceCount++;
+
+                if (EntranceCount == 2)
+                {
+                    GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+                    tunnelStrings.Add(GeometryString);
+                    EntranceCount = 0;
+                    GeometryString = "LINESTRING (";
+                }
+            }
+            //GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+            //tunnelStrings.Add(GeometryString);
+
+
+            return tunnelStrings;
+        }
+
+        static double CalculateDistance(RoutePoint point1, RoutePoint point2)
+        {
+            double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+            double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+
+            return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        }
+
+        private static void FixTunnelTypes()
+        {
+            bool tunnelEntrance = false;
+            foreach (var coords in CurrentTrainRoute.Coords)
+            {
+                if(coords.Type == "TUNNEL_ENTRANCE")
+                {
+                    if(!tunnelEntrance)
+                        tunnelEntrance = true;
+                    else
+                        tunnelEntrance = false;
+                }
+                else if (coords.Type == "NORMAL" && tunnelEntrance)
+                {
+                    coords.SetType("TUNNEL");
+                }
+            }
         }
     }
 }
