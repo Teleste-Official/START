@@ -1,0 +1,286 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SmartTrainApplication.TopBarView">
+	<DockPanel Background="Beige">
+		
+			<TabControl DockPanel.Dock="Left"
+						Background="Transparent"
+						BorderBrush="#11000000"
+						BorderThickness="1"
+						Margin="1, 1, 1, 0"
+						CornerRadius="7"
+						>
+
+				<!--__________ Track Tab Page __________-->
+				<TabItem Header="Track Editor">
+					<DockPanel LastChildFill="False">
+
+						<Border DockPanel.Dock="Left"
+								Width="250"
+								Background="#D9FCFCFC"
+								BorderBrush="#11000000"
+								BorderThickness="1"
+								BoxShadow="0 8 16 0 #22000000"
+								Margin="1, 0, 1, 1"
+								Padding="0"
+								CornerRadius="7">
+
+							<DockPanel LastChildFill="False">
+
+								<ComboBox SelectedIndex="0"
+										  MaxDropDownHeight="200"
+										  HorizontalAlignment="Center"
+										  Width="242"
+										  Margin="4"
+										  DockPanel.Dock="Top">
+									<ComboBoxItem>Select Track...</ComboBoxItem>
+									<ComboBoxItem>Track 1</ComboBoxItem>
+									<ComboBoxItem>Track 2</ComboBoxItem>
+									<ComboBoxItem>Track 3</ComboBoxItem>
+								</ComboBox>
+
+								<TextBox HorizontalAlignment="Center"
+										 Width="242"
+										 Margin="4"
+										 DockPanel.Dock="Top"
+										 Watermark="Track Name..."/>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Add Line
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Add Tunnel
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Add Other Zone
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Add Station
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Edit Track
+								</Button>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Export
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Import
+								</Button>
+							</DockPanel>
+						</Border>
+					</DockPanel>
+				</TabItem>
+				
+				
+				<!--__________ Train Tab Page __________-->
+				<TabItem Header="Train Editor">
+					<DockPanel LastChildFill="False">
+
+						<Border DockPanel.Dock="Left"
+								Width="250"
+								Background="#D9FCFCFC"
+								BorderBrush="#11000000"
+								BorderThickness="1"
+								BoxShadow="0 8 16 0 #22000000"
+								Margin="1, 0, 1, 1"
+								Padding="0"
+								CornerRadius="7">
+
+							<DockPanel LastChildFill="False">
+
+								<ComboBox SelectedIndex="0"
+										  MaxDropDownHeight="200"
+										  HorizontalAlignment="Center"
+										  Width="242"
+										  Margin="4"
+										  DockPanel.Dock="Top">
+									<ComboBoxItem>Select Train...</ComboBoxItem>
+									<ComboBoxItem>Train 1</ComboBoxItem>
+									<ComboBoxItem>Train 2</ComboBoxItem>
+									<ComboBoxItem>Train 3</ComboBoxItem>
+								</ComboBox>
+
+								<TextBox HorizontalAlignment="Center"
+										 Width="242"
+										 Margin="4"
+										 DockPanel.Dock="Top"
+										 Watermark="Train Name..."/>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#0F6CBD"
+										Foreground="#FFFFFF">
+									Add Train
+								</Button>
+
+								<TextBlock Margin="4 0"
+										   DockPanel.Dock="Top">Odometer:</TextBlock>
+								<NumericUpDown HorizontalAlignment="Center"
+											   Width="242"
+											   Margin="4 0 4 4"
+											   DockPanel.Dock="Top"
+											   Minimum="0"
+											   Watermark="Odometer..."/>
+								<TextBlock Margin="4 0"
+										   DockPanel.Dock="Top">Speed:</TextBlock>
+								<NumericUpDown HorizontalAlignment="Center"
+											   Width="242"
+											   Margin="4 0 4 4"
+											   DockPanel.Dock="Top"
+											   Minimum="0"
+											   Watermark="Speed..."/>
+								<TextBlock Margin="4 0"
+										   DockPanel.Dock="Top">Acceleration:</TextBlock>
+								<NumericUpDown HorizontalAlignment="Center"
+											   Width="242"
+											   Margin="4 0 4 4"
+											   DockPanel.Dock="Top"
+											   Minimum="0"
+											   Watermark="Acceleration..."/>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center">
+									Export
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center">
+									Import
+								</Button>
+							</DockPanel>
+						</Border>
+					</DockPanel>
+				</TabItem>
+				
+				
+				<!--__________ Simulation Tab Page __________-->
+				<TabItem Header="Simulation">
+					<DockPanel LastChildFill="False">
+
+						<Border DockPanel.Dock="Left"
+								Width="250"
+								Background="#D9FCFCFC"
+								BorderBrush="#11000000"
+								BorderThickness="1"
+								BoxShadow="0 8 16 0 #22000000"
+								Margin="1, 0, 1, 1"
+								Padding="0"
+								CornerRadius="7">
+
+							<DockPanel LastChildFill="False">
+
+								<ComboBox SelectedIndex="0"
+										  MaxDropDownHeight="200"
+										  HorizontalAlignment="Center"
+										  Width="242"
+										  Margin="4"
+										  DockPanel.Dock="Top">
+									<ComboBoxItem>Select Track...</ComboBoxItem>
+									<ComboBoxItem>Track 1</ComboBoxItem>
+									<ComboBoxItem>Track 2</ComboBoxItem>
+									<ComboBoxItem>Track 3</ComboBoxItem>
+								</ComboBox>
+								<ComboBox SelectedIndex="0"
+							   MaxDropDownHeight="200"
+							   HorizontalAlignment="Center"
+							   Width="242"
+							   Margin="4"
+							   DockPanel.Dock="Top">
+									<ComboBoxItem>Select Train...</ComboBoxItem>
+									<ComboBoxItem>Train 1</ComboBoxItem>
+									<ComboBoxItem>Train 2</ComboBoxItem>
+									<ComboBoxItem>Train 3</ComboBoxItem>
+								</ComboBox>
+								<TextBlock Margin="4 0"
+										   DockPanel.Dock="Top">Interval:</TextBlock>
+								<NumericUpDown HorizontalAlignment="Center"
+											   Width="242"
+											   Margin="4 0 4 4"
+											   DockPanel.Dock="Top"
+											   Minimum="0"
+											   Watermark="Interval(ms)..."/>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Top"
+										HorizontalContentAlignment="Center"
+										Background="#FF5F49">
+									Run Simulation
+								</Button>
+
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center">
+									Export
+								</Button>
+								<Button HorizontalAlignment="Center"
+										Width="242"
+										Margin="4"
+										DockPanel.Dock="Bottom"
+										HorizontalContentAlignment="Center">
+									Import
+								</Button>
+							</DockPanel>
+						</Border>
+					</DockPanel>
+				</TabItem>
+			</TabControl>
+	</DockPanel>
+</UserControl>
