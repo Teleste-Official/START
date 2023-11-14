@@ -4,6 +4,32 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SmartTrainApplication.SimulationView">
+	
+	<UserControl.Styles>
+		<Style Selector="Button">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,4"/>
+			<Style Selector="^.primary">
+				<Setter Property="Background" Value="#FF5F49"/>
+				<Setter Property="Foreground" Value="#FFFFFF"/>
+				<Setter Property="DockPanel.Dock" Value="Top"/>
+			</Style>
+		</Style>
+		<Style Selector="ComboBox">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="SelectedIndex" Value="0"/>
+			<Setter Property="MaxDropDownHeight" Value="200"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+		<Style Selector="NumericUpDown">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+			<Setter Property="Margin" Value="0,0,0,4"/>
+		</Style>
+	</UserControl.Styles>
+	
 	<DockPanel LastChildFill="False">
 
 		<Border DockPanel.Dock="Left"
@@ -13,63 +39,37 @@
 				BorderThickness="1"
 				BoxShadow="0 8 16 0 #22000000"
 				Margin="1"
-				Padding="0"
+				Padding="4,0"
 				CornerRadius="7">
 
 			<DockPanel LastChildFill="False">
 
-				<ComboBox SelectedIndex="0"
-						  MaxDropDownHeight="200"
-						  HorizontalAlignment="Center"
-						  Width="242"
-						  Margin="4"
-						  DockPanel.Dock="Top">
+				<ComboBox>
 					<ComboBoxItem>Select Track...</ComboBoxItem>
 					<ComboBoxItem>Track 1</ComboBoxItem>
 					<ComboBoxItem>Track 2</ComboBoxItem>
 					<ComboBoxItem>Track 3</ComboBoxItem>
 				</ComboBox>
-				<ComboBox SelectedIndex="0"
-			   MaxDropDownHeight="200"
-			   HorizontalAlignment="Center"
-			   Width="242"
-			   Margin="4"
-			   DockPanel.Dock="Top">
+				
+				<ComboBox>
 					<ComboBoxItem>Select Train...</ComboBoxItem>
 					<ComboBoxItem>Train 1</ComboBoxItem>
 					<ComboBoxItem>Train 2</ComboBoxItem>
 					<ComboBoxItem>Train 3</ComboBoxItem>
 				</ComboBox>
-				<TextBlock Margin="4 0"
-						   DockPanel.Dock="Top">Interval:</TextBlock>
-				<NumericUpDown HorizontalAlignment="Center"
-							   Width="242"
-							   Margin="4 0 4 4"
-							   DockPanel.Dock="Top"
-							   Minimum="0"
+				
+				<TextBlock DockPanel.Dock="Top">Interval:</TextBlock>
+				<NumericUpDown Minimum="0"
 							   Watermark="Interval(ms)..."/>
 
-				<Button HorizontalAlignment="Center"
-						Width="242"
-						Margin="4"
-						DockPanel.Dock="Top"
-						HorizontalContentAlignment="Center"
-						Background="#FF5F49">
+				<Button Classes="primary">
 					Run Simulation
 				</Button>
 
-				<Button HorizontalAlignment="Center"
-						Width="242"
-						Margin="4"
-						DockPanel.Dock="Bottom"
-						HorizontalContentAlignment="Center">
+				<Button DockPanel.Dock="Bottom">
 					Export
 				</Button>
-				<Button HorizontalAlignment="Center"
-						Width="242"
-						Margin="4"
-						DockPanel.Dock="Bottom"
-						HorizontalContentAlignment="Center">
+				<Button DockPanel.Dock="Bottom">
 					Import
 				</Button>
 			</DockPanel>
