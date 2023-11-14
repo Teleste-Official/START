@@ -31,8 +31,6 @@
 		</Style>
 	</UserControl.Styles>
 	
-	<DockPanel LastChildFill="False">
-
 		<Border DockPanel.Dock="Left"
 				Width="250"
 				Background="#D9FCFCFC"
@@ -78,5 +76,4 @@
 				</Button>
 			</DockPanel>
 		</Border>
-	</DockPanel>
 </UserControl>

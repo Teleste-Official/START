@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SmartTrainApplication.TopBarView">
-	<DockPanel LastChildFill="False">
+	<DockPanel LastChildFill="False"
+			   Background="Transparent">
 		
 			<TabStrip DockPanel.Dock="Top"
 					  Height="50"

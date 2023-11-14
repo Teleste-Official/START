@@ -10,9 +10,9 @@ namespace SmartTrainApplication
 
 
             // TODO: move these to a seperate container/view -Metso
-            var mapViewControl = new MapViewControl();
+            //var mapViewControl = new MapViewControl();
 
-            this.Content = mapViewControl;
+            //this.Content = mapViewControl;
         }
     }
 }
