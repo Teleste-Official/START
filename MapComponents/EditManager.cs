@@ -7,7 +7,7 @@ using Mapsui.Nts.Widgets;
 using Mapsui.Projections;
 using Mapsui.UI;
 
-namespace SmartTrainApplication;
+namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {

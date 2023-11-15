@@ -13,7 +13,7 @@ using Mapsui.Widgets.MouseCoordinatesWidget;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
 
-namespace SmartTrainApplication;
+namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {

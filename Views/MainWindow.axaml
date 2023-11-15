@@ -3,6 +3,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="SmartTrainApplication.MainWindow"
-        Title="SmartTrainApplication">
+        xmlns:views1="clr-namespace:SmartTrainApplication.Views"
+        x:Class="SmartTrainApplication.Views.MainWindow"
+        x:DataType="views1:MainWindowViewModel"
+        Title="SmartTrainApplication"
+      >
+    <Grid>
+        <DockPanel>
+
+            <ContentPresenter Name="ContentPresenter"  />
+
+            <Menu DockPanel.Dock="Top" ZIndex="1">
+                <MenuItem  Command="{Binding NavigateToSidebar1}" Header="Track Editor" />
+				<Button  Command="{Binding NavigateToSidebar1}">Track Editor</Button> 
+				<MenuItem Header="Train Editor" />
+                <Button Command="{Binding NavigateToSidebar2}">Train Editor</Button>
+                <MenuItem Header="Simulation" />
+            </Menu>
+        
+            <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
+
+
+            <ContentControl Content="{Binding CurrentView}" />
+            <SplitView x:Name="SplitView" DockPanel.Dock="Right">
+				<SplitView.Pane>
+				</SplitView.Pane>
+                <SplitView.Content>
+                    <views1:MapViewControl />
+                </SplitView.Content>
+            </SplitView>
+        </DockPanel>
+	</Grid>
 </Window>

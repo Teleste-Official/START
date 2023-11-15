@@ -1,4 +1,8 @@
-﻿namespace SmartTrainApplication.Models;
+﻿using System;
+using System.Drawing;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace SmartTrainApplication.Models;
 
 public class RouteCoordinate
 {
@@ -11,7 +15,8 @@ public class RouteCoordinate
     public RouteCoordinate(string X, string Y)
     {
         Longitude = X;
-        Latitude = Y;
+        Latitude = Y; 
         Type = "NORMAL";
     }
+
 }

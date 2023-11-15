@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using SmartTrainApplication.Views;
+using Splat;
 
 namespace SmartTrainApplication
 {
@@ -9,6 +11,7 @@ namespace SmartTrainApplication
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            Locator.CurrentMutable.RegisterLazySingleton<MainWindowViewModel>(() => new MainWindowViewModel());
         }
 
         public override void OnFrameworkInitializationCompleted()

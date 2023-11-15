@@ -7,14 +7,14 @@ using Mapsui.Styles;
 using Mapsui.Tiling;
 using Mapsui.UI;
 
-namespace SmartTrainApplication;
+namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
     public void Setup(IMapControl mapControl)
     {
         _editManager = InitEditMode(mapControl, EditMode.Modify);
-        InitEditWidgets(mapControl.Map);
+       // InitEditWidgets(mapControl.Map);
         _mapControl = mapControl;
     }
     public static Map CreateMap()

@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
+             x:Class="SmartTrainApplication.Sidebar2">
+    <UserControl Name="Sidebar" DockPanel.Dock="Left" Width="200" Background="LightGray">
+        <StackPanel Margin="30">
+            <ComboBox Margin="5" SelectedIndex="0">
+                <ComboBoxItem>Select Train</ComboBoxItem>
+                <ComboBoxItem>Train 1</ComboBoxItem>
+                <ComboBoxItem>Train 2</ComboBoxItem>
+                <ComboBoxItem>Train 3</ComboBoxItem>
+            </ComboBox>
+            <Button Margin="5"
+                    Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Train</Button>
+            
+
+            <TextBox Margin="5"> Train name..</TextBox>
+
+            <NumericUpDown Margin="5" Value="10" Width="150"/>
+
+            <NumericUpDown Margin="5" Value="10" Width="150"/>
+
+            <NumericUpDown Margin="5" Value="10" Width="150"/>
+
+            <Button Margin="5"
+                    Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Import</Button>
+            <Button Margin="5"
+                    Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Export</Button>
+        </StackPanel>
+    </UserControl>
+</UserControl>

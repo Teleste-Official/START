@@ -2,7 +2,7 @@ using Mapsui.Layers;
 using Mapsui.Styles.Thematics;
 using Mapsui.Styles;
 
-namespace SmartTrainApplication;
+namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {

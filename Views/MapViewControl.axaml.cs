@@ -7,7 +7,7 @@ using Mapsui.Nts.Editing;
 using Mapsui.UI;
 using System.Collections.Generic;
 
-namespace SmartTrainApplication;
+namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl : UserControl
 {
@@ -18,6 +18,7 @@ public partial class MapViewControl : UserControl
     public MapViewControl()
     {
         InitializeComponent();
+
         var mapControl = new Mapsui.UI.Avalonia.MapControl();
         mapControl.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
         Setup(mapControl);

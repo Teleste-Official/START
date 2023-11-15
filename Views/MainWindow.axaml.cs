@@ -1,18 +1,19 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
-namespace SmartTrainApplication
+namespace SmartTrainApplication.Views
 {
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-
-
-            // TODO: move these to a seperate container/view -Metso
-            var mapViewControl = new MapViewControl();
-
-            this.Content = mapViewControl;
+            DataContext = new MainWindowViewModel();
         }
+
+
     }
+
+    
 }

@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
+             x:Class="SmartTrainApplication.SideBar1">
+            <UserControl Name="Sidebar" DockPanel.Dock="Left" Width="200" Background="LightGray">
+                <StackPanel Margin="30">
+                    <ComboBox SelectedIndex="0">
+						<ComboBoxItem>Select Track</ComboBoxItem>
+						<ComboBoxItem>Track 1</ComboBoxItem>
+                        <ComboBoxItem>Track 2</ComboBoxItem>
+                        <ComboBoxItem>Track 3</ComboBoxItem>
+                    </ComboBox>
+					<Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Line</Button>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Tunnel</Button>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Other Zone</Button>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Station</Button>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Edit Track</Button>
+                    <TextBox> Track name..</TextBox>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Import</Button>
+                    <Button Margin="5"
+                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Export</Button>
+                </StackPanel>
+            </UserControl>
+</UserControl>
