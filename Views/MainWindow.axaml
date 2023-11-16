@@ -8,56 +8,34 @@
         Title="SmartTrainApplication">
 
 	<DockPanel Background="Transparent">
-		
-		<TabControl DockPanel.Dock="Top"
+		<views:BottomBarView DockPanel.Dock="Bottom"/>
+
+		<TabControl DockPanel.Dock="Left"
 					Background="#D9FCFCFC"
 					BorderBrush="#11000000"
-					Padding="0">
+					Padding="0"
+					Width="250">
 			
 			<TabItem Header="Track Editor">
-				<SplitView IsPaneOpen="True"
-				   DisplayMode="Inline"
-				   OpenPaneLength="250"
-				   PaneBackground="Transparent">
-					<SplitView.Pane>
-						<views:TrackEditorView/>
-					</SplitView.Pane>
-					<DockPanel>
-						<views:BottomBarView DockPanel.Dock="Bottom"/>
-						<views:MapViewControl/>
-					</DockPanel>
-				</SplitView>
+				<ScrollViewer>
+					<views:TrackEditorView/>
+				</ScrollViewer>
 			</TabItem>
 			
 			<TabItem Header="Train Editor">
-				<SplitView IsPaneOpen="True"
-				   DisplayMode="Inline"
-				   OpenPaneLength="250"
-				   PaneBackground="Transparent">
-					<SplitView.Pane>
-						<views:TrainEditorView/>
-					</SplitView.Pane>
-					<DockPanel>
-						<views:BottomBarView DockPanel.Dock="Bottom"/>
-						<views:MapViewControl/>
-					</DockPanel>
-				</SplitView>
+				<ScrollViewer>
+					<views:TrainEditorView/>
+				</ScrollViewer>
 			</TabItem>
 			
 			<TabItem Header="Simulation">
-				<SplitView IsPaneOpen="True"
-				   DisplayMode="Inline"
-				   OpenPaneLength="250"
-				   PaneBackground="Transparent">
-					<SplitView.Pane>
-						<views:SimulationView/>
-					</SplitView.Pane>
-					<DockPanel>
-						<views:BottomBarView DockPanel.Dock="Bottom"/>
-						<views:MapViewControl/>
-					</DockPanel>
-				</SplitView>
+				<ScrollViewer>
+					<views:SimulationView/>
+				</ScrollViewer>
 			</TabItem>
 		</TabControl>
+		
+		<views:MapViewControl />
+
 	</DockPanel>
 </Window>

@@ -10,11 +10,9 @@
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="Margin" Value="0,4"/>
-			<Style Selector="^.primary">
-				<Setter Property="Background" Value="#FF5F49"/>
-				<Setter Property="Foreground" Value="#FFFFFF"/>
-				<Setter Property="DockPanel.Dock" Value="Top"/>
-			</Style>
+			<Setter Property="Background" Value="#FF5F49"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
 		</Style>
 		<Style Selector="ComboBox">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -27,6 +25,11 @@
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
 			<Setter Property="Margin" Value="0,0,0,4"/>
+			<Setter Property="Minimum" Value="0"/>
+		</Style>
+		<Style Selector="TextBlock">
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+			<Setter Property="Margin" Value="0"/>
 		</Style>
 	</UserControl.Styles>
 	
@@ -37,8 +40,7 @@
 				BorderThickness="1"
 				BoxShadow="0 8 16 0 #22000000"
 				Margin="1"
-				Padding="4,0"
-				CornerRadius="7">
+				Padding="4,0">
 
 			<DockPanel LastChildFill="False">
 
@@ -56,20 +58,14 @@
 					<ComboBoxItem>Train 3</ComboBoxItem>
 				</ComboBox>
 				
-				<TextBlock DockPanel.Dock="Top">Interval:</TextBlock>
+				<TextBlock>Interval:</TextBlock>
 				<NumericUpDown Minimum="0"
 							   Watermark="Interval(ms)..."/>
 
-				<Button Classes="primary">
+				<Button>
 					Run Simulation
 				</Button>
-
-				<Button DockPanel.Dock="Bottom">
-					Export
-				</Button>
-				<Button DockPanel.Dock="Bottom">
-					Import
-				</Button>
+				
 			</DockPanel>
 		</Border>
 </UserControl>

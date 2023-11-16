@@ -10,11 +10,9 @@
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="Margin" Value="0,4"/>
-			<Style Selector="^.primary">
-				<Setter Property="Background" Value="#0F6CBD"/>
-				<Setter Property="Foreground" Value="#FFFFFF"/>
-				<Setter Property="DockPanel.Dock" Value="Top"/>
-			</Style>
+			<Setter Property="Background" Value="#0F6CBD"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
 		</Style>
 		<Style Selector="ComboBox">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -47,8 +45,7 @@
 				BorderThickness="1"
 				BoxShadow="0 8 16 0 #22000000"
 				Margin="1"
-				Padding="4,0"
-				CornerRadius="7">
+				Padding="4,0">
 
 			<DockPanel LastChildFill="False">
 
@@ -61,7 +58,7 @@
 
 				<TextBox Watermark="Train Name..."/>
 
-				<Button Classes="primary">
+				<Button>
 					Add Train
 				</Button>
 
@@ -74,12 +71,6 @@
 				<TextBlock>Acceleration:</TextBlock>
 				<NumericUpDown Watermark="Acceleration..."/>
 
-				<Button DockPanel.Dock="Bottom">
-					Export
-				</Button>
-				<Button DockPanel.Dock="Bottom">
-					Import
-				</Button>
 			</DockPanel>
 		</Border>
 </UserControl>

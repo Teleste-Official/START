@@ -12,7 +12,6 @@
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
 			<Setter Property="Margin" Value="4,0"/>
 			<Setter Property="Width" Value="100"/>
-			<Setter Property="DockPanel.Dock" Value="Right"/>
 			<Style Selector="^.primary">
 				<Setter Property="Background" Value="#0F6CBD"/>
 				<Setter Property="Foreground" Value="#FFFFFF"/>
@@ -31,13 +30,14 @@
 				BorderBrush="#11000000"
 				BorderThickness="1"
 				Margin="1"
-				Padding="0,4"
-				CornerRadius="7">
+				Padding="0,4">
 
 			<DockPanel LastChildFill="False">
-				<TextBlock>Confirm current changes</TextBlock>
-				<Button>Cancel</Button>
-				<Button Classes="primary">Save</Button>
+				<Button DockPanel.Dock="Left">Import</Button>
+				<Button DockPanel.Dock="Left">Export</Button>
+				<Button DockPanel.Dock="Right">Cancel</Button>
+				<Button DockPanel.Dock="Right" Classes="primary">Save</Button>
+				<TextBlock DockPanel.Dock="Right">Confirm current changes</TextBlock>
 			</DockPanel>
 		</Border>
 </UserControl>
