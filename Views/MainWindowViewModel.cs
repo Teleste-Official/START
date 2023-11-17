@@ -1,37 +1,37 @@
 ﻿
-
 namespace SmartTrainApplication.Views
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private ViewModelBase _currentView;
+    private ViewModelBase _currentView;
 
-        public ViewModelBase CurrentView
+
+    public ViewModelBase CurrentView
+    {
+        get => _currentView;
+        set
         {
-            get => _currentView;
-            set
+            if (_currentView != value)
             {
-                if (_currentView != value)
-                {
-                    _currentView = value;
-                    RaisePropertyChanged(nameof(CurrentView));
-                }
+                _currentView = value;
+                RaisePropertyChanged(nameof(CurrentView));
             }
         }
+    }
 
-        public void NavigateToSidebar1()
-        {
-            CurrentView = new SideBarViewModel();
-        }
+    public void NavigateToSidebar1()
+    { 
+        CurrentView = new SideBarViewModel();
+    }
 
-        public void NavigateToSidebar2()
-        {
-            CurrentView = new SideBar2ViewModel();
-        }
+    public void NavigateToSidebar2()
+    {
+        CurrentView = new SideBar2ViewModel();
+    }
 
-        public void NavigateToSidebar3()
-        {
-            CurrentView = new SideBar3ViewModel();
-        }
+    public void NavigateToSidebar3()
+    {
+        CurrentView = new SideBar3ViewModel();
+    }
     }
 }

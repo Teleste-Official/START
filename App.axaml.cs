@@ -12,6 +12,9 @@ namespace SmartTrainApplication
         {
             AvaloniaXamlLoader.Load(this);
             Locator.CurrentMutable.RegisterLazySingleton<MainWindowViewModel>(() => new MainWindowViewModel());
+            Locator.CurrentMutable.RegisterLazySingleton<SideBarViewModel>(() => new SideBarViewModel());
+            Locator.CurrentMutable.RegisterLazySingleton<SideBar2ViewModel>(() => new SideBar2ViewModel());
+            Locator.CurrentMutable.RegisterLazySingleton<SideBar3ViewModel>(() => new SideBar3ViewModel());
         }
 
         public override void OnFrameworkInitializationCompleted()

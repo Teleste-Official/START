@@ -15,10 +15,8 @@
 
             <Menu DockPanel.Dock="Top" ZIndex="1">
                 <MenuItem  Command="{Binding NavigateToSidebar1}" Header="Track Editor" />
-				<Button  Command="{Binding NavigateToSidebar1}">Track Editor</Button> 
-				<MenuItem Header="Train Editor" />
-                <Button Command="{Binding NavigateToSidebar2}">Train Editor</Button>
-                <MenuItem Header="Simulation" />
+				<MenuItem Command="{Binding NavigateToSidebar2}" Header="Train Editor" />
+                <MenuItem Command="{Binding NavigateToSidebar3}" Header="Simulation" />
             </Menu>
         
             <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
