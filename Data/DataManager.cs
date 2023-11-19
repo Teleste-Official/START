@@ -18,21 +18,73 @@ namespace SmartTrainApplication.Data
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
 
+        public static TrainRoute CreateNewRoute(String GeometryString)
+        {
+            List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
+            TrainRoute NewTrainRoute = new TrainRoute("TestRoute", Geometry);
+
+            return NewTrainRoute;
+        }
+
+        public static void AddToRoutes(TrainRoute NewRoute)
+        {
+            TrainRoute? oldRoute = null;
+            // Check if the route is new or edited existing one
+            foreach (var Route in TrainRoutes)
+            {
+                if (Route.Name == NewRoute.Name)
+                {
+                    oldRoute = Route;
+                }
+            }
+
+            if(oldRoute == null)
+            {
+                TrainRoutes.Add(NewRoute);
+                CurrentTrainRoute = NewRoute;
+            }
+            else
+            {
+                // Fix tunnels and stops into the modified route
+                List<string> tunnelPoints = GetTunnelPoints();
+                List<string> stopsPoints = GetStopStrings();
+                CurrentTrainRoute = NewRoute;
+                List<string> tunnelStrings = AddTunnels(tunnelPoints);
+                List<string> stopsStrings = AddStops(stopsPoints);
+                LayerManager.RedrawTunnelsToMap(tunnelStrings);
+                LayerManager.RedrawStopsToMap(stopsStrings);
+            }
+
+            return;
+        }
+
         /// <summary>
         /// Export the created lines into a file.
         /// </summary>
         /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
         public static void Export(String GeometryString) {
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
+            if (GeometryString == "")
+                return;
 
-            List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
-            TrainRoute NewTrainRoute = new TrainRoute("TestRoute", Geometry);
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
+            TrainRoute NewTrainRoute = CreateNewRoute(GeometryString);
 
             // Create a file and write empty the new route to it
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(NewTrainRoute, Json_options));
 
             Import();
+        }
+
+        public static void Save() {
+            if (CurrentTrainRoute == null)
+                return;
+
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
+
+            // Save the current train route
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrainRoute, Json_options));
         }
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
@@ -81,6 +133,7 @@ namespace SmartTrainApplication.Data
             TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(FileAsString, Json_options);
 
             // Set the imported train route as the currently selected one
+            TrainRoutes.Add(ImportedTrainRoute);
             CurrentTrainRoute = ImportedTrainRoute;
 
             // Turn the coordinates back to a geometry string
@@ -96,6 +149,9 @@ namespace SmartTrainApplication.Data
 
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {
+            List<string> tunnelStrings = new List<string>();
+            if (CurrentTrainRoute == null) return tunnelStrings;
+
             foreach (var PointString in TunnelPoints)
             {
                 // Parse the line string into individual values
@@ -132,8 +188,28 @@ namespace SmartTrainApplication.Data
             }
 
             FixTunnelTypes();
-            List<string> tunnelStrings = new List<string>();
 
+            tunnelStrings = GetTunnelStrings();
+
+            return tunnelStrings;
+        }
+
+        static List<string> GetTunnelPoints()
+        {
+            List<string> points = new List<string>();
+
+            foreach (var coord in CurrentTrainRoute.Coords)
+            {
+                if (coord.Type == "TUNNEL_ENTRANCE")
+                    points.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
+            }
+
+            return points;
+        }
+
+        public static List<string> GetTunnelStrings()
+        {
+            List<string> tunnelStrings = new List<string>();
 
             int EntranceCount = 0;
             string GeometryString = "LINESTRING (";
@@ -156,8 +232,22 @@ namespace SmartTrainApplication.Data
             //GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
             //tunnelStrings.Add(GeometryString);
 
-
             return tunnelStrings;
+        }
+
+        public static List<string> GetStopStrings()
+        {
+            List<string> stopStrings = new List<string>();
+
+            foreach (var coord in CurrentTrainRoute.Coords)
+            {
+                if (coord.Type == "STOP")
+                {
+                    stopStrings.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
+                }
+            }
+
+            return stopStrings;
         }
 
         static double CalculateDistance(RoutePoint point1, RoutePoint point2)
@@ -185,6 +275,52 @@ namespace SmartTrainApplication.Data
                     coords.SetType("TUNNEL");
                 }
             }
+        }
+
+        public static List<string> AddStops(List<string> StopsPoints)
+        {
+            List<string> stopStrings = new List<string>();
+            if (CurrentTrainRoute == null) return stopStrings;
+
+            foreach (var PointString in StopsPoints)
+            {
+                // Parse the line string into individual values
+                string[] ParsedGeometry = PointString.Split("(");
+                string Geometry = ParsedGeometry[1].Remove(ParsedGeometry[1].Length - 1);
+                string[] xy = Geometry.Split(" ");
+                RoutePoint routePoint = new RoutePoint(xy[0], xy[1]);
+
+                double closestDiff = 1000000;
+                int pointStatusToBeChanged = -1;
+                List<double> diffpoints = new List<double>();
+
+                for (int i = 0; i < CurrentTrainRoute.Coords.Count; i++)
+                {
+                    double diff = CalculateDistance(new RoutePoint(CurrentTrainRoute.Coords[i].Longitude, CurrentTrainRoute.Coords[i].Latitude), routePoint);
+                    diffpoints.Add(diff);
+                    if (i == 0)
+                    {
+                        closestDiff = diff;
+                        pointStatusToBeChanged = i;
+                    }
+                    else
+                    {
+                        if (diff < closestDiff)
+                        {
+                            closestDiff = diff;
+                            pointStatusToBeChanged = i;
+                        }
+                    }
+                }
+
+                if (pointStatusToBeChanged != -1)
+                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("STOP");
+            }
+
+
+            stopStrings = GetStopStrings();
+
+            return stopStrings;
         }
     }
 }

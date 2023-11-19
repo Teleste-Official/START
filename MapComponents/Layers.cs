@@ -1,12 +1,13 @@
 using Mapsui.Layers;
 using Mapsui.Styles.Thematics;
 using Mapsui.Styles;
+using Mapsui.Extensions;
 
 namespace SmartTrainApplication;
 
 public partial class MapViewControl
 {
-    private static WritableLayer CreateImportLayer()
+    public static WritableLayer CreateImportLayer()
     {
         var importLayer = new WritableLayer
         {
@@ -24,11 +25,11 @@ public partial class MapViewControl
             Fill = null,
             Outline = null,
 #pragma warning disable CS8670 // Object or collection initializer implicitly dereferences possibly null member.
-            Line = { Color = Color.FromString("Red"), Width = 4 }
+            Line = { Color = Color.FromString("Red"), Width = 6 }
         };
     }
 
-    private static WritableLayer CreateTunnelLayer()
+    public static WritableLayer CreateTunnelLayer()
     {
         return new WritableLayer
         {
@@ -37,7 +38,7 @@ public partial class MapViewControl
         };
     }
 
-    private static WritableLayer CreateTunnelstringLayer()
+    public static WritableLayer CreateTunnelstringLayer()
     {
         return new WritableLayer
         {
@@ -53,7 +54,26 @@ public partial class MapViewControl
             Fill = null,
             Outline = null,
 #pragma warning disable CS8670 // Object or collection initializer implicitly dereferences possibly null member.
-            Line = { Color = Color.FromString("Blue"), Width = 4 }
+            Line = { Color = Color.FromString("Blue"), Width = 6 }
+        };
+    }
+    public static WritableLayer CreateStopsLayer()
+    {
+        return new WritableLayer
+        {
+            Name = "Stops",
+            IsMapInfoLayer = true,
+            Style = CreateStopsStyle()
+        };
+    }
+
+    private static IStyle CreateStopsStyle()
+    {
+        return new VectorStyle
+        {
+            Fill = new Brush(Color.WhiteSmoke),
+            Line = null,
+            Outline = new Pen(Color.FromString("Red"), 5)
         };
     }
 
@@ -88,7 +108,7 @@ public partial class MapViewControl
         var editStyle = new VectorStyle
         {
             Fill = new Brush(EditModeColor),
-            Line = new Pen(EditModeColor, 3),
+            Line = new Pen(EditModeColor, 4),
             Outline = new Pen(EditModeColor, 3)
         };
         return editStyle;
@@ -132,8 +152,6 @@ public partial class MapViewControl
             Name = "Layer 2",
             Style = CreateLineStyle()
         };
-
-        // todo: add data
 
         return lineLayer;
     }

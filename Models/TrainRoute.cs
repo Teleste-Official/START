@@ -9,7 +9,6 @@ namespace SmartTrainApplication.Models
     public class TrainRoute
     {
         public string Name { get; set; }
-        public int Tunnels { get; set; }
         public List<RouteCoordinate> Coords { get; set; }
 
         public TrainRoute() { }
