@@ -1,6 +1,8 @@
 ﻿
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 
 namespace SmartTrainApplication.Views
 {
@@ -8,8 +10,7 @@ namespace SmartTrainApplication.Views
     {
     private UserControl _currentView = new SideBar1 { DataContext = new SideBarViewModel() };
 
-
-    public UserControl CurrentView
+        public UserControl CurrentView
     {
         get => _currentView;
         set
@@ -36,5 +37,7 @@ namespace SmartTrainApplication.Views
     {
         CurrentView = new Sidebar3 { DataContext = new SideBar3ViewModel() };
     }
+
+
     }
 }

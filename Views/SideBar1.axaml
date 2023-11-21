@@ -2,33 +2,69 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
-             x:Class="SmartTrainApplication.SideBar1"
-             xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
-             x:DataType="local:SideBarViewModel">
-            <UserControl Name="Sidebar" DockPanel.Dock="Left" Width="200" Background="LightGray">
-                <StackPanel Margin="30">
-                    <ComboBox SelectedIndex="0">
-						<ComboBoxItem>Select Track</ComboBoxItem>
-						<ComboBoxItem>Track 1</ComboBoxItem>
-                        <ComboBoxItem>Track 2</ComboBoxItem>
-                        <ComboBoxItem>Track 3</ComboBoxItem>
-                    </ComboBox>
-					<Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Line</Button>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Tunnel</Button>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Other Zone</Button>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Add Station</Button>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Edit Track</Button>
-                    <TextBox> Track name..</TextBox>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Import</Button>
-                    <Button Margin="5"
-                            Width="150" HorizontalAlignment="Center" Background="Blue" Foreground="White">Export</Button>
-                </StackPanel>
-            </UserControl>
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="450"
+             x:Class="SmartTrainApplication.SideBar1">
+
+	<UserControl.Styles>
+		<Style Selector="Button">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Background" Value="#0F6CBD"/>
+			<Setter Property="Foreground" Value="#FFFFFF"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="SelectedIndex" Value="0"/>
+			<Setter Property="MaxDropDownHeight" Value="200"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+		<Style Selector="TextBox">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="DockPanel.Dock" Value="Top"/>
+			<Setter Property="Margin" Value="0,4"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Border DockPanel.Dock="Left"
+			Width="250"
+			Background="#D9FCFCFC"
+			BorderBrush="#11000000"
+			BorderThickness="1"
+			BoxShadow="0 8 16 0 #22000000"
+			Margin="1"
+			Padding="4,0">
+
+		<DockPanel LastChildFill="False">
+
+			<ComboBox>
+				<ComboBoxItem>Select Track...</ComboBoxItem>
+				<ComboBoxItem>Track 1</ComboBoxItem>
+				<ComboBoxItem>Track 2</ComboBoxItem>
+				<ComboBoxItem>Track 3</ComboBoxItem>
+			</ComboBox>
+
+			<TextBox Watermark="Track Name..."/>
+
+			<Button>
+				Add Line
+			</Button>
+			<Button>
+				Add Tunnel
+			</Button>
+			<Button>
+				Add Other Zone
+			</Button>
+			<Button>
+				Add Station
+			</Button>
+			<Button>
+				Edit Track
+			</Button>
+
+		</DockPanel>
+	</Border>
 </UserControl>

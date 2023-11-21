@@ -1,26 +1,29 @@
+
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         xmlns:views1="clr-namespace:SmartTrainApplication.Views"
+        xmlns:smartTrainApplication="clr-namespace:SmartTrainApplication"
         x:Class="SmartTrainApplication.Views.MainWindow"
         x:DataType="views1:MainWindowViewModel"
         Title="SmartTrainApplication"
-      >
-    <Grid>
-        <DockPanel>
+>
 
+    <Grid>
+
+        <DockPanel Background="Transparent">
+			<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>
             <ContentPresenter Name="ContentPresenter"  />
 
-            <Menu DockPanel.Dock="Top" ZIndex="1">
-                <MenuItem  Command="{Binding NavigateToSidebar1}" Header="Track Editor" />
-				<MenuItem Command="{Binding NavigateToSidebar2}" Header="Train Editor" />
-                <MenuItem Command="{Binding NavigateToSidebar3}" Header="Simulation" />
+            <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" BorderBrush="Black" BorderThickness="1">
+                <MenuItem Command="{Binding NavigateToSidebar1}" Header="Track Editor" Foreground="Black" />
+                <MenuItem Command="{Binding NavigateToSidebar2}" Header="Train Editor" Foreground="Black"/>
+                <MenuItem Command="{Binding NavigateToSidebar3}" Header="Simulation" Foreground="Black"/>
             </Menu>
         
             <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
-
 
             <ContentControl Content="{Binding CurrentView}" />
             <SplitView x:Name="SplitView" DockPanel.Dock="Right">
