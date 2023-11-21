@@ -3,14 +3,13 @@
 
 namespace SmartTrainApplication.Views
 {
-    internal class SideBar2ViewModel : ViewModelBase
+    public class SideBar2ViewModel : ViewModelBase
     {
-
-        public Sidebar2 SidebarView { get; }
+        public string Title { get; set; }
 
         public SideBar2ViewModel()
         {
-            SidebarView = new Sidebar2();
+            Title = "Add Train Test"; // This only for testing now here -Metso
         }
     }
 }

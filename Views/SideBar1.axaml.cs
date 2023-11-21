@@ -10,6 +10,5 @@ public partial class SideBar1 : UserControl
     public SideBar1()
     {
         InitializeComponent();
-        DataContext = new SideBarViewModel();
     }
 }

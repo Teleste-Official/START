@@ -11,9 +11,5 @@ namespace SmartTrainApplication.Views
             InitializeComponent();
             DataContext = new MainWindowViewModel();
         }
-
-
     }
-
-    
 }

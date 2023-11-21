@@ -8,14 +8,11 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Views
 {
-    internal class SideBarViewModel : ViewModelBase
+    public class SideBarViewModel : ViewModelBase
     {
-        public SideBar1 SidebarView { get; set; }
-
         public SideBarViewModel()
         {
-            SidebarView = new SideBar1();
-        }
 
+        }
     }
 }

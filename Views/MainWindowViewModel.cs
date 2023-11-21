@@ -1,12 +1,15 @@
 ﻿
+using Avalonia;
+using Avalonia.Controls;
+
 namespace SmartTrainApplication.Views
 {
     public class MainWindowViewModel : ViewModelBase
     {
-    private ViewModelBase _currentView;
+    private UserControl _currentView = new SideBar1 { DataContext = new SideBarViewModel() };
 
 
-    public ViewModelBase CurrentView
+    public UserControl CurrentView
     {
         get => _currentView;
         set
@@ -21,17 +24,17 @@ namespace SmartTrainApplication.Views
 
     public void NavigateToSidebar1()
     { 
-        CurrentView = new SideBarViewModel();
+        CurrentView = new SideBar1 { DataContext = new SideBarViewModel() };
     }
 
     public void NavigateToSidebar2()
     {
-        CurrentView = new SideBar2ViewModel();
+        CurrentView = new Sidebar2 { DataContext = new SideBar2ViewModel() };
     }
 
     public void NavigateToSidebar3()
     {
-        CurrentView = new SideBar3ViewModel();
+        CurrentView = new Sidebar3 { DataContext = new SideBar3ViewModel() };
     }
     }
 }

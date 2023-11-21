@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Views
 {
-    internal class SideBar3ViewModel : ViewModelBase
+    public class SideBar3ViewModel : ViewModelBase
     {
 
         public SideBar3ViewModel()
