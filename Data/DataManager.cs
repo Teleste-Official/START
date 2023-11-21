@@ -1,4 +1,6 @@
-﻿using Mapsui;
+﻿using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using Mapsui;
 using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
@@ -17,6 +19,13 @@ namespace SmartTrainApplication.Data
     {
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
+
+        public static FilePickerFileType JSON { get; } = new("json")
+        {
+            Patterns = new[] { "*.json" },
+            AppleUniformTypeIdentifiers = new[] { "public.json" },
+            MimeTypes = new[] { "application/json" }
+        };
 
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
@@ -62,18 +71,30 @@ namespace SmartTrainApplication.Data
         /// Export the created lines into a file.
         /// </summary>
         /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
-        public static void Export(String GeometryString) {
+        public static async void Export(String GeometryString, TopLevel topLevel) {
             if (GeometryString == "")
                 return;
 
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
+            {
+                Title = "Export JSON",
+                FileTypeChoices = new[] { JSON },
+                SuggestedFileName = "export"
+            });
+            
             TrainRoute NewTrainRoute = CreateNewRoute(GeometryString);
 
             // Create a file and write empty the new route to it
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(NewTrainRoute, Json_options));
+            var output = JsonSerializer.Serialize(NewTrainRoute, Json_options);
+            if (file is not null)
+            {
+                await using var stream = await file.OpenWriteAsync();
+                using var streamWriter = new StreamWriter(stream);
+                await streamWriter.WriteLineAsync(output);
+            }
 
-            Import();
+            //Import();
         }
 
         public static void Save() {
@@ -111,22 +132,14 @@ namespace SmartTrainApplication.Data
             return Coordinates;
         }
 
-        public static string Import()
+        //NOTE: IMPORT HANGS SOFTWARE.
+        //Also i haven't made sure the rest of it works after picking the file. -Timo
+        //TODO: Find out where to get TopLevel from
+        public static string Import(TopLevel topLevel)
         {
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-            string FileAsString = "";
-
-            // Open the file to read from
-            using (StreamReader Sr = File.OpenText(Path))
-            {
-
-                // Read the lines on the file and gather a list from them
-                string S;
-                while ((S = Sr.ReadLine()) != null)
-                {
-                    FileAsString += S;
-                }
-            }
+            //Open the file
+            Task<string> task = HandleImport(topLevel);
+            string FileAsString = task.GetAwaiter().GetResult();
 
             // Deserialise the JSON string into a object
             var Json_options = new JsonSerializerOptions { IncludeFields = true };
@@ -145,6 +158,31 @@ namespace SmartTrainApplication.Data
             GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
 
             return GeometryString;
+        }
+
+        public static async Task<string> HandleImport(TopLevel topLevel)
+        {
+            string FileAsString = "";
+            //Code hangs here, no idea why
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Open JSON",
+                AllowMultiple = false,
+                FileTypeFilter = new[] { JSON }
+            });
+
+            if (files is not null)
+            {
+                await using var stream = await files[0].OpenReadAsync();
+                using var st = new StreamReader(stream);
+                string S;
+                while ((S = st.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+            }
+
+            return FileAsString;
         }
 
         public static List<string> AddTunnels(List<string> TunnelPoints)

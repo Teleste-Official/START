@@ -4,6 +4,7 @@ namespace SmartTrainApplication
 {
     public partial class MainWindow : Window
     {
+        public TopLevel TopLevel { get; set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -11,7 +12,8 @@ namespace SmartTrainApplication
 
             // TODO: move these to a seperate container/view -Metso
             var mapViewControl = new MapViewControl();
-
+            var topLevel = GetTopLevel(this);
+            TopLevel = topLevel;
             this.Content = mapViewControl;
         }
     }

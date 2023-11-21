@@ -1,4 +1,5 @@
-﻿using Mapsui;
+﻿using Avalonia.Controls;
+using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
 using Mapsui.Nts;
@@ -38,17 +39,17 @@ namespace SmartTrainApplication
             return;
         }
 
-        public static void ExportNewRoute(EditManager _editManager)
+        public static void ExportNewRoute(EditManager _editManager, TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
-            DataManager.Export(GetRouteAsString(_editManager));
+            DataManager.Export(GetRouteAsString(_editManager), topLevel);
 
             return;
         }
 
-        public static void ImportNewRoute()
+        public static void ImportNewRoute(TopLevel topLevel)
         {
-            string GeometryData = DataManager.Import();
+            string GeometryData = DataManager.Import(topLevel);
             var importLayer = LayerManager.CreateImportLayer();
             List<string> tunnelStrings = DataManager.GetTunnelStrings();
             List<string> stopsStrings = DataManager.GetStopStrings();
