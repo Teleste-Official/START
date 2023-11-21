@@ -22,7 +22,6 @@ public partial class MapViewControl
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
-        var topLevel = MainWindow.GetTopLevel(this);
         map.Widgets.Add(new BoxWidget
         {
             MarginY = 5,
@@ -228,7 +227,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            LayerManager.ExportNewRoute(_editManager, topLevel);
+            LayerManager.ExportNewRoute(_editManager, MainWindow.TopLevel);
 
             e.Handled = true;
         };
@@ -248,7 +247,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            LayerManager.ImportNewRoute(topLevel);
+            LayerManager.ImportNewRoute(MainWindow.TopLevel);
 
             e.Handled = true;
         };

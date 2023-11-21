@@ -4,7 +4,7 @@ namespace SmartTrainApplication
 {
     public partial class MainWindow : Window
     {
-        public TopLevel TopLevel { get; set; }
+        public static TopLevel TopLevel { get; set; }
         public MainWindow()
         {
             InitializeComponent();
