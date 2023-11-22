@@ -8,7 +8,7 @@ namespace SmartTrainApplication.Views
 {
     public class MainWindowViewModel : ViewModelBase
     {
-    private UserControl _currentView = new SideBar1 { DataContext = new SideBarViewModel() };
+    private UserControl _currentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
 
         public UserControl CurrentView
     {
@@ -23,19 +23,19 @@ namespace SmartTrainApplication.Views
         }
     }
 
-    public void NavigateToSidebar1()
+    public void NavigateToTackEditor()
     { 
-        CurrentView = new SideBar1 { DataContext = new SideBarViewModel() };
+        CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
     }
 
-    public void NavigateToSidebar2()
+    public void NavigateToTrainEditor()
     {
-        CurrentView = new Sidebar2 { DataContext = new SideBar2ViewModel() };
+        CurrentView = new TrainEditorView { DataContext = new TrainEditorViewModel() };
     }
 
-    public void NavigateToSidebar3()
+    public void NavigateToSimulation()
     {
-        CurrentView = new Sidebar3 { DataContext = new SideBar3ViewModel() };
+        CurrentView = new SimulationView { DataContext = new SimulationViewModel() };
     }
 
 

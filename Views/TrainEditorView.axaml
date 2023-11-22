@@ -2,8 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="SmartTrainApplication.TrainEditorView">
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="450"
+             x:Class="SmartTrainApplication.TrainEditorView"
+             xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
+             x:DataType="local:TrainEditorViewModel">
 
 	<UserControl.Styles>
 		<Style Selector="Button">
@@ -37,40 +39,39 @@
 			<Setter Property="Margin" Value="0"/>
 		</Style>
 	</UserControl.Styles>
-	
-		<Border DockPanel.Dock="Left"
-				Width="250"
-				Background="#D9FCFCFC"
-				BorderBrush="#11000000"
-				BorderThickness="1"
-				BoxShadow="0 8 16 0 #22000000"
-				Margin="1"
-				Padding="4,0">
 
-			<DockPanel LastChildFill="False">
+	<Border DockPanel.Dock="Left"
+			Width="250"
+			Background="#D9FCFCFC"
+			BorderBrush="#11000000"
+			BorderThickness="1"
+			BoxShadow="0 8 16 0 #22000000"
+			Margin="1"
+			Padding="4,0">
 
-				<ComboBox>
-					<ComboBoxItem>Select Train...</ComboBoxItem>
-					<ComboBoxItem>Train 1</ComboBoxItem>
-					<ComboBoxItem>Train 2</ComboBoxItem>
-					<ComboBoxItem>Train 3</ComboBoxItem>
-				</ComboBox>
+		<DockPanel LastChildFill="False">
 
-				<TextBox Watermark="Train Name..."/>
+			<ComboBox>
+				<ComboBoxItem>Select Train...</ComboBoxItem>
+				<ComboBoxItem>Train 1</ComboBoxItem>
+				<ComboBoxItem>Train 2</ComboBoxItem>
+				<ComboBoxItem>Train 3</ComboBoxItem>
+			</ComboBox>
 
-				<Button>
-					Add Train
-				</Button>
+			<TextBox Watermark="Train Name..."/>
 
-				<TextBlock>Odometer:</TextBlock>
-				<NumericUpDown Watermark="Odometer..."/>
-				
-				<TextBlock>Speed:</TextBlock>
-				<NumericUpDown Watermark="Speed..."/>
-				
-				<TextBlock>Acceleration:</TextBlock>
-				<NumericUpDown Watermark="Acceleration..."/>
+			<Button Content="{Binding Title}">
+				Add Train"</Button>
 
-			</DockPanel>
-		</Border>
+			<TextBlock>Odometer:</TextBlock>
+			<NumericUpDown Watermark="Odometer..."/>
+
+			<TextBlock>Speed:</TextBlock>
+			<NumericUpDown Watermark="Speed..."/>
+
+			<TextBlock>Acceleration:</TextBlock>
+			<NumericUpDown Watermark="Acceleration..."/>
+
+		</DockPanel>
+	</Border>
 </UserControl>

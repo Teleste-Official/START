@@ -29,4 +29,17 @@
   <ItemGroup>
     <UpToDateCheckInput Remove="Views\BottomBarView.axaml" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Views\SimulationView.axaml.cs">
+      <DependentUpon>SimulationView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\TrainEditorView.axaml.cs">
+      <DependentUpon>TrainEditorView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\TrackEditorView.axaml.cs">
+      <DependentUpon>TrackEditorView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

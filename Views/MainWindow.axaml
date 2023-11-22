@@ -8,19 +8,17 @@
         xmlns:smartTrainApplication="clr-namespace:SmartTrainApplication"
         x:Class="SmartTrainApplication.Views.MainWindow"
         x:DataType="views1:MainWindowViewModel"
-        Title="SmartTrainApplication"
->
+        Title="SmartTrainApplication">
 
     <Grid>
-
         <DockPanel Background="Transparent">
 			<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>
             <ContentPresenter Name="ContentPresenter"  />
 
             <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" BorderBrush="Black" BorderThickness="1">
-                <MenuItem Command="{Binding NavigateToSidebar1}" Header="Track Editor" Foreground="Black" />
-                <MenuItem Command="{Binding NavigateToSidebar2}" Header="Train Editor" Foreground="Black"/>
-                <MenuItem Command="{Binding NavigateToSidebar3}" Header="Simulation" Foreground="Black"/>
+                <MenuItem Command="{Binding NavigateToTackEditor}" Header="Track Editor" Foreground="Black" />
+                <MenuItem Command="{Binding NavigateToTrainEditor}" Header="Train Editor" Foreground="Black"/>
+                <MenuItem Command="{Binding NavigateToSimulation}" Header="Simulation" Foreground="Black"/>
             </Menu>
         
             <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
