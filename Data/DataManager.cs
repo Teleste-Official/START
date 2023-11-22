@@ -250,7 +250,7 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
-        static double CalculateDistance(RoutePoint point1, RoutePoint point2)
+        public static double CalculateDistance(RoutePoint point1, RoutePoint point2)
         {
             double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
             double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);

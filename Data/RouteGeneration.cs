@@ -18,7 +18,7 @@ namespace SmartTrainApplication.Data
                 RoutePoint currentPoint = points[i];
                 RoutePoint nextPoint = points[i+1];
 
-                length += CalculatePointDistance(currentPoint, nextPoint);
+                length += DataManager.CalculateDistance(currentPoint, nextPoint);
             }
 
             return length;
@@ -35,14 +35,6 @@ namespace SmartTrainApplication.Data
             double newY = Y1 + (trainMovement / pointDistance) * (Y2 - Y1);
 
             return new RoutePoint(newX.ToString(), newY.ToString());
-        }
-
-        public static double CalculatePointDistance(RoutePoint point1, RoutePoint point2)
-        {
-            double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-            double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-
-            return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         }
 
         public static double CalculateTrainMovement(float currentSpeed, float timeInterval, float acceleration)
