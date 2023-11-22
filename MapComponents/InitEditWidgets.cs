@@ -57,7 +57,7 @@ public partial class MapViewControl
         };
         cancel.WidgetTouched += (_, e) =>
         {
-            LayerManager.ClearFeatures(_targetLayer, _tempFeatures, _mapControl, _editManager);
+            LayerManager.ClearFeatures();
             e.Handled = true;
         };
         map.Widgets.Add(cancel);
@@ -227,7 +227,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            LayerManager.ExportNewRoute(_editManager);
+            LayerManager.ExportNewRoute();
 
             e.Handled = true;
         };
@@ -267,7 +267,7 @@ public partial class MapViewControl
         };
         EditImport.WidgetTouched += (_, e) =>
         {
-            LayerManager.TurnImportToEdit(_editManager);
+            LayerManager.TurnImportToEdit();
 
             e.Handled = true;
         };
@@ -287,7 +287,7 @@ public partial class MapViewControl
         };
         ApplyEditImport.WidgetTouched += (_, e) =>
         {
-            LayerManager.ApplyEditing(_editManager);
+            LayerManager.ApplyEditing();
 
             e.Handled = true;
         };
@@ -307,7 +307,7 @@ public partial class MapViewControl
         };
         AddTunnel.WidgetTouched += (_, e) =>
         {
-            LayerManager.AddTunnel(_targetLayer, _tempFeatures, _editManager);
+            LayerManager.AddTunnel();
 
             e.Handled = true;
         };
@@ -327,7 +327,7 @@ public partial class MapViewControl
         };
         ConfirmTunnel.WidgetTouched += (_, e) =>
         {
-            LayerManager.ConfirmTunnel(_editManager, _mapControl, _tempFeatures);
+            LayerManager.ConfirmTunnel();
 
             e.Handled = true;
         };
@@ -347,7 +347,7 @@ public partial class MapViewControl
         };
         ConfirmNewRoute.WidgetTouched += (_, e) =>
         {
-            LayerManager.ConfirmNewRoute(_editManager);
+            LayerManager.ConfirmNewRoute();
 
             e.Handled = true;
         };
@@ -387,7 +387,7 @@ public partial class MapViewControl
         };
         ConfirmStop.WidgetTouched += (_, e) =>
         {
-            LayerManager.ConfirmStops(_editManager, _mapControl, _tempFeatures);
+            LayerManager.ConfirmStops();
 
             e.Handled = true;
         };

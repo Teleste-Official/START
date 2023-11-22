@@ -16,7 +16,7 @@
 			<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>
             <ContentPresenter Name="ContentPresenter"  />
 
-            <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" BorderBrush="Black" BorderThickness="1">
+            <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" Height="40">
                 <MenuItem Command="{Binding NavigateToTackEditor}" Header="Track Editor" Foreground="Black" />
                 <MenuItem Command="{Binding NavigateToTrainEditor}" Header="Train Editor" Foreground="Black"/>
                 <MenuItem Command="{Binding NavigateToSimulation}" Header="Simulation" Foreground="Black"/>

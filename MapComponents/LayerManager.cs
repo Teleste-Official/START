@@ -8,6 +8,7 @@ using Mapsui.UI.Avalonia;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
+using SmartTrainApplication.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,30 +19,46 @@ namespace SmartTrainApplication
 {
     internal class LayerManager
     {
-        public static void ClearFeatures(WritableLayer _targetLayer, List<IFeature> _tempFeatures, IMapControl? _mapControl, EditManager _editManager)
+        private static WritableLayer? _targetLayer = MapViewControl.map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
+
+        public static void AddLine()
         {
-            if (_targetLayer != null && _tempFeatures != null)
+            var features = _targetLayer.GetFeatures().Copy() ?? Array.Empty<IFeature>();
+
+            foreach (var feature in features)
             {
-                _targetLayer.Clear();
-                _targetLayer.AddRange(_tempFeatures.Copy());
-                _mapControl?.RefreshGraphics();
+                feature.RenderedGeometry.Clear();
             }
 
-            _editManager.Layer?.Clear();
+            MapViewControl._tempFeatures = new List<IFeature>(features);
 
-            _mapControl?.RefreshGraphics();
+            MapViewControl._editManager.EditMode = EditMode.AddLine;
+        }
 
-            _editManager.EditMode = EditMode.None;
+        public static void ClearFeatures()
+        {
+            if (_targetLayer != null && MapViewControl._tempFeatures != null)
+            {
+                _targetLayer.Clear();
+                _targetLayer.AddRange(MapViewControl._tempFeatures.Copy());
+                MapViewControl._mapControl?.RefreshGraphics();
+            }
 
-            _tempFeatures = null;
+            MapViewControl._editManager.Layer?.Clear();
+
+            MapViewControl._mapControl?.RefreshGraphics();
+
+            MapViewControl._editManager.EditMode = EditMode.None;
+
+            MapViewControl._tempFeatures = null;
             
             return;
         }
 
-        public static void ExportNewRoute(EditManager _editManager)
+        public static void ExportNewRoute()
         {
             // TODO: Add naming and multible feature saving with it
-            DataManager.Export(GetRouteAsString(_editManager));
+            DataManager.Export(GetRouteAsString());
 
             return;
         }
@@ -58,9 +75,9 @@ namespace SmartTrainApplication
             LayerManager.RedrawStopsToMap(stopsStrings);
         }
 
-        public static void ConfirmNewRoute(EditManager _editManager)
+        public static void ConfirmNewRoute()
         {
-            string RouteString = GetRouteAsString(_editManager);
+            string RouteString = GetRouteAsString();
 
             if (RouteString == "")
                 return;
@@ -80,10 +97,10 @@ namespace SmartTrainApplication
             return;
         }
 
-        static string GetRouteAsString(EditManager _editManager)
+        static string GetRouteAsString()
         {
             string RouteString = "";
-            var selectedFeatures = _editManager.Layer?.GetFeatures();
+            var selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
             if (selectedFeatures.Any())
             {
                 foreach (var selectedFeature in selectedFeatures)
@@ -95,13 +112,13 @@ namespace SmartTrainApplication
                     RouteString = testFeature.Geometry.ToString();
 
                     // Currently this deletes all features, from the editlayer -Metso
-                    _editManager.Layer?.TryRemove(selectedFeature);
+                    MapViewControl._editManager.Layer?.TryRemove(selectedFeature);
                 }
             }
             return RouteString;
         }
 
-        public static void AddTunnel(WritableLayer _targetLayer, List<IFeature> _tempFeatures, EditManager _editManager)
+        public static void AddTunnel()
         {
             var features = _targetLayer?.GetFeatures().Copy() ?? Array.Empty<IFeature>();
 
@@ -110,9 +127,9 @@ namespace SmartTrainApplication
                 feature.RenderedGeometry.Clear();
             }
 
-            _tempFeatures = new List<IFeature>(features);
+            MapViewControl._tempFeatures = new List<IFeature>(features);
 
-            _editManager.EditMode = EditMode.AddPoint;
+            MapViewControl._editManager.EditMode = EditMode.AddPoint;
 
             return;
         }
@@ -130,7 +147,7 @@ namespace SmartTrainApplication
             return importLayer;
         }
 
-        public static WritableLayer TurnImportToEdit(EditManager _editManager)
+        public static WritableLayer TurnImportToEdit()
         {
             var importLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Import");
 
@@ -143,22 +160,23 @@ namespace SmartTrainApplication
             if (importLayer != null)
             {
                 // Throw the imported feature into edit layer for editing
-                _editManager.Layer.AddRange(importLayer.GetFeatures().Copy());
+                MapViewControl._editManager.Layer.AddRange(importLayer.GetFeatures().Copy());
                 importLayer.Clear();
             }
 
-            _editManager.EditMode = EditMode.Modify;
+            MapViewControl._editManager.EditMode = EditMode.Modify;
+            MapViewControl._mapControl?.RefreshGraphics();
 
             return importLayer;
         }
 
-        public static void ApplyEditing(EditManager _editManager)
+        public static void ApplyEditing()
         {
-            ConfirmNewRoute(_editManager);
-                
-            _editManager.Layer.Clear();
+            ConfirmNewRoute();
 
-            _editManager.EditMode = EditMode.None;
+            MapViewControl._editManager.Layer.Clear();
+
+            MapViewControl._editManager.EditMode = EditMode.None;
 
             return;
         }
@@ -208,15 +226,15 @@ namespace SmartTrainApplication
             return stopsLayer;
         }
 
-        public static void ConfirmTunnel(EditManager _editManager, IMapControl _mapControl, List<IFeature> _tempFeatures)
+        public static void ConfirmTunnel()
         {
             var tunnelLayer = CreateTunnelLayer();
             var tunnelstringLayer = CreateTunnelStringLayer();
 
             // Take created tunnel points
-            tunnelLayer.AddRange(_editManager.Layer.GetFeatures().Copy());
+            tunnelLayer.AddRange(MapViewControl._editManager.Layer.GetFeatures().Copy());
             // Clear the editlayer
-            _editManager.Layer?.Clear();
+            MapViewControl._editManager.Layer?.Clear();
 
             // List of the tunnel points added
             List<string> tunnelPoints = new List<string>();
@@ -241,23 +259,23 @@ namespace SmartTrainApplication
 
             tunnelLayer.Clear();
 
-            _mapControl?.RefreshGraphics();
+            MapViewControl._mapControl?.RefreshGraphics();
 
-            _editManager.EditMode = EditMode.None;
+            MapViewControl._editManager.EditMode = EditMode.None;
 
-            _tempFeatures = null;
+            MapViewControl._tempFeatures = null;
 
             return;
         }
 
-        public static void ConfirmStops(EditManager _editManager, IMapControl _mapControl, List<IFeature> _tempFeatures)
+        public static void ConfirmStops()
         {
             var stopsLayer = CreateStopsLayer();
 
             // Take created tunnel points
-            stopsLayer.AddRange(_editManager.Layer.GetFeatures().Copy());
+            stopsLayer.AddRange(MapViewControl._editManager.Layer.GetFeatures().Copy());
             // Clear the editlayer
-            _editManager.Layer?.Clear();
+            MapViewControl._editManager.Layer?.Clear();
 
             // List of the tunnel points added
             List<string> stopsPoints = new List<string>();
@@ -280,11 +298,11 @@ namespace SmartTrainApplication
 
             RedrawStopsToMap(stopsStrings);
 
-            _mapControl?.RefreshGraphics();
+            MapViewControl._mapControl?.RefreshGraphics();
 
-            _editManager.EditMode = EditMode.None;
+            MapViewControl._editManager.EditMode = EditMode.None;
 
-            _tempFeatures = null;
+            MapViewControl._tempFeatures = null;
 
             return;
         }

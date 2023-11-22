@@ -3,9 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="450"
-             x:Class="SmartTrainApplication.TrackEditorView">
+             x:Class="SmartTrainApplication.TrackEditorView"
+						 xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
+						 x:DataType="local:TrackEditorViewModel">
 
-	<UserControl.Styles>
+  <UserControl.Styles>
 		<Style Selector="Button">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -49,19 +51,19 @@
 
 			<TextBox Watermark="Track Name..."/>
 
-			<Button>
+			<Button Command="{Binding AddLineButton}">
 				Add Line
 			</Button>
-			<Button>
+			<Button Command="{Binding AddTunnelButton}">
 				Add Tunnel
 			</Button>
 			<Button>
 				Add Other Zone
 			</Button>
-			<Button>
+			<Button Command="{Binding AddTunnelButton}">
 				Add Station
 			</Button>
-			<Button>
+			<Button Command="{Binding ModifyButton}">
 				Edit Track
 			</Button>
 

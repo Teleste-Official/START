@@ -11,14 +11,13 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl : UserControl
 {
-    private EditManager _editManager = new();
+    public static EditManager _editManager = new();
     private WritableLayer? _targetLayer;
-    private IMapControl? _mapControl;
-    private List<IFeature>? _tempFeatures;
+    public static IMapControl? _mapControl;
+    public static List<IFeature>? _tempFeatures;
     public MapViewControl()
     {
         InitializeComponent();
-
         var mapControl = new Mapsui.UI.Avalonia.MapControl();
         mapControl.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
         Setup(mapControl);
