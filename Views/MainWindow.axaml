@@ -8,7 +8,8 @@
         xmlns:smartTrainApplication="clr-namespace:SmartTrainApplication"
         x:Class="SmartTrainApplication.Views.MainWindow"
         x:DataType="views1:MainWindowViewModel"
-        Title="SmartTrainApplication">
+        Title="SmartTrainApplication"
+        Icon="/Assets/start.ico">
 
     <Grid>
         <DockPanel Background="Transparent">

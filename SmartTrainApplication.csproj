@@ -22,6 +22,8 @@
 
 
   <ItemGroup>
+    <AvaloniaResource Include="Assets\*" />
+    <Folder Include="Assets\" />
     <Folder Include="Tools\" />
   </ItemGroup>
 
@@ -32,6 +34,9 @@
 
 
   <ItemGroup>
+    <AvaloniaResource Update="Assets\start.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </AvaloniaResource>
     <Compile Update="Views\SimulationView.axaml.cs">
       <DependentUpon>SimulationView.axaml</DependentUpon>
     </Compile>

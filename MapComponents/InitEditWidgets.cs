@@ -12,13 +12,12 @@ using Mapsui.Widgets.ButtonWidget;
 using Mapsui.Widgets.MouseCoordinatesWidget;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
-    public Map Map { get; internal set; }
-
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
@@ -58,20 +57,7 @@ public partial class MapViewControl
         };
         cancel.WidgetTouched += (_, e) =>
         {
-            if (_targetLayer != null && _tempFeatures != null)
-            {
-                _targetLayer.Clear();
-                _targetLayer.AddRange(_tempFeatures.Copy());
-                _mapControl?.RefreshGraphics();
-            }
-
-            _editManager.Layer?.Clear();
-
-            _mapControl?.RefreshGraphics();
-
-            _editManager.EditMode = EditMode.None;
-
-            _tempFeatures = null;
+            LayerManager.ClearFeatures(_targetLayer, _tempFeatures, _mapControl, _editManager);
             e.Handled = true;
         };
         map.Widgets.Add(cancel);
@@ -241,22 +227,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            // TODO: Add naming and multible feature saving with it
-            var selectedFeatures = _editManager.Layer?.GetFeatures();
-            if (selectedFeatures.Any())
-            {
-                foreach (var selectedFeature in selectedFeatures)
-                {
-                    GeometryFeature testFeature = selectedFeature as GeometryFeature;
-
-                    // If there is multiple feature this overrides all others and only gets the frist one
-                    // Fix when routes can be named -Metso
-                    DataManager.Export(testFeature.Geometry.ToString());
-
-                    // Currently this deletes all features, from the editlayer -Metso
-                    _editManager.Layer?.TryRemove(selectedFeature);
-                }
-            }
+            LayerManager.ExportNewRoute(_editManager);
 
             e.Handled = true;
         };
@@ -276,18 +247,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            string GeometryData = DataManager.Import();
-            var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
-            if (importLayer == null)
-            {
-                // Import layer doesnt exist yet, create the import layer
-                map.Layers.Add(CreateImportLayer());
-                importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
-            }
-
-            var lineString = new WKTReader().Read(GeometryData);
-            IFeature feature = new GeometryFeature { Geometry = lineString };
-            importLayer.Add(feature);
+            LayerManager.ImportNewRoute();
 
             e.Handled = true;
         };
@@ -307,14 +267,7 @@ public partial class MapViewControl
         };
         EditImport.WidgetTouched += (_, e) =>
         {
-            // Get the import layer if it exists
-            var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
-            if (importLayer != null)
-            {
-                // Throw the imported feature into edit layer for editing
-                _editManager.Layer.AddRange(importLayer.GetFeatures().Copy());
-                importLayer.Clear();
-            }
+            LayerManager.TurnImportToEdit(_editManager);
 
             e.Handled = true;
         };
@@ -334,17 +287,111 @@ public partial class MapViewControl
         };
         ApplyEditImport.WidgetTouched += (_, e) =>
         {
-            // Get the import layer if it exists
-            var importLayer = (WritableLayer)map.Layers.FirstOrDefault(l => l.Name == "Import");
-            if (importLayer != null)
-            {
-                importLayer.AddRange(_editManager.Layer.GetFeatures().Copy());
-                _editManager.Layer.Clear();
-            }
+            LayerManager.ApplyEditing(_editManager);
 
             e.Handled = true;
         };
         map.Widgets.Add(ApplyEditImport);
+
+        var AddTunnel = new ButtonWidget
+        {
+            MarginY = 290,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Add Tunnels",
+            BackColor = Color.LightGray,
+        };
+        AddTunnel.WidgetTouched += (_, e) =>
+        {
+            LayerManager.AddTunnel(_targetLayer, _tempFeatures, _editManager);
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(AddTunnel);
+
+        var ConfirmTunnel = new ButtonWidget
+        {
+            MarginY = 310,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Confirm Tunnels",
+            BackColor = Color.LightGray,
+        };
+        ConfirmTunnel.WidgetTouched += (_, e) =>
+        {
+            LayerManager.ConfirmTunnel(_editManager, _mapControl, _tempFeatures);
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(ConfirmTunnel);
+
+        var ConfirmNewRoute = new ButtonWidget
+        {
+            MarginY = 330,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Confirm Route",
+            BackColor = Color.LightGray,
+        };
+        ConfirmNewRoute.WidgetTouched += (_, e) =>
+        {
+            LayerManager.ConfirmNewRoute(_editManager);
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(ConfirmNewRoute);
+
+        var SaveRoute = new ButtonWidget
+        {
+            MarginY = 350,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Save",
+            BackColor = Color.LightGray,
+        };
+        SaveRoute.WidgetTouched += (_, e) =>
+        {
+            DataManager.Save();
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(SaveRoute);
+
+        var ConfirmStop = new ButtonWidget
+        {
+            MarginY = 370,
+            MarginX = 5,
+            Height = 18,
+            Width = 120,
+            CornerRadius = 2,
+            HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Left,
+            VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top,
+            Text = "Confirm Stops",
+            BackColor = Color.LightGray,
+        };
+        ConfirmStop.WidgetTouched += (_, e) =>
+        {
+            LayerManager.ConfirmStops(_editManager, _mapControl, _tempFeatures);
+
+            e.Handled = true;
+        };
+        map.Widgets.Add(ConfirmStop);
 
         // Mouse Position Widget
         map.Widgets.Add(new MouseCoordinatesWidget(map));

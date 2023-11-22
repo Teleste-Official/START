@@ -11,6 +11,8 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    public static Map map {  get; set; }
+
     public void Setup(IMapControl mapControl)
     {
         _editManager = InitEditMode(mapControl, EditMode.Modify);
@@ -19,7 +21,7 @@ public partial class MapViewControl
     }
     public static Map CreateMap()
     {
-        var map = new Map();
+        map = new Map();
 
         map.Layers.Add(OpenStreetMap.CreateTileLayer());
         map.Layers.Add(CreatePointLayer());
