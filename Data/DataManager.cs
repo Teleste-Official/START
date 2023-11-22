@@ -85,6 +85,9 @@ namespace SmartTrainApplication.Data
             // Save the current train route
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrainRoute, Json_options));
+            
+            // Used as a route length testing 'trigger button' -Sami
+            //RouteGeneration.GenerateRoute();
         }
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
