@@ -24,4 +24,9 @@
   <ItemGroup>
     <Folder Include="Tools\" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\BottomBarView.axaml" />
+  </ItemGroup>
 </Project>
