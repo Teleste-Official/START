@@ -1,6 +1,8 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
-namespace SmartTrainApplication
+namespace SmartTrainApplication.Views
 {
     public partial class MainWindow : Window
     {
@@ -8,13 +10,9 @@ namespace SmartTrainApplication
         public MainWindow()
         {
             InitializeComponent();
-
-
-            // TODO: move these to a seperate container/view -Metso
-            var mapViewControl = new MapViewControl();
+            DataContext = new MainWindowViewModel();
             var topLevel = GetTopLevel(this);
             TopLevel = topLevel;
-            this.Content = mapViewControl;
         }
     }
 }

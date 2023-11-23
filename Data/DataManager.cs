@@ -1,10 +1,12 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using DynamicData;
 using Mapsui;
 using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -132,9 +134,93 @@ namespace SmartTrainApplication.Data
             return Coordinates;
         }
 
-        //NOTE: IMPORT HANGS SOFTWARE.
+        public static List<string> ImportFolder(TopLevel topLevel) {
+            //Open folder & parse JSON-files into a list
+            Debug.WriteLine("ImportFolder");
+            Task<List<string>> result = HandleFolderImport(topLevel);
+            List<string> openedFiles = result.GetAwaiter().GetResult();
+
+            // Deserialise the JSON strings into objects and add to list
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+            List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
+            foreach (var file in openedFiles)
+            {
+                TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(file, Json_options);
+                TrainRoutes.Add(ImportedTrainRoute);
+                ImportedTrainRoutes.Add(ImportedTrainRoute);
+            }
+            
+
+            // Set the first imported train route as the currently selected one
+            
+            CurrentTrainRoute = ImportedTrainRoutes[0];
+
+            // Turn the coordinates back to a geometry string
+            List<string> routesAsStrings = new List<string>();
+            string GeometryString = "LINESTRING (";
+            foreach (var route in ImportedTrainRoutes) { 
+                foreach (var coord in route.Coords)
+                {
+                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+                }
+                GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+                routesAsStrings.Add(GeometryString);
+            }
+
+            return routesAsStrings;
+        }
+
+        public static async Task<List<string>> HandleFolderImport(TopLevel topLevel)
+        {
+            //Open the folder as IReadOnlyList<IStorageFolder>
+            Debug.WriteLine("HandleFolder");
+            var folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Open project folder",
+                AllowMultiple = false,
+
+            });
+            Debug.WriteLine("After Opening Folder");
+            //Get .json-files from the folder as IStorageItems into their own list
+            List<IStorageItem> filesInFolder = new List<IStorageItem>();
+            if (folder is not null)
+            {
+                foreach (var file in folder)
+                {
+                    var current = file.GetItemsAsync();
+                    await foreach (var item in current)
+                    {
+                        var itemType = item.GetType();
+                        if (itemType.ToString() is ".json") {
+                            filesInFolder.Add(item);
+                        }
+                    }
+                }
+            }
+
+            //Cast IStorageItems into IStorageFiles and read them into strings
+            //And add the final strings to their own list
+            List<string> FinalStrings = new List<string>(); 
+            foreach (var file in filesInFolder)
+            {
+                string FileAsString = "";
+                using var cast = file as IStorageFile;
+                await using var stream = await cast.OpenReadAsync();
+                using var st = new StreamReader(stream);
+                string S;
+                while ((S = st.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+                FinalStrings.Add(FileAsString);
+            }
+            
+
+            return FinalStrings;
+        }
+
+        //NOTE: FILE IMPORT HANGS SOFTWARE.
         //Also i haven't made sure the rest of it works after picking the file. -Timo
-        //TODO: Find out where to get TopLevel from
         public static string Import(TopLevel topLevel)
         {
             //Open the file
@@ -170,7 +256,7 @@ namespace SmartTrainApplication.Data
                 AllowMultiple = false,
                 FileTypeFilter = new[] { JSON }
             });
-
+            
             if (files is not null)
             {
                 await using var stream = await files[0].OpenReadAsync();
