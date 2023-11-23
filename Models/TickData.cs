@@ -17,9 +17,9 @@ namespace SmartTrainApplication.Models
         float distanceMeters { get; set; }
         float trackTimeSecs { get; set; }
 
-        TickData() { }
+        public TickData() { }
 
-        TickData(double _latitudeDD, bool _isGpsFix, double _longitudeDD, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs)
+        public TickData(double _latitudeDD, bool _isGpsFix, double _longitudeDD, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs)
         {
             latitudeDD = _latitudeDD;
             IsGpsFix = _isGpsFix;

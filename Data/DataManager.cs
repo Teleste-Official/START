@@ -18,6 +18,9 @@ namespace SmartTrainApplication.Data
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
 
+        public static List<Train> Trains = new List<Train>();
+        public static Train CurrentTrain;
+
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
             List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
