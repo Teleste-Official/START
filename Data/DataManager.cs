@@ -3,6 +3,7 @@ using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -91,6 +92,27 @@ namespace SmartTrainApplication.Data
             
             // Used as a route length testing 'trigger button' -Sami
             //RouteGeneration.GenerateRoute();
+        }
+
+        public static void SaveSimulationData(SimulationData sim)
+        {
+            string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations", "simulation.json");
+            try
+            {
+                if (!Directory.Exists(SimulationsDirectory))
+                {
+                    Directory.CreateDirectory(SimulationsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Save the simulation
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
         }
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)

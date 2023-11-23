@@ -29,16 +29,22 @@ namespace SmartTrainApplication.Data
                 // -Metso
 
                 // Data tobe saved in Ticks:
-                // double _latitudeDD, bool _isGpsFix, double _longitudeDD, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
+                // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
                 // AllTickData.Add(new TickData())
 
-                // Stop the loop when on the last point
+                // Test tick data
+                AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
+                AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
 
+                // Stop the loop when on the last point
                 IsRunning = false; // Remove this after functionality is added. -Metso
             }
 
+            SimulationData newSim = new SimulationData("Test", AllTickData);
+
             // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
             // SimulationRun file could also host the train and route data for playback in the future -Metso
+            DataManager.SaveSimulationData(newSim);
 
             // Possibly return the simulation data for playback
             return;
@@ -46,6 +52,7 @@ namespace SmartTrainApplication.Data
 
         public static void StartSimulationPlayback()
         {
+            // Read tickdata from simulation data in set intervals and move a bitmap on the map accordingly
             return;
         }
     }

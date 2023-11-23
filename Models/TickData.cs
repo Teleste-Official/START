@@ -9,21 +9,21 @@ namespace SmartTrainApplication.Models
     public class TickData
     {
         //RouteDataPoint: 0, Dafug is this? -Metso
-        double latitudeDD { get; set; }
-        bool IsGpsFix { get; set; }
-        double longitudeDD { get; set; }
-        float speedKmh { get; set; }
-        bool doorsOpen { get; set; }
-        float distanceMeters { get; set; }
-        float trackTimeSecs { get; set; }
+        public double latitudeDD { get; set; }
+        public bool IsGpsFix { get; set; }
+        public double longitudeDD { get; set; }
+        public float speedKmh { get; set; }
+        public bool doorsOpen { get; set; }
+        public float distanceMeters { get; set; }
+        public float trackTimeSecs { get; set; }
 
         public TickData() { }
 
-        public TickData(double _latitudeDD, bool _isGpsFix, double _longitudeDD, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs)
+        public TickData(double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs)
         {
             latitudeDD = _latitudeDD;
-            IsGpsFix = _isGpsFix;
             longitudeDD = _longitudeDD;
+            IsGpsFix = _isGpsFix;
             speedKmh = _speedKmh;
             doorsOpen = _doorsOpen;
             distanceMeters = _distanceMeters;
