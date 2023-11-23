@@ -40,6 +40,11 @@ namespace SmartTrainApplication.Views
         CurrentView = new SimulationView { DataContext = new SimulationViewModel() };
     }
 
+    public void NavigateToSettings()
+    {
+        CurrentView = new SettingsView { DataContext = new SettingsViewModel() };
+    }
+
 
     }
 }
