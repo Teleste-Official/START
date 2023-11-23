@@ -2,16 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="SmartTrainApplication.SettingsView">
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
+             x:Class="SmartTrainApplication.SettingsView"
+             xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
+						 x:DataType="local:SettingsViewModel">
 
 	<UserControl.Styles>
 		<Style Selector="Button">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="Margin" Value="0,4"/>
-			<Setter Property="Background" Value="#FF5F49"/>
-			<Setter Property="Foreground" Value="#FFFFFF"/>
+      <Setter Property="Background" Value="#0F6CBD"/>
+      <Setter Property="Foreground" Value="#FFFFFF"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
 		</Style>
         <Style Selector="TextBox">
@@ -35,19 +37,50 @@
 			Padding="4,0">
 
 		<DockPanel LastChildFill="False">
-			<TextBox Watermark="Latitude...">
+      <TextBlock Margin="5 10 0 5">Default location:</TextBlock>
+			<TextBox Margin="0 0 0 0" Watermark="Latitude...">
 			</TextBox>
-            <TextBox Watermark="Longitude...">
-            </TextBox>
-            <TextBox Watermark="...">
-            </TextBox>
+      <TextBox Margin="0 10 0 0" Watermark="Longitude...">
+      </TextBox>
 
-			<Button>
-				Log Folder
-			</Button>
-            <Button>
-                Reset Settings
-            </Button>
+      <TextBlock Margin="5 15 0 5">Route import directories:</TextBlock>
+      <TextBox Height="150" 
+               Margin="0 2 0 0" 
+               Watermark="..." 
+               AcceptsReturn="True">
+      </TextBox>
+
+      <TextBlock Margin="5 15 0 5">Train import directories:</TextBlock>
+      <TextBox Height="150" 
+               Margin="0 2 0 0" 
+               Watermark="..." 
+               AcceptsReturn="True">
+      </TextBox>
+
+      <Grid VerticalAlignment="Top" 
+            HorizontalAlignment="Center" 
+            Width="700" 
+            Margin="0 15 0 0">
+        <Button Margin="400 5 0 0" Width="100">
+          Logs
+        </Button>
+
+        <Button Margin="0 5 200 0" Width="100">
+          Reset
+        </Button>
+
+        <Button Margin="100 5 0 0" Width="100">
+          Save
+        </Button>
+      </Grid>
+      
+      <Panel Width="800">
+        <TextBlock DockPanel.Dock="Left" 
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Left"
+                   Margin="5 15 0 5">Version 0.0.0
+        </TextBlock>
+      </Panel>
 
 		</DockPanel>
 	</Border>
