@@ -20,13 +20,14 @@
                 <MenuItem Command="{Binding NavigateToTackEditor}" Header="Track Editor" Foreground="Black" />
                 <MenuItem Command="{Binding NavigateToTrainEditor}" Header="Train Editor" Foreground="Black"/>
                 <MenuItem Command="{Binding NavigateToSimulation}" Header="Simulation" Foreground="Black"/>
+                <MenuItem Command="{Binding NavigateToSettings}" Header="Settings" Foreground="Black"/>
             </Menu>
         
             <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
 
             <ContentControl Content="{Binding CurrentView}" />
             <SplitView x:Name="SplitView" DockPanel.Dock="Right">
-				<SplitView.Pane>
+                <SplitView.Pane>
 				</SplitView.Pane>
                 <SplitView.Content>
                     <views1:MapViewControl />
