@@ -88,6 +88,9 @@ namespace SmartTrainApplication.Data
             // Save the current train route
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrainRoute, Json_options));
+            
+            // Used as a route length testing 'trigger button' -Sami
+            //RouteGeneration.GenerateRoute();
         }
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
@@ -253,7 +256,7 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
-        static double CalculateDistance(RoutePoint point1, RoutePoint point2)
+        public static double CalculateDistance(RoutePoint point1, RoutePoint point2)
         {
             double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
             double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
