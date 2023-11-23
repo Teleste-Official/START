@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="260" d:DesignHeight="600"
              x:Class="SmartTrainApplication.SimulationView"
 						 xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
 						 x:DataType="local:SimulationViewModel">
@@ -11,7 +11,7 @@
 		<Style Selector="Button">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="0 4"/>
 			<Setter Property="Background" Value="#FF5F49"/>
 			<Setter Property="Foreground" Value="#FFFFFF"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
@@ -21,17 +21,17 @@
 			<Setter Property="SelectedIndex" Value="0"/>
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="0 4 0 5"/>
 		</Style>
 		<Style Selector="NumericUpDown">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,0,0,4"/>
+			<Setter Property="Margin" Value="0 0 0 4"/>
 			<Setter Property="Minimum" Value="0"/>
 		</Style>
 		<Style Selector="TextBlock">
 			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0"/>
+			<Setter Property="Margin" Value="5 10 0 5"/>
 		</Style>
 	</UserControl.Styles>
 

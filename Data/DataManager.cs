@@ -115,6 +115,67 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
         }
 
+        public static void LoadTrains() {
+            string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
+            string FileAsString = "";
+
+            try
+            {
+                if (!Directory.Exists(TrainsDirectory))
+                {
+                    Directory.CreateDirectory(TrainsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Open the file to read from
+            using (StreamReader Sr = File.OpenText(Path))
+            {
+
+                // Read the lines on the file and gather a list from them
+                string S;
+                while ((S = Sr.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+            }
+
+            // Deserialise the JSON string into a object
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+            Train LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
+
+            // Set the imported train as the currently selected one
+            Trains.Add(LoadedTrain);
+            CurrentTrain = LoadedTrain;
+
+            return;
+        }
+
+        public static void SaveTrain()
+        {
+            string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
+            try
+            {
+                if (!Directory.Exists(TrainsDirectory))
+                {
+                    Directory.CreateDirectory(TrainsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Save the train
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrain, Json_options));
+        }
+
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
         {
             // Parse the line string into individual values

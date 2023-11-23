@@ -9,6 +9,8 @@ namespace SmartTrainApplication.Data
 {
     internal class Simulation
     {
+        public static SimulationData? LatestSimulation = null;
+
         public static void PreprocessRoute()
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
