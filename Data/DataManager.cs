@@ -22,12 +22,7 @@ namespace SmartTrainApplication.Data
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
 
-        public static FilePickerFileType JSON { get; } = new("json")
-        {
-            Patterns = new[] { "*.json" },
-            AppleUniformTypeIdentifiers = new[] { "public.json" },
-            MimeTypes = new[] { "application/json" }
-        };
+        
 
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
@@ -67,48 +62,7 @@ namespace SmartTrainApplication.Data
             }
 
             return;
-        }
-
-        /// <summary>
-        /// Export the created lines into a file.
-        /// </summary>
-        /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
-        public static async void Export(String GeometryString, TopLevel topLevel) {
-            if (GeometryString == "")
-                return;
-
-            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
-            {
-                Title = "Export JSON",
-                FileTypeChoices = new[] { JSON },
-                SuggestedFileName = "export"
-            });
-            
-            TrainRoute NewTrainRoute = CreateNewRoute(GeometryString);
-
-            // Create a file and write empty the new route to it
-            var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            var output = JsonSerializer.Serialize(NewTrainRoute, Json_options);
-            if (file is not null)
-            {
-                await using var stream = await file.OpenWriteAsync();
-                using var streamWriter = new StreamWriter(stream);
-                await streamWriter.WriteLineAsync(output);
-            }
-
-            //Import();
-        }
-
-        public static void Save() {
-            if (CurrentTrainRoute == null)
-                return;
-
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-
-            // Save the current train route
-            var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrainRoute, Json_options));
-        }
+        }       
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
         {
@@ -132,144 +86,7 @@ namespace SmartTrainApplication.Data
                 }
             }
             return Coordinates;
-        }
-
-        public static List<string> ImportFolder(TopLevel topLevel) {
-            //Open folder & parse JSON-files into a list
-            Debug.WriteLine("ImportFolder");
-            Task<List<string>> result = HandleFolderImport(topLevel);
-            List<string> openedFiles = result.GetAwaiter().GetResult();
-
-            // Deserialise the JSON strings into objects and add to list
-            var Json_options = new JsonSerializerOptions { IncludeFields = true };
-            List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
-            foreach (var file in openedFiles)
-            {
-                TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(file, Json_options);
-                TrainRoutes.Add(ImportedTrainRoute);
-                ImportedTrainRoutes.Add(ImportedTrainRoute);
-            }
-            
-
-            // Set the first imported train route as the currently selected one
-            
-            CurrentTrainRoute = ImportedTrainRoutes[0];
-
-            // Turn the coordinates back to a geometry string
-            List<string> routesAsStrings = new List<string>();
-            string GeometryString = "LINESTRING (";
-            foreach (var route in ImportedTrainRoutes) { 
-                foreach (var coord in route.Coords)
-                {
-                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-                }
-                GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-                routesAsStrings.Add(GeometryString);
-            }
-
-            return routesAsStrings;
-        }
-
-        public static async Task<List<string>> HandleFolderImport(TopLevel topLevel)
-        {
-            //Open the folder as IReadOnlyList<IStorageFolder>
-            Debug.WriteLine("HandleFolder");
-            var folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-            {
-                Title = "Open project folder",
-                AllowMultiple = false,
-
-            });
-            Debug.WriteLine("After Opening Folder");
-            //Get .json-files from the folder as IStorageItems into their own list
-            List<IStorageItem> filesInFolder = new List<IStorageItem>();
-            if (folder is not null)
-            {
-                foreach (var file in folder)
-                {
-                    var current = file.GetItemsAsync();
-                    await foreach (var item in current)
-                    {
-                        var itemType = item.GetType();
-                        if (itemType.ToString() is ".json") {
-                            filesInFolder.Add(item);
-                        }
-                    }
-                }
-            }
-
-            //Cast IStorageItems into IStorageFiles and read them into strings
-            //And add the final strings to their own list
-            List<string> FinalStrings = new List<string>(); 
-            foreach (var file in filesInFolder)
-            {
-                string FileAsString = "";
-                using var cast = file as IStorageFile;
-                await using var stream = await cast.OpenReadAsync();
-                using var st = new StreamReader(stream);
-                string S;
-                while ((S = st.ReadLine()) != null)
-                {
-                    FileAsString += S;
-                }
-                FinalStrings.Add(FileAsString);
-            }
-            
-
-            return FinalStrings;
-        }
-
-        //NOTE: FILE IMPORT HANGS SOFTWARE.
-        //Also i haven't made sure the rest of it works after picking the file. -Timo
-        public static string Import(TopLevel topLevel)
-        {
-            //Open the file
-            Task<string> task = HandleImport(topLevel);
-            string FileAsString = task.GetAwaiter().GetResult();
-
-            // Deserialise the JSON string into a object
-            var Json_options = new JsonSerializerOptions { IncludeFields = true };
-            TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(FileAsString, Json_options);
-
-            // Set the imported train route as the currently selected one
-            TrainRoutes.Add(ImportedTrainRoute);
-            CurrentTrainRoute = ImportedTrainRoute;
-
-            // Turn the coordinates back to a geometry string
-            string GeometryString = "LINESTRING (";
-            foreach (var coord in ImportedTrainRoute.Coords)
-            {
-                GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-            }
-            GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-
-            return GeometryString;
-        }
-
-        public static async Task<string> HandleImport(TopLevel topLevel)
-        {
-            string FileAsString = "";
-            //Code hangs here, no idea why
-            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title = "Open JSON",
-                AllowMultiple = false,
-                FileTypeFilter = new[] { JSON }
-            });
-            
-            if (files is not null)
-            {
-                await using var stream = await files[0].OpenReadAsync();
-                using var st = new StreamReader(stream);
-                string S;
-                while ((S = st.ReadLine()) != null)
-                {
-                    FileAsString += S;
-                }
-            }
-
-            return FileAsString;
-        }
+        }        
 
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {

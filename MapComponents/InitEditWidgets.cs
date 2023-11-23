@@ -367,7 +367,7 @@ public partial class MapViewControl
         };
         SaveRoute.WidgetTouched += (_, e) =>
         {
-            DataManager.Save();
+            FileManager.Save();
 
             e.Handled = true;
         };

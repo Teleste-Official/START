@@ -59,14 +59,14 @@ namespace SmartTrainApplication
         public static void ExportNewRoute(EditManager _editManager, TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
-            DataManager.Export(GetRouteAsString(), topLevel);
+            FileManager.Export(GetRouteAsString(), topLevel);
 
             return;
         }
 
         public static void ImportNewRoute(TopLevel topLevel)
         {
-            List<string> importedRoutes = DataManager.ImportFolder(topLevel);
+            List<string> importedRoutes = FileManager.StartupFolderImport();
             string GeometryData = importedRoutes[0];
             //string GeometryData = DataManager.Import(topLevel);
             var importLayer = LayerManager.CreateImportLayer();
