@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Controls;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
@@ -21,7 +22,6 @@ public partial class MapViewControl
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
-
         map.Widgets.Add(new BoxWidget
         {
             MarginY = 5,
@@ -227,7 +227,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            LayerManager.ExportNewRoute();
+            LayerManager.ExportNewRoute(_editManager, MainWindow.TopLevel);
 
             e.Handled = true;
         };
@@ -247,7 +247,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            LayerManager.ImportNewRoute();
+            LayerManager.ImportNewRoute(MainWindow.TopLevel);
 
             e.Handled = true;
         };
@@ -367,7 +367,7 @@ public partial class MapViewControl
         };
         SaveRoute.WidgetTouched += (_, e) =>
         {
-            DataManager.Save();
+            FileManager.Save();
 
             e.Handled = true;
         };

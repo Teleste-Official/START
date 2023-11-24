@@ -1,4 +1,7 @@
-﻿using Mapsui;
+﻿using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using DynamicData;
+using Mapsui;
 using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
@@ -19,8 +22,7 @@ namespace SmartTrainApplication.Data
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
 
-        public static List<Train> Trains = new List<Train>();
-        public static Train CurrentTrain;
+        
 
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
@@ -175,6 +177,7 @@ namespace SmartTrainApplication.Data
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrain, Json_options));
         }
+        }       
 
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
         {
@@ -198,43 +201,7 @@ namespace SmartTrainApplication.Data
                 }
             }
             return Coordinates;
-        }
-
-        public static string Import()
-        {
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-            string FileAsString = "";
-
-            // Open the file to read from
-            using (StreamReader Sr = File.OpenText(Path))
-            {
-
-                // Read the lines on the file and gather a list from them
-                string S;
-                while ((S = Sr.ReadLine()) != null)
-                {
-                    FileAsString += S;
-                }
-            }
-
-            // Deserialise the JSON string into a object
-            var Json_options = new JsonSerializerOptions { IncludeFields = true };
-            TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(FileAsString, Json_options);
-
-            // Set the imported train route as the currently selected one
-            TrainRoutes.Add(ImportedTrainRoute);
-            CurrentTrainRoute = ImportedTrainRoute;
-
-            // Turn the coordinates back to a geometry string
-            string GeometryString = "LINESTRING (";
-            foreach (var coord in ImportedTrainRoute.Coords)
-            {
-                GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-            }
-            GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-
-            return GeometryString;
-        }
+        }        
 
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {
