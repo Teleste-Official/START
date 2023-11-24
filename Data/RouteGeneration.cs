@@ -63,7 +63,7 @@ namespace SmartTrainApplication.Data
             return (degrees * Math.PI) / 180;
         }
 
-        static double CalculatePointDistance(double lon1, double lon2, double lat1, double lat2)
+        public static double CalculatePointDistance(double lon1, double lon2, double lat1, double lat2)
         {
             const double R = 6371;
             var φ1 = ConvertToRadians(lat1);
@@ -77,7 +77,7 @@ namespace SmartTrainApplication.Data
             var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
             var d = R * c;
-            return d;
+            return d * 1000;
         }
         
         // For EPSG:3857, major projection errors except at Equator. -Sami
@@ -89,27 +89,22 @@ namespace SmartTrainApplication.Data
         //    return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         //}
 
-        public static MPoint CalculateNewTrainPoint(MPoint point1, MPoint point2, double trainMovement, double pointDistance)
+        public static (double, double) CalculateNewTrainPoint(double currentX, double currentY, double nextX, double nextY, double trainMovement, double pointDistance)
         {
-            double X1 = point1.X;
-            double Y1 = point1.Y;
-            double X2 = point2.X;
-            double Y2 = point2.Y;
+            double newX = currentX + (trainMovement / pointDistance) * (nextX - currentX);
+            double newY = currentY + (trainMovement / pointDistance) * (nextY - currentY);
 
-            double newX = X1 + (trainMovement / pointDistance) * (X2 - X1);
-            double newY = Y1 + (trainMovement / pointDistance) * (Y2 - Y1);
-
-            return new MPoint(x: newX, y: newY);
+            return (newX, newY);
         }
 
-        public static double CalculateTrainMovement(float currentSpeed, float timeInterval, float acceleration)
+        public static double CalculateTrainMovement(float currentSpeedKmh, float timeInterval, float acceleration)
         {
-            return currentSpeed * timeInterval + 0.5 * acceleration * timeInterval * timeInterval;
+            return (currentSpeedKmh / 3.6) * timeInterval + 0.5 * acceleration * timeInterval * timeInterval;
         }
 
-        public static float CalculateNewSpeed(float currentSpeed, float timeInterval, float acceleration)
+        public static float CalculateNewSpeed(float currentSpeedKmh, float timeInterval, float acceleration)
         {
-            return currentSpeed + timeInterval * acceleration;
+            return (currentSpeedKmh / 3.6f) + timeInterval * acceleration;
         }
     }
 }
