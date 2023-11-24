@@ -51,11 +51,32 @@
 
 		<DockPanel LastChildFill="False">
 
+      <TextBlock Margin="5 5 0 5">Select train:</TextBlock>
 			<ComboBox>
-				<ComboBoxItem>Select Train...</ComboBoxItem>
-				<ComboBoxItem>Train 1</ComboBoxItem>
-				<ComboBoxItem>Train 2</ComboBoxItem>
-				<ComboBoxItem>Train 3</ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_train2.png"/>
+            <TextBlock Margin="40 10 0 5">Create new train</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_train1.png"/>
+            <TextBlock Margin="40 10 0 5">Train 1</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_tram.png"/>
+            <TextBlock Margin="40 10 0 5">Train 2</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_train2.png"/>
+            <TextBlock Margin="40 10 0 5">Train 3</TextBlock>
+          </Panel>
+        </ComboBoxItem>
 			</ComboBox>
 
       <TextBlock Margin="5 10 0 5">Name:</TextBlock>

@@ -43,10 +43,30 @@
 		<DockPanel LastChildFill="False">
 
 			<ComboBox>
-				<ComboBoxItem>Select Track...</ComboBoxItem>
-				<ComboBoxItem>Track 1</ComboBoxItem>
-				<ComboBoxItem>Track 2</ComboBoxItem>
-				<ComboBoxItem>Track 3</ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Select Track...</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 1</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 2</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 3</TextBlock>
+          </Panel>
+        </ComboBoxItem>
 			</ComboBox>
 
 			<TextBox Watermark="Track Name..."/>
