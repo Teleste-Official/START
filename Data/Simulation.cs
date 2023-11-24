@@ -46,7 +46,7 @@ namespace SmartTrainApplication.Data
 
             // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
             // SimulationRun file could also host the train and route data for playback in the future -Metso
-            DataManager.SaveSimulationData(newSim);
+            FileManager.SaveSimulationData(newSim);
 
             // Possibly return the simulation data for playback
             return;

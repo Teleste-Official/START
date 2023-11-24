@@ -16,7 +16,7 @@ namespace SmartTrainApplication.Views
         public void SaveTrainButton()
         {
             DataManager.CurrentTrain = new Models.Train("Test", "Testing train", 0); // For testing, remove later -Metso
-            DataManager.SaveTrain();
+            FileManager.SaveTrain();
         }
     }
 }

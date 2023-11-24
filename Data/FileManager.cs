@@ -65,13 +65,13 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrainRoute, Json_options));
         }
 
-        //Imports all JSON-files from directories saved by user on app startup
-        //Currently just gets all JSON-files in runtime directory. Rest will be implemented later - Timo
+        // Imports all JSON-files from directories saved by user on app startup
+        // Currently just gets all JSON-files in runtime directory. Rest will be implemented later - Timo
         public static List<string> StartupFolderImport()
         {
             List<string> Files = new List<string>();
             List<string> SavedPaths = new List<string>(); //For later
-            
+
             //In case these are needed later
             bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             bool isMacOs = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -98,7 +98,7 @@ namespace SmartTrainApplication.Data
                     {
                         Files.Add(FileAsString);
                     }
-                    
+
                 }
             }
 
@@ -131,9 +131,89 @@ namespace SmartTrainApplication.Data
             return routesAsStrings;
         }
 
+
+        public static void SaveSimulationData(SimulationData sim)
+        {
+            string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations", "simulation.json");
+            try
+            {
+                if (!Directory.Exists(SimulationsDirectory))
+                {
+                    Directory.CreateDirectory(SimulationsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Save the simulation
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
+        }
+
+        public static void LoadTrains()
+        {
+            string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
+            string FileAsString = "";
+
+            try
+            {
+                if (!Directory.Exists(TrainsDirectory))
+                {
+                    Directory.CreateDirectory(TrainsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Open the file to read from
+            using (StreamReader Sr = File.OpenText(Path))
+            {
+
+                // Read the lines on the file and gather a list from them
+                string S;
+                while ((S = Sr.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+            }
+
+            // Deserialise the JSON string into a object
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+            Train LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
+
+            // Set the imported train as the currently selected one
+            DataManager.Trains.Add(LoadedTrain);
+            DataManager.CurrentTrain = LoadedTrain;
+
+            return;
+        }
+
+        public static void SaveTrain()
+        {
+            string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
+            try
+            {
+                if (!Directory.Exists(TrainsDirectory))
+                {
+                    Directory.CreateDirectory(TrainsDirectory);
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            // Save the train
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrain, Json_options));
+        }
+
     }
-
-    
-
-    
 }
