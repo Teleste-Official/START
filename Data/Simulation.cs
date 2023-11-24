@@ -104,7 +104,7 @@ namespace SmartTrainApplication.Data
                 
                 if (IsRunning)
                 {
-                    pointIndex++;
+                    pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
                     travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
                     if ((tickData.speedKmh + RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration)) > maxSpeed)
@@ -118,19 +118,28 @@ namespace SmartTrainApplication.Data
                 }
             }
 
+            AllTickData.RemoveAt(AllTickData.Count - 1);
             SimulationData newSim = new SimulationData("Test", AllTickData);
 
             // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
             // SimulationRun file could also host the train and route data for playback in the future -Metso
             FileManager.SaveSimulationData(newSim);
+            LatestSimulation = newSim;
+
+            LayerManager.CreateAnimationLayer();
 
             // Possibly return the simulation data for playback
             return;
         }
 
-        public static void StartSimulationPlayback()
+        public static async Task StartSimulationPlayback()
         {
+            LayerManager.CreateAnimationLayer();
             // Read tickdata from simulation data in set intervals and move a bitmap on the map accordingly
+            foreach (TickData tick in LatestSimulation.TickData)
+            {
+                
+            }
             return;
         }
     }
