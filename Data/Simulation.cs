@@ -107,13 +107,13 @@ namespace SmartTrainApplication.Data
                     pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
                     travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
-                    if ((tickData.speedKmh + RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration)) > maxSpeed)
+                    if (RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration) > maxSpeed)
                     {
                         tickData.speedKmh = maxSpeed;
                     }
                     else
                     {
-                        tickData.speedKmh += RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                        tickData.speedKmh = RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
                     }
                 }
             }
