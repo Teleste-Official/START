@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
+    /// <summary>
+    /// Functions used for saving and loading data to and from files
+    /// </summary>
     internal class FileManager
     {
         public static FilePickerFileType JSON { get; } = new("json")
@@ -53,6 +56,9 @@ namespace SmartTrainApplication.Data
             //Import();
         }
 
+        /// <summary>
+        /// Saves DataManager.CurrentTrainRoute to "export.json" file
+        /// </summary>
         public static void Save()
         {
             if (DataManager.CurrentTrainRoute == null)
@@ -65,8 +71,12 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrainRoute, Json_options));
         }
 
-        // Imports all JSON-files from directories saved by user on app startup
-        // Currently just gets all JSON-files in runtime directory. Rest will be implemented later - Timo
+        /// <summary>
+        /// Imports all JSON-files from directories saved by user on app startup
+        /// <br/>
+        /// Currently just gets all JSON-files in runtime directory. Rest will be implemented later - Timo
+        /// </summary>
+        /// <returns>(List of string) GeometryString</returns>
         public static List<string> StartupFolderImport()
         {
             List<string> Files = new List<string>();
@@ -131,7 +141,10 @@ namespace SmartTrainApplication.Data
             return routesAsStrings;
         }
 
-
+        /// <summary>
+        /// Saves route's simulation data to "simulation.json" file
+        /// </summary>
+        /// <param name="sim">(SimulationData) Route's simulation data</param>
         public static void SaveSimulationData(SimulationData sim)
         {
             string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
@@ -153,6 +166,9 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
         }
 
+        /// <summary>
+        /// Loads Trains from "train.json" file to Datamanager.Trains and Datamanager.CurrentTrain
+        /// </summary>
         public static void LoadTrains()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
@@ -194,6 +210,9 @@ namespace SmartTrainApplication.Data
             return;
         }
 
+        /// <summary>
+        /// Saves DataManager.CurrentTrain to "train.json" file
+        /// </summary>
         public static void SaveTrain()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");

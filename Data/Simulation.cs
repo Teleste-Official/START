@@ -14,10 +14,16 @@ using Mapsui.Projections;
 
 namespace SmartTrainApplication.Data
 {
+    /// <summary>
+    /// Functions used for generating and simulating TrainRoutes
+    /// </summary>
     internal class Simulation
     {
         public static SimulationData? LatestSimulation = null;
 
+        /// <summary>
+        /// Run Preprocess functions for TrainRoutes before simulating the TrainRoute
+        /// </summary>
         public static void PreprocessRoute()
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
@@ -25,6 +31,9 @@ namespace SmartTrainApplication.Data
             return;
         }
 
+        /// <summary>
+        /// Generate the TickData for use in simulation playback and simulation export data
+        /// </summary>
         public static void RunSimulation() // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
@@ -132,6 +141,10 @@ namespace SmartTrainApplication.Data
             return;
         }
 
+        /// <summary>
+        /// Runs the generated TickData / SimulationData in visual playback on the map
+        /// </summary>
+        /// <returns>Creates an async Task of Simulation animation</returns>
         public static async Task StartSimulationPlayback()
         {
             LayerManager.CreateAnimationLayer();
