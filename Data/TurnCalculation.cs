@@ -9,17 +9,11 @@ namespace SmartTrainApplication.Data
 
     public class TurnCalculation
     {
-        public static void TurnCalculationTest()
-        {
-            Coor coordinate1 = new Coor(6, 5);
-            Coor coordinate2 = new Coor(50, 3);
-            Coor coordinate3 = new Coor(70, 1);
 
-            CalculateTurn(coordinate1, coordinate2, coordinate3);
-        }
-
-        public static void CalculateTurn(Coor point1, Coor point2, Coor point3)
+        public static bool CalculateTurn(Coord point1, Coord point2, Coord point3)
         {
+            bool turn;
+
             // Calculate vectors v1 and v2
             double v1x = point2.X - point1.X;
             double v1y = point2.Y - point1.Y;
@@ -33,25 +27,30 @@ namespace SmartTrainApplication.Data
             // Determine direction based on the cross product
             if (crossProduct > 0)
             {
-                System.Diagnostics.Debug.WriteLine("Left");
+                // Left turn
+                turn = true;
             }
             else if (crossProduct < 0)
             {
-                System.Diagnostics.Debug.WriteLine("Right");
+                // Right turn
+                turn = true;
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Forward");
+                // Forward
+                turn = false;
             }
+
+            return turn;
         }
     }
 
-    public class Coor
+    public class Coord
     {
         public double X { get; set; }
         public double Y { get; set; }
 
-        public Coor(double x, double y)
+        public Coord(double x, double y)
         {
             X = x;
             Y = y;
