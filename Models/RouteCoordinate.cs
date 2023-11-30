@@ -4,6 +4,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SmartTrainApplication.Models;
 
+/// <summary>
+/// The singular coordinate points that make up TrainRoutes
+/// <list type="bullet">
+/// <item>(string) Longitude</item>
+/// <item>(string) Longitude</item>
+/// <item>(string) Type</item>
+/// <item>(string) StopName</item>
+/// </list>
+/// </summary>
 public class RouteCoordinate
 {
     public string Longitude { get; set; }

@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {
+    /// <summary>
+    /// General application settings that are provided to the user AND version number
+    /// <list type="bullet">
+    /// <item>(string) Longitude (map's starting coordinates)</item>
+    /// <item>(string) Latitude (map's starting coordinates)</item>
+    /// <item>(List of string) RouteDirectories</item>
+    /// <item>(List of string) TrainDirectories</item>
+    /// <item>(string) VersionNumber</item>
+    /// </list>
+    /// </summary>
     internal class Settings
     {
         public string Longitude {  get; set; }
