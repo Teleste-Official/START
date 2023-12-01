@@ -25,6 +25,9 @@ namespace SmartTrainApplication
     {
         private static WritableLayer? _targetLayer = MapViewControl.map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
 
+        /// <summary>
+        /// Prepares the EditMode and features for adding lines/TrainRoutes
+        /// </summary>
         public static void AddLine()
         {
             var features = _targetLayer.GetFeatures().Copy() ?? Array.Empty<IFeature>();
@@ -39,6 +42,9 @@ namespace SmartTrainApplication
             MapViewControl._editManager.EditMode = EditMode.AddLine;
         }
 
+        /// <summary>
+        /// Clears the target layer and EditMode
+        /// </summary>
         public static void ClearFeatures()
         {
             if (_targetLayer != null && MapViewControl._tempFeatures != null)
@@ -59,6 +65,11 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Exports the Route as a string using <c>FileManager.Export()</c>
+        /// </summary>
+        /// <param name="_editManager">(EditManager) Edit manager</param>
+        /// <param name="topLevel">(TopLevel) Top level</param>
         public static void ExportNewRoute(EditManager _editManager, TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
@@ -67,6 +78,10 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Adds new Routes from imports to an import layer and redraws the map
+        /// </summary>
+        /// <param name="topLevel">(TopLevel) Top level</param>
         public static void ImportNewRoute(TopLevel topLevel)
         {
             List<string> importedRoutes = FileManager.StartupFolderImport();
@@ -81,6 +96,9 @@ namespace SmartTrainApplication
             LayerManager.RedrawStopsToMap(stopsStrings);
         }
 
+        /// <summary>
+        /// Adds the new Route to data, turns it to a feature and redraws the map
+        /// </summary>
         public static void ConfirmNewRoute()
         {
             string RouteString = GetRouteAsString();
@@ -103,6 +121,10 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Gets the selected features/TrainRoutes as a string
+        /// </summary>
+        /// <returns>(string) Selected features</returns>
         static string GetRouteAsString()
         {
             string RouteString = "";
@@ -124,6 +146,9 @@ namespace SmartTrainApplication
             return RouteString;
         }
 
+        /// <summary>
+        /// Prepares the EditMode and features for adding tunnels
+        /// </summary>
         public static void AddTunnel()
         {
             var features = _targetLayer?.GetFeatures().Copy() ?? Array.Empty<IFeature>();
@@ -140,6 +165,10 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Creates a new, if doesn't already exist, layer for imports
+        /// </summary>
+        /// <returns>(WritableLayer) Import layer</returns>
         public static WritableLayer CreateImportLayer()
         {
             var importLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Import");
@@ -153,6 +182,10 @@ namespace SmartTrainApplication
             return importLayer;
         }
 
+        /// <summary>
+        /// Creates a new, if doesn't already exist, layer for animations
+        /// </summary>
+        /// <returns>(AnimatedPointLayer) Animation layer</returns>
         public static AnimatedPointLayer CreateAnimationLayer()
         {
             var animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
@@ -175,6 +208,10 @@ namespace SmartTrainApplication
             return animationLayer;
         }
 
+        /// <summary>
+        /// Copies the import layer feature, without tunnels or stops, to edit layer for editing
+        /// </summary>
+        /// <returns>(WritableLayer) Import layer</returns>
         public static WritableLayer TurnImportToEdit()
         {
             var importLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Import");
@@ -198,6 +235,9 @@ namespace SmartTrainApplication
             return importLayer;
         }
 
+        /// <summary>
+        /// Applies the edits to the TrainRoute and clears the edit layer
+        /// </summary>
         public static void ApplyEditing()
         {
             ConfirmNewRoute();
@@ -209,6 +249,11 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Makes a new GeometryFeature from the given GeometryData and adds it to the given importLayer
+        /// </summary>
+        /// <param name="GeometryData">(string) Imported GeometryData</param>
+        /// <param name="importLayer">(WritableLayer) The importLayer on which to add the import</param>
         public static void TurnImportToFeature(string GeometryData, WritableLayer importLayer)
         {
             var lineString = new WKTReader().Read(GeometryData);
@@ -218,6 +263,10 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Creates a new, if doesn't already exist, layer for tunnels 
+        /// </summary>
+        /// <returns>(WritableLayer) Tunnel layer</returns>
         public static WritableLayer CreateTunnelLayer()
         {
             var tunnelLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnel");
@@ -230,6 +279,10 @@ namespace SmartTrainApplication
             return tunnelLayer;
         }
 
+        /// <summary>
+        /// Creates a new, if doesn't already exist, layer for tunnel strings
+        /// </summary>
+        /// <returns>(WritableLayer) Tunnel string layer</returns>
         public static WritableLayer CreateTunnelStringLayer()
         {
             var tunnelstringLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
@@ -242,6 +295,10 @@ namespace SmartTrainApplication
             return tunnelstringLayer;
         }
 
+        /// <summary>
+        /// Creates a new, if doesn't already exist, layer for stops
+        /// </summary>
+        /// <returns>(WritableLayer) Stops layer</returns>
         public static WritableLayer CreateStopsLayer()
         {
             var stopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
@@ -254,6 +311,9 @@ namespace SmartTrainApplication
             return stopsLayer;
         }
 
+        /// <summary>
+        /// Takes the inputted tunnel points, lists them, adds them to data, (re)draws tunnels to map and clears the edit layer
+        /// </summary>
         public static void ConfirmTunnel()
         {
             var tunnelLayer = CreateTunnelLayer();
@@ -296,6 +356,9 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// Takes the inputted stop points, lists them, adds them to data, (re)draws stops to map and clears the edit layer
+        /// </summary>
         public static void ConfirmStops()
         {
             var stopsLayer = CreateStopsLayer();
@@ -335,6 +398,10 @@ namespace SmartTrainApplication
             return;
         }
 
+        /// <summary>
+        /// (Re)draws the given list of tunnels to the map
+        /// </summary>
+        /// <param name="tunnelStrings">(List of string) The tunnel strings</param>
         public static void RedrawTunnelsToMap(List<string> tunnelStrings)
         {
             var tunnelstringLayer = CreateTunnelStringLayer();
@@ -347,6 +414,10 @@ namespace SmartTrainApplication
             }
         }
 
+        /// <summary>
+        /// (Re)draws the given list of tunnels to the map
+        /// </summary>
+        /// <param name="stopsStrings">(List of string) The stop strings</param>
         public static void RedrawStopsToMap(List<string> stopsStrings)
         {
             var stopsLayer = CreateStopsLayer();

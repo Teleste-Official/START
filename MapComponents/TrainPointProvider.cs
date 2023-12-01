@@ -15,6 +15,9 @@ using SmartTrainApplication.Models;
 
 namespace SmartTrainApplication.MapComponents
 {
+    /// <summary>
+    /// Provides TrainPoint for use in animated TrainRoute simulation playback
+    /// </summary>
     internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
     {
         public event DataChangedEventHandler? DataChanged;
@@ -28,6 +31,11 @@ namespace SmartTrainApplication.MapComponents
         }
 
         private (double Lon, double Lat) _prevCoords = (24.945831, 60.192059);
+
+        /// <summary>
+        /// Creates an async timer which "runs" the playback
+        /// </summary>
+        /// <returns>(Task) Async task for the timer</returns>
         private async Task RunTimerAsync()
         {
             _prevCoords = (Simulation.LatestSimulation.TickData.First<TickData>().longitudeDD, Simulation.LatestSimulation.TickData.First<TickData>().latitudeDD);
@@ -49,6 +57,9 @@ namespace SmartTrainApplication.MapComponents
             OnDataChanged();
         }
 
+        /// <summary>
+        /// Invokes DataChangedEventHandler on data change
+        /// </summary>
         private void OnDataChanged()
         {
             DataChanged?.Invoke(this, new DataChangedEventArgs(null, false, null));

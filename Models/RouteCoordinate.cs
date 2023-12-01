@@ -36,6 +36,10 @@ public class RouteCoordinate
         StopName = "";
     }
 
+    /// <summary>
+    /// Changes the Type of the RouteCoordinate object to a given Type
+    /// </summary>
+    /// <param name="Type">(string) Type to set</param>
     public void SetType(string Type)
     {
         this.Type = Type;

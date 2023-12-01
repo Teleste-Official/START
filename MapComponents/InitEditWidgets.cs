@@ -19,6 +19,10 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    /// <summary>
+    /// Old build-in UI buttons
+    /// </summary>
+    /// <param name="map">(Map) The map</param>
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
