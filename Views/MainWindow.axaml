@@ -13,9 +13,9 @@
 
     <Grid>
         <DockPanel Background="Transparent">
-			<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>
+          <ContentControl Content="{Binding BottomBar}" DockPanel.Dock="Bottom"/>
+            <!--<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>-->
             <ContentPresenter Name="ContentPresenter"  />
-
           <Panel DockPanel.Dock="Top">
             
             <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" Height="40">

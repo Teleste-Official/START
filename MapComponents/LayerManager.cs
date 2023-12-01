@@ -59,7 +59,7 @@ namespace SmartTrainApplication
             return;
         }
 
-        public static void ExportNewRoute(EditManager _editManager, TopLevel topLevel)
+        public static void ExportNewRoute(TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
             FileManager.Export(GetRouteAsString(), topLevel);
@@ -79,6 +79,8 @@ namespace SmartTrainApplication
             LayerManager.TurnImportToFeature(GeometryData, importLayer);
             LayerManager.RedrawTunnelsToMap(tunnelStrings);
             LayerManager.RedrawStopsToMap(stopsStrings);
+
+            return;
         }
 
         public static void ConfirmNewRoute()

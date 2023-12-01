@@ -77,29 +77,40 @@ namespace SmartTrainApplication.Data
             bool isMacOs = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            string Path = Directory.GetCurrentDirectory();
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
             Debug.WriteLine(Path);
-            if (Directory.Exists(Path))
+            try
             {
-                var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
-
-                foreach (var file in FilesInFolder)
+                if (!Directory.Exists(Path))
                 {
-                    var FileAsString = "";
-                    using (StreamReader sr = File.OpenText(file))
-                    {
-                        string S;
-                        while ((S = sr.ReadLine()) != null)
-                        {
-                            FileAsString += S;
-                        }
-                    }
-                    if (FileAsString.Contains("Coords"))
-                    {
-                        Files.Add(FileAsString);
-                    }
-
+                    Directory.CreateDirectory(Path);
                 }
+                else
+                {
+                    var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
+
+                    foreach (var file in FilesInFolder)
+                    {
+                        var FileAsString = "";
+                        using (StreamReader sr = File.OpenText(file))
+                        {
+                            string S;
+                            while ((S = sr.ReadLine()) != null)
+                            {
+                                FileAsString += S;
+                            }
+                        }
+                        if (FileAsString.Contains("Coords"))
+                        {
+                            Files.Add(FileAsString);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
             }
 
             // Deserialise the JSON strings into objects and add to list
@@ -197,7 +208,7 @@ namespace SmartTrainApplication.Data
         public static void SaveTrain()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", string.Concat(DataManager.CurrentTrain.Name.Replace(" ", "_").Split(System.IO.Path.GetInvalidFileNameChars())) + ".json");
             try
             {
                 if (!Directory.Exists(TrainsDirectory))

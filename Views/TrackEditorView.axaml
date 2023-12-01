@@ -42,34 +42,18 @@
 
 		<DockPanel LastChildFill="False">
 
-			<ComboBox>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Select Track...</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 1</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 2</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 3</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-			</ComboBox>
+      <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <Panel>
+              <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+              <TextBlock Margin="40 10 0 5" Text="{Binding Name}"></TextBlock>
+            </Panel>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
 
-			<TextBox Watermark="Track Name..."/>
+			<TextBox Watermark="Track Name..." Text="{Binding TrackName}"/>
 
 			<Button Command="{Binding AddLineButton}">
 				Add Line
@@ -80,12 +64,18 @@
 			<Button>
 				Add Other Zone
 			</Button>
-			<Button Command="{Binding AddTunnelButton}">
+			<Button Command="{Binding AddStopButton}">
 				Add Station
 			</Button>
 			<Button Command="{Binding ModifyButton}">
 				Edit Track
 			</Button>
+      <Button Command="{Binding ConfirmButton}">
+        Confirm
+      </Button>
+      <Button Command="{Binding ModifyButton}">
+        Cancel
+      </Button>
 
 		</DockPanel>
 	</Border>

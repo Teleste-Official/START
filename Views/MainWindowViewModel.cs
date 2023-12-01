@@ -9,42 +9,54 @@ namespace SmartTrainApplication.Views
 {
     public class MainWindowViewModel : ViewModelBase
     {
-    private UserControl _currentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
+        private UserControl _currentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
+        private UserControl _bottomBar = new BottomBarView { DataContext = new BottomBarViewModel() };
 
         public UserControl CurrentView
-    {
-        get => _currentView;
-        set
         {
-            if (_currentView != value)
+            get => _currentView;
+            set
             {
-                _currentView = value;
-                RaisePropertyChanged(nameof(CurrentView));
+                if (_currentView != value)
+                {
+                    _currentView = value;
+                    RaisePropertyChanged(nameof(CurrentView));
+                }
             }
         }
-    }
 
-    public void NavigateToTackEditor()
-    { 
-        CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
-        TurnCalculation.TurnCalculationTest();
-    }
+        public UserControl BottomBar
+        {
+            get => _bottomBar;
+            set
+            {
+                if (_bottomBar != value)
+                {
+                    _bottomBar = value;
+                    RaisePropertyChanged(nameof(CurrentView));
+                }
+            }
+        }
 
-    public void NavigateToTrainEditor()
-    {
-        CurrentView = new TrainEditorView { DataContext = new TrainEditorViewModel() };
-    }
+        public void NavigateToTackEditor()
+        { 
+            CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
+            //TurnCalculation.TurnCalculationTest();
+        }
 
-    public void NavigateToSimulation()
-    {
-        CurrentView = new SimulationView { DataContext = new SimulationViewModel() };
-    }
+        public void NavigateToTrainEditor()
+        {
+            CurrentView = new TrainEditorView { DataContext = new TrainEditorViewModel() };
+        }
 
-    public void NavigateToSettings()
-    {
-        CurrentView = new SettingsView { DataContext = new SettingsViewModel() };
-    }
+        public void NavigateToSimulation()
+        {
+            CurrentView = new SimulationView { DataContext = new SimulationViewModel() };
+        }
 
-
+        public void NavigateToSettings()
+        {
+            CurrentView = new SettingsView { DataContext = new SettingsViewModel() };
+        }
     }
 }

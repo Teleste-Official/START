@@ -227,7 +227,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            LayerManager.ExportNewRoute(_editManager, MainWindow.TopLevel);
+            LayerManager.ExportNewRoute(MainWindow.TopLevel);
 
             e.Handled = true;
         };
