@@ -61,11 +61,11 @@
 			<Button Command="{Binding AddTunnelButton}">
 				Add Tunnel
 			</Button>
-			<Button>
-				Add Other Zone
-			</Button>
 			<Button Command="{Binding AddStopButton}">
 				Add Station
+			</Button>
+			<Button>
+				Add Other Zone
 			</Button>
 			<Button Command="{Binding ModifyButton}">
 				Edit Track

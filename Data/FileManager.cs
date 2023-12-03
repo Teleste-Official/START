@@ -142,7 +142,6 @@ namespace SmartTrainApplication.Data
             return routesAsStrings;
         }
 
-
         public static void SaveSimulationData(SimulationData sim)
         {
             string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
@@ -226,5 +225,47 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrain, Json_options));
         }
 
+        public static void SaveSettings(Settings settings)
+        {
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Settings.json");
+
+            // Save the settings
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(settings, Json_options));
+        }
+
+        public static void LoadSettings()
+        {
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Settings.json");
+            string FileAsString = "";
+
+            // Check if the file exists
+            if (!File.Exists(Path))
+            {
+                SettingsManager.GenerateNewSettings();
+                return;
+            }
+
+            // Open the file to read from
+            using (StreamReader Sr = File.OpenText(Path))
+            {
+
+                // Read the lines on the file and gather a list from them
+                string S;
+                while ((S = Sr.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+            }
+
+            // Deserialise the JSON string into a object
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+            Settings LoadedSettings = JsonSerializer.Deserialize<Settings>(FileAsString, Json_options);
+
+            // Set the settings
+            SettingsManager.CurrentSettings = LoadedSettings;
+
+            return;
+        }
     }
 }

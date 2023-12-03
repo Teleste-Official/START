@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace SmartTrainApplication.Models;
+﻿namespace SmartTrainApplication.Models;
 
 public class RouteCoordinate
 {
