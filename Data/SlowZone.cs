@@ -10,10 +10,10 @@ namespace SmartTrainApplication.Data;
     public class SlowZone
     {
         /* Calculates the speed in a slow zone based on the given distance and current speed */
-        public static double CalculateSlowZone(float distance, float currentSpeed, float acceleration, float maxSpeed)
+        public static float CalculateSlowZone(double distance, float currentSpeed, float acceleration, float maxSpeed)
         {
             float slowzoneSpeed = 20;
-            float slowZoneDistance = 10;
+            double slowZoneDistance = 10;
             float deceleration = 2;
 
             // Check if the distance is within the slow zone
@@ -34,10 +34,9 @@ namespace SmartTrainApplication.Data;
                     currentSpeed += acceleration;
 
                     // Ensure the speed doesn't go above the maximum speed
-                    currentSpeed = Math.Max(currentSpeed, maxSpeed);
+                    currentSpeed = Math.Min(currentSpeed, maxSpeed);
             }
 
             return currentSpeed;
         }
-    }
 }

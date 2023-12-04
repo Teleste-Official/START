@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mapsui;
 using Mapsui.Projections;
+using NetTopologySuite.Operation.Distance;
 
 namespace SmartTrainApplication.Data
 {
@@ -21,6 +22,13 @@ namespace SmartTrainApplication.Data
         public static void PreprocessRoute()
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
+
+  
+
+             List<string> turnPoints = DataManager.GetTurnStrings();
+             List<string> turnStrings = DataManager.AddTurns(turnPoints);
+
+
 
             return;
         }
@@ -110,10 +118,12 @@ namespace SmartTrainApplication.Data
                     if ((tickData.speedKmh + RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration)) > maxSpeed)
                     {
                         tickData.speedKmh = maxSpeed;
+                        // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
                     }
                     else
                     {
                         tickData.speedKmh += RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                       // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
                     }
                 }
             }
