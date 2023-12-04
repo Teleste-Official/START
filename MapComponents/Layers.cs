@@ -57,6 +57,7 @@ public partial class MapViewControl
             Line = { Color = Color.FromString("Blue"), Width = 6 }
         };
     }
+
     public static WritableLayer CreateStopsLayer()
     {
         return new WritableLayer
@@ -118,7 +119,6 @@ public partial class MapViewControl
     private static readonly Color PointLayerColor = new Color(240, 240, 240, 240);
     private static readonly Color LineLayerColor = new Color(150, 150, 150, 240);
     private static readonly Color PolygonLayerColor = new Color(20, 20, 20, 240);
-
 
     private static readonly SymbolStyle? SelectedStyle = new SymbolStyle
     {
@@ -186,6 +186,7 @@ public partial class MapViewControl
             Outline = new Pen(LineLayerColor, 3)
         };
     }
+
     private static IStyle CreatePolygonStyle()
     {
         return new VectorStyle

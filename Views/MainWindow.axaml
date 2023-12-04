@@ -16,17 +16,32 @@
 			<smartTrainApplication:BottomBarView DockPanel.Dock="Bottom"/>
             <ContentPresenter Name="ContentPresenter"  />
 
+          <Panel DockPanel.Dock="Top">
+            
             <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" Height="40">
                 <MenuItem Command="{Binding NavigateToTackEditor}" Header="Track Editor" Foreground="Black" />
                 <MenuItem Command="{Binding NavigateToTrainEditor}" Header="Train Editor" Foreground="Black"/>
                 <MenuItem Command="{Binding NavigateToSimulation}" Header="Simulation" Foreground="Black"/>
+                <MenuItem Command="{Binding NavigateToSettings}" Header="Settings" Foreground="Black"/>
             </Menu>
+            
+              <Button HorizontalAlignment="Right" 
+                      Margin="0 0 5 0" 
+                      ZIndex="2"
+                      Background="#0F6CBD"
+                      Foreground="#FFFFFF"
+                      HorizontalContentAlignment="Center"
+                      Width="30"
+                      Height="30"
+                      FontWeight="UltraBold">?
+              </Button>
+          </Panel>
         
             <Rectangle Name="BackgroundRectangle" Fill="LightGray"/>
 
             <ContentControl Content="{Binding CurrentView}" />
             <SplitView x:Name="SplitView" DockPanel.Dock="Right">
-				<SplitView.Pane>
+                <SplitView.Pane>
 				</SplitView.Pane>
                 <SplitView.Content>
                     <views1:MapViewControl />

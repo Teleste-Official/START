@@ -11,7 +11,7 @@
 		<Style Selector="Button">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="0 4"/>
 			<Setter Property="Background" Value="#0F6CBD"/>
 			<Setter Property="Foreground" Value="#FFFFFF"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
@@ -22,12 +22,12 @@
 			<Setter Property="SelectedIndex" Value="0"/>
 			<Setter Property="MaxDropDownHeight" Value="200"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="0 5 0 5"/>
 		</Style>
 		<Style Selector="TextBox">
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,4"/>
+			<Setter Property="Margin" Value="0 4"/>
 		</Style>
 	</UserControl.Styles>
 
@@ -43,10 +43,30 @@
 		<DockPanel LastChildFill="False">
 
 			<ComboBox>
-				<ComboBoxItem>Select Track...</ComboBoxItem>
-				<ComboBoxItem>Track 1</ComboBoxItem>
-				<ComboBoxItem>Track 2</ComboBoxItem>
-				<ComboBoxItem>Track 3</ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Select Track...</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 1</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 2</TextBlock>
+          </Panel>
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Panel>
+            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+            <TextBlock Margin="40 10 0 5">Track 3</TextBlock>
+          </Panel>
+        </ComboBoxItem>
 			</ComboBox>
 
 			<TextBox Watermark="Track Name..."/>

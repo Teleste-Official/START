@@ -1,12 +1,16 @@
-﻿using Mapsui;
+﻿using Avalonia.Controls;
+using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
+using Mapsui.Layers.AnimatedLayers;
 using Mapsui.Nts;
 using Mapsui.Nts.Editing;
+using Mapsui.Styles;
 using Mapsui.UI;
 using Mapsui.UI.Avalonia;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
+using SmartTrainApplication.MapComponents;
 using SmartTrainApplication.Models;
 using SmartTrainApplication.Views;
 using System;
@@ -55,17 +59,19 @@ namespace SmartTrainApplication
             return;
         }
 
-        public static void ExportNewRoute()
+        public static void ExportNewRoute(EditManager _editManager, TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
-            DataManager.Export(GetRouteAsString());
+            FileManager.Export(GetRouteAsString(), topLevel);
 
             return;
         }
 
-        public static void ImportNewRoute()
+        public static void ImportNewRoute(TopLevel topLevel)
         {
-            string GeometryData = DataManager.Import();
+            List<string> importedRoutes = FileManager.StartupFolderImport();
+            string GeometryData = importedRoutes[0];
+            //string GeometryData = DataManager.Import(topLevel);
             var importLayer = LayerManager.CreateImportLayer();
             List<string> tunnelStrings = DataManager.GetTunnelStrings();
             List<string> stopsStrings = DataManager.GetStopStrings();
@@ -145,6 +151,28 @@ namespace SmartTrainApplication
             }
 
             return importLayer;
+        }
+
+        public static AnimatedPointLayer CreateAnimationLayer()
+        {
+            var animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
+            if (animationLayer == null)
+            {
+                // Animation layer doesnt exist yet, create the import layer
+                MapViewControl.map.Layers.Add(new AnimatedPointLayer(new TrainPointProvider())
+                {
+                    Name = "Trains",
+                    Style = new LabelStyle
+                    {
+                        BackColor = new Brush(Color.Black),
+                        ForeColor = Color.White,
+                        Text = "Train",
+                    }
+                });
+                animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
+            }
+
+            return animationLayer;
         }
 
         public static WritableLayer TurnImportToEdit()

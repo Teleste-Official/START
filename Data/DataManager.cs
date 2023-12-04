@@ -1,8 +1,12 @@
-﻿using Mapsui;
+﻿using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using DynamicData;
+using Mapsui;
 using NetTopologySuite.Geometries;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,6 +21,9 @@ namespace SmartTrainApplication.Data
     {
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
         public static TrainRoute CurrentTrainRoute;
+
+        public static List<Train> Trains = new List<Train>();
+        public static Train CurrentTrain;
 
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
@@ -58,35 +65,6 @@ namespace SmartTrainApplication.Data
             return;
         }
 
-        /// <summary>
-        /// Export the created lines into a file.
-        /// </summary>
-        /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
-        public static void Export(String GeometryString) {
-            if (GeometryString == "")
-                return;
-
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-            TrainRoute NewTrainRoute = CreateNewRoute(GeometryString);
-
-            // Create a file and write empty the new route to it
-            var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(NewTrainRoute, Json_options));
-
-            Import();
-        }
-
-        public static void Save() {
-            if (CurrentTrainRoute == null)
-                return;
-
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-
-            // Save the current train route
-            var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(CurrentTrainRoute, Json_options));
-        }
-
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
         {
             // Parse the line string into individual values
@@ -109,43 +87,7 @@ namespace SmartTrainApplication.Data
                 }
             }
             return Coordinates;
-        }
-
-        public static string Import()
-        {
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
-            string FileAsString = "";
-
-            // Open the file to read from
-            using (StreamReader Sr = File.OpenText(Path))
-            {
-
-                // Read the lines on the file and gather a list from them
-                string S;
-                while ((S = Sr.ReadLine()) != null)
-                {
-                    FileAsString += S;
-                }
-            }
-
-            // Deserialise the JSON string into a object
-            var Json_options = new JsonSerializerOptions { IncludeFields = true };
-            TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(FileAsString, Json_options);
-
-            // Set the imported train route as the currently selected one
-            TrainRoutes.Add(ImportedTrainRoute);
-            CurrentTrainRoute = ImportedTrainRoute;
-
-            // Turn the coordinates back to a geometry string
-            string GeometryString = "LINESTRING (";
-            foreach (var coord in ImportedTrainRoute.Coords)
-            {
-                GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-            }
-            GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-
-            return GeometryString;
-        }
+        }        
 
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {
@@ -250,7 +192,7 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
-        static double CalculateDistance(RoutePoint point1, RoutePoint point2)
+        public static double CalculateDistance(RoutePoint point1, RoutePoint point2)
         {
             double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
             double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);

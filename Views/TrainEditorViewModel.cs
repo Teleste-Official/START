@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartTrainApplication.Data;
+using System;
 
 
 namespace SmartTrainApplication.Views
@@ -9,7 +10,13 @@ namespace SmartTrainApplication.Views
 
         public TrainEditorViewModel()
         {
-            Title = "Add Train Test"; // This only for testing now here -Metso
+            Title = "Add Train"; // This only for testing now here -Metso
+        }
+
+        public void SaveTrainButton()
+        {
+            DataManager.CurrentTrain = new Models.Train("Test", "Testing train", 0); // For testing, remove later -Metso
+            FileManager.SaveTrain();
         }
     }
 }

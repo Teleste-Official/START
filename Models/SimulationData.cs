@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Avalonia;
+using SmartTrainApplication.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +10,12 @@ namespace SmartTrainApplication.Models
 {
     public class SimulationData
     {
-        string Name { get; set; } // Datetime?
+        public string Name { get; set; } // Datetime? Might not need this one, this information could be in the files name itself -Metso
 
-        List<TickData> TickData { get; set; }
+        public List<TickData> TickData { get; set; }
+
+        public Train Train { get; set; } // The train the simulation was performed with
+        public TrainRoute TrainRoute { get; set; } // The route the simulation was performed with
 
         public SimulationData() { }
 
@@ -18,6 +23,9 @@ namespace SmartTrainApplication.Models
         {
             Name = name;
             TickData = tickData;
+            //Train = DataManager.CurrentTrain;
+            Train = new Train("Test", "Testing Train", 0); // For testing only -Metso
+            TrainRoute = DataManager.CurrentTrainRoute;
         }
     }
 }

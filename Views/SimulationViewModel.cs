@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartTrainApplication.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,12 @@ namespace SmartTrainApplication.Views
         public SimulationViewModel()
         {
 
+        }
+
+        public void RunSimulationButton()
+        {
+            Simulation.RunSimulation();
+            return;
         }
     }
 }
