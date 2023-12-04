@@ -9,15 +9,23 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Mapsui;
-using Mapsui.Projections;
-using NetTopologySuite.Operation.Distance;
 
 namespace SmartTrainApplication.Data
 {
     internal class Simulation
     {
         public static SimulationData? LatestSimulation = null;
+
+        class SimulatedTrainRoute : TrainRoute
+        {
+            public Dictionary<RouteCoordinate, bool> RouteTurnPoints;
+            public Dictionary<RouteCoordinate, bool> RouteStops;
+
+            public SimulatedTrainRoute()
+            {
+                RouteTurnPoints = Coords.ToDictionary(x => x, x => false);
+            }
+        }
 
         public static void PreprocessRoute()
         {
@@ -60,6 +68,7 @@ namespace SmartTrainApplication.Data
             int pointIndex = 1;
             double nextLat = points[pointIndex].Y;
             double nextLon = points[pointIndex].X;
+            bool isGpsFix = false;
 
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
@@ -84,6 +93,12 @@ namespace SmartTrainApplication.Data
                     tickData.distanceMeters += (float)pointDistance;
                     tickData.latitudeDD = nextLat;
                     tickData.longitudeDD = nextLon;
+
+                    if (route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE")
+                    {
+                        isGpsFix = !isGpsFix;
+                    }
+
                     pointIndex++;
                     nextLat = points[pointIndex].Y;
                     nextLon = points[pointIndex].X;
@@ -104,7 +119,7 @@ namespace SmartTrainApplication.Data
 
                 // Data to be saved in Ticks:
                 // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
-                AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, false, tickData.speedKmh, false, tickData.distanceMeters, tickData.trackTimeSecs));
+                AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, tickData.speedKmh, false, tickData.distanceMeters, tickData.trackTimeSecs));
 
                 // Test tick data
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
