@@ -31,12 +31,23 @@ namespace SmartTrainApplication.Data
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
 
-  
+            Dictionary <RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute().RouteTurnPoints;
 
-             List<string> turnPoints = DataManager.GetTurnStrings();
-             List<string> turnStrings = DataManager.AddTurns(turnPoints);
+            foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+            {
+                for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
+                {
+                    RoutePoint point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
+                    RoutePoint point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
+                    RoutePoint point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
 
+                    bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
 
+                    TurnPoints.Add(DataManager.CurrentTrainRoute.Coords[i], turn);
+                }
+
+                Debug.WriteLine("Key: {0}, Value: {1}", kvp.Key, kvp.Value);
+            }
 
             return;
         }

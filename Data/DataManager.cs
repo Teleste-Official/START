@@ -269,51 +269,5 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
-        public static List<string> GetTurnStrings()
-        {
-            List<string> turnStrings = new List<string>();
-
-            foreach (var coord in CurrentTrainRoute.Coords)
-            {
-                if (coord.Type == "TURN")
-                {
-                    turnStrings.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
-                }
-            }
-
-            return turnStrings;
-        }
-
-        public static List<string> AddTurns(List<string> TurnPoints)
-        {
-        List<string> turnStrings = new List<string>();
-            foreach (var PointString in TurnPoints)
-            {
-                string[] ParsedGeometry = PointString.Split("(");
-                string Geometry = ParsedGeometry[1].Remove(ParsedGeometry[1].Length - 1);
-                string[] xy = Geometry.Split(" ");
-                RoutePoint routePoint = new RoutePoint(xy[0], xy[1]);
-
-                for (int i = 0; i < CurrentTrainRoute.Coords.Count - 2; i++)
-                {
-                    RoutePoint point1 = new RoutePoint(CurrentTrainRoute.Coords[i].Longitude, CurrentTrainRoute.Coords[i].Latitude);
-                    RoutePoint point2 = new RoutePoint(CurrentTrainRoute.Coords[i + 1].Longitude, CurrentTrainRoute.Coords[i + 1].Latitude);
-                    RoutePoint point3 = new RoutePoint(CurrentTrainRoute.Coords[i + 2].Longitude, CurrentTrainRoute.Coords[i + 2].Latitude);
-
-                    bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
-
-                    if (turn)
-                    {
-                        CurrentTrainRoute.Coords[i].SetType("TURN");
-                    }
-
-                }
-            }
-
-            turnStrings = GetTurnStrings();
-
-            return turnStrings;
-        }
-
     }
 }
