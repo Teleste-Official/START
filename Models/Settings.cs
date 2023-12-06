@@ -21,7 +21,7 @@ namespace SmartTrainApplication.Models
     {
         public double Longitude {  get; set; }
         public double Latitude { get; set; }
-        public List<string> RouteDirectories { get; set; }
+        public static List<string> RouteDirectories { get; set; }
         public List<string> TrainDirectories { get; set; }
         public string VersionNumber { get; set; }
 
@@ -34,6 +34,11 @@ namespace SmartTrainApplication.Models
             RouteDirectories = routeDirectories;
             TrainDirectories = trainDirectories;
             VersionNumber = Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        public void AddRouteDirectory(string routeDirectory)
+        {
+            RouteDirectories.Add(routeDirectory);
         }
     }
 }

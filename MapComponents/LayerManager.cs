@@ -103,11 +103,24 @@ namespace SmartTrainApplication
         /// Adds new Routes from imports to an import layer and redraws the map
         /// </summary>
         /// <param name="topLevel">(TopLevel) Top level</param>
-        public static void ImportNewRoute(TopLevel topLevel)
+        public static void ImportNewRoute(List<string> SavedPaths)
         {
-            List<string> importedRoutes = FileManager.StartupFolderImport();
-            string GeometryData = importedRoutes[0];
-            //string GeometryData = DataManager.Import(topLevel);
+            List<string> ImportedRoutes = FileManager.StartupFolderImport(SavedPaths);
+            string GeometryData = ImportedRoutes[0];
+            
+            var importLayer = LayerManager.CreateImportLayer();
+            List<string> tunnelStrings = DataManager.GetTunnelStrings();
+            List<string> stopsStrings = DataManager.GetStopStrings();
+
+            LayerManager.TurnImportToFeature(GeometryData, importLayer);
+            LayerManager.RedrawTunnelsToMap(tunnelStrings);
+            LayerManager.RedrawStopsToMap(stopsStrings);
+        }
+
+        public static void ChangeCurrentRoute(int RouteIndex)
+        {
+            string GeometryData = FileManager.ChangeCurrentRoute(RouteIndex);
+
             var importLayer = LayerManager.CreateImportLayer();
             List<string> tunnelStrings = DataManager.GetTunnelStrings();
             List<string> stopsStrings = DataManager.GetStopStrings();

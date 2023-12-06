@@ -1,4 +1,6 @@
-﻿using Avalonia;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Mapsui.Nts.Editing;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
@@ -16,14 +18,14 @@ namespace SmartTrainApplication.Views
     public class TrackEditorViewModel : ViewModelBase
     {
         public string TrackName { get; set; }
-        public List<TrainRoute> Routes { get; set; }
+        public List<TrainRoute> ImportedRoutes { get; set; }
         private string CurrentAction {  get; set; }
 
         public TrackEditorViewModel()
         {
-            if (DataManager.TrainRoutes.Count == 0)
+            if (FileManager.ImportedRoutes.Count == 0)
                 LayerManager.ImportNewRoute(MainWindow.TopLevel);
-            Routes = DataManager.TrainRoutes.ToList();
+            Routes = FileManager.ImportedRoutes.ToList();
             TrackName = "Track Name...";
             CurrentAction = "None";
         }
@@ -93,5 +95,11 @@ namespace SmartTrainApplication.Views
             RaisePropertyChanged(nameof(TrackName));
             RaisePropertyChanged(nameof(Routes));
         }
+
+        public void ChangeCurrentRouteIndex(int index)
+        {
+            LayerManager.ChangeCurrentRoute(index);
+        }
+
     }
 }
