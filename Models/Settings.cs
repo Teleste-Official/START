@@ -10,7 +10,7 @@ namespace SmartTrainApplication.Models
     {
         public string Longitude {  get; set; }
         public string Latitude { get; set; }
-        public List<string> RouteDirectories { get; set; }
+        public static List<string> RouteDirectories { get; set; }
         public List<string> TrainDirectories { get; set; }
         public string VersionNumber { get; set; }
 
@@ -22,6 +22,11 @@ namespace SmartTrainApplication.Models
             Latitude = latitude;
             RouteDirectories = routeDirectories;
             TrainDirectories = trainDirectories;
+        }
+
+        public void AddRouteDirectory(string routeDirectory)
+        {
+            RouteDirectories.Add(routeDirectory);
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using Mapsui.Nts.Editing;
+﻿using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Mapsui.Nts.Editing;
+using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,9 +15,12 @@ namespace SmartTrainApplication.Views
 {
     public class TrackEditorViewModel : ViewModelBase
     {
+
+        public List<TrainRoute> ImportedRoutes { get; set; }
+
         public TrackEditorViewModel()
         {
-
+            ImportedRoutes = FileManager.ImportedRoutes;
         }
 
         public void AddLineButton()
@@ -30,5 +37,11 @@ namespace SmartTrainApplication.Views
         {
             LayerManager.TurnImportToEdit();
         }
+
+        public void ChangeCurrentRouteIndex(int index)
+        {
+            LayerManager.ChangeCurrentRoute(index);
+        }
+
     }
 }

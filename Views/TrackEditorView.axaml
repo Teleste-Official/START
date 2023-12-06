@@ -42,32 +42,17 @@
 
 		<DockPanel LastChildFill="False">
 
-			<ComboBox>
-        <ComboBoxItem>
+			<ComboBox x:Name="TrackComboBox" ItemsSource="{Binding ImportedRoutes}" SelectedIndex="0">
+        <ComboBox.ItemTemplate>
+			<DataTemplate>
           <Panel>
             <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Select Track...</TextBlock>
+            <TextBlock Margin="40 10 0 5" Text="{Binding Name}"/>
           </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 1</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 2</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 3</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-			</ComboBox>
+			</DataTemplate>
+        </ComboBox.ItemTemplate>
+        
+		</ComboBox>
 
 			<TextBox Watermark="Track Name..."/>
 

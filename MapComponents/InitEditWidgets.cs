@@ -13,6 +13,7 @@ using Mapsui.Widgets.ButtonWidget;
 using Mapsui.Widgets.MouseCoordinatesWidget;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace SmartTrainApplication.Views;
@@ -247,7 +248,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            LayerManager.ImportNewRoute(MainWindow.TopLevel);
+            LayerManager.ImportNewRoute(Settings.RouteDirectories);
 
             e.Handled = true;
         };

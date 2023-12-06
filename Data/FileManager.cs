@@ -22,6 +22,10 @@ namespace SmartTrainApplication.Data
             MimeTypes = new[] { "application/json" }
         };
 
+        public static List<string>? ImportedRoutesAsStrings { get; set; }
+        public static List<TrainRoute>? ImportedRoutes { get; set; }
+        public static string DefaultRouteFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
+
         /// <summary>
         /// Export the created lines into a file.
         /// </summary>
@@ -53,6 +57,9 @@ namespace SmartTrainApplication.Data
             //Import();
         }
 
+        /// <summary>
+        /// Save changes to current route to file.
+        /// </summary>
         public static void Save()
         {
             if (DataManager.CurrentTrainRoute == null)
@@ -65,42 +72,45 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrainRoute, Json_options));
         }
 
-        // Imports all JSON-files from directories saved by user on app startup
-        // Currently just gets all JSON-files in runtime directory. Rest will be implemented later - Timo
-        public static List<string> StartupFolderImport()
+        /// <summary>
+        /// Imports all Json-files from folders defined by user in settings view. Also sets current train route.
+        /// </summary>
+        /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
+        /// <returns>Returns available routes a list of strings</returns>
+        public static List<string> StartupFolderImport(List<string> SavedPaths)
         {
             List<string> Files = new List<string>();
-            List<string> SavedPaths = new List<string>(); //For later
+            
+            if (SavedPaths == null) return Files;
 
-            //In case these are needed later
-            bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            bool isMacOs = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-            bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            string Path = Directory.GetCurrentDirectory();
-            Debug.WriteLine(Path);
-            if (Directory.Exists(Path))
+            foreach (var Path in SavedPaths)
             {
-                var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
-
-                foreach (var file in FilesInFolder)
+                Debug.WriteLine(Path);
+                if (Directory.Exists(Path))
                 {
-                    var FileAsString = "";
-                    using (StreamReader sr = File.OpenText(file))
-                    {
-                        string S;
-                        while ((S = sr.ReadLine()) != null)
-                        {
-                            FileAsString += S;
-                        }
-                    }
-                    if (FileAsString.Contains("Coords"))
-                    {
-                        Files.Add(FileAsString);
-                    }
+                    var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
 
+                    foreach (var file in FilesInFolder)
+                    {
+                        var FileAsString = "";
+                        using (StreamReader sr = File.OpenText(file))
+                        {
+                            string S;
+                            while ((S = sr.ReadLine()) != null)
+                            {
+                                FileAsString += S;
+                            }
+                        }
+                        if (FileAsString.Contains("Coords"))
+                        {
+                            Files.Add(FileAsString);
+                        }
+
+                    }
                 }
             }
+            
 
             // Deserialise the JSON strings into objects and add to list
             var Json_options = new JsonSerializerOptions { IncludeFields = true };
@@ -115,7 +125,7 @@ namespace SmartTrainApplication.Data
             // Set the first imported train route as the currently selected one
             DataManager.CurrentTrainRoute = ImportedTrainRoutes[0];
 
-            // Turn the coordinates back to a geometry string
+            // Turn the coordinates back to geometry strings
             List<string> routesAsStrings = new List<string>();
             string GeometryString = "LINESTRING (";
             foreach (var route in ImportedTrainRoutes)
@@ -128,10 +138,36 @@ namespace SmartTrainApplication.Data
                 routesAsStrings.Add(GeometryString);
             }
 
+            //Update lists
+            ImportedRoutesAsStrings = routesAsStrings;
+            ImportedRoutes = ImportedTrainRoutes;
+
             return routesAsStrings;
         }
 
+        /// <summary>
+        /// Changes currently active train route
+        /// </summary>
+        /// <param name="RouteIndex">Index number of wanted route</param>
+        /// <returns>New active route</returns>
+        public static string ChangeCurrentRoute(int RouteIndex)
+        {
+            if (ImportedRoutes[RouteIndex] == null)
+            {
+                string FirstRoute = ImportedRoutesAsStrings[0];
+                DataManager.CurrentTrainRoute = ImportedRoutes[0];
+                return FirstRoute;
+            }
+                
+            string NewCurrentRoute = ImportedRoutesAsStrings[RouteIndex];
+            DataManager.CurrentTrainRoute = ImportedRoutes[RouteIndex];
+            return NewCurrentRoute;
+        }
 
+        /// <summary>
+        /// Saves the simulation data to file
+        /// </summary>
+        /// <param name="sim"></param>
         public static void SaveSimulationData(SimulationData sim)
         {
             string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
@@ -153,6 +189,9 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
         }
 
+        /// <summary>
+        /// Load saved trains from folder
+        /// </summary>
         public static void LoadTrains()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
@@ -194,6 +233,9 @@ namespace SmartTrainApplication.Data
             return;
         }
 
+        /// <summary>
+        /// Saves train to folder
+        /// </summary>
         public static void SaveTrain()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
