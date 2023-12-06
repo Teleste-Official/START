@@ -9,8 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Mapsui;
-using Mapsui.Projections;
 
 namespace SmartTrainApplication.Data
 {
@@ -24,9 +22,40 @@ namespace SmartTrainApplication.Data
         /// <summary>
         /// Run Preprocess functions for TrainRoutes before simulating the TrainRoute
         /// </summary>
+        class SimulatedTrainRoute : TrainRoute
+        {
+            public Dictionary<RouteCoordinate, bool> RouteTurnPoints;
+            public Dictionary<RouteCoordinate, bool> RouteStops;
+
+            public SimulatedTrainRoute(TrainRoute _route)
+            {
+                Name = _route.Name;
+                Coords = _route.Coords;
+                RouteTurnPoints = _route.Coords.ToDictionary(x => x, x => false);
+            }
+        }
+
         public static void PreprocessRoute()
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
+
+            Dictionary<RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute(DataManager.CurrentTrainRoute).RouteTurnPoints;
+
+            foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+            {
+                for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
+                {
+                    RoutePoint point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
+                    RoutePoint point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
+                    RoutePoint point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
+
+                    bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
+
+                    TurnPoints[DataManager.CurrentTrainRoute.Coords[i]] =  turn;
+                }
+
+                Debug.WriteLine("Key: {0}, Value: {1}", kvp.Key, kvp.Value);
+            }
 
             return;
         }
@@ -37,6 +66,8 @@ namespace SmartTrainApplication.Data
         public static void RunSimulation() // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
+
+            PreprocessRoute();
 
             // Const test variables for train & simulation info
             const float acceleration = 2;
@@ -61,6 +92,7 @@ namespace SmartTrainApplication.Data
             int pointIndex = 1;
             double nextLat = points[pointIndex].Y;
             double nextLon = points[pointIndex].X;
+            bool isGpsFix = false;
 
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
@@ -85,6 +117,12 @@ namespace SmartTrainApplication.Data
                     tickData.distanceMeters += (float)pointDistance;
                     tickData.latitudeDD = nextLat;
                     tickData.longitudeDD = nextLon;
+
+                    if (route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE")
+                    {
+                        isGpsFix = !isGpsFix;
+                    }
+
                     pointIndex++;
                     nextLat = points[pointIndex].Y;
                     nextLon = points[pointIndex].X;
@@ -105,7 +143,7 @@ namespace SmartTrainApplication.Data
 
                 // Data to be saved in Ticks:
                 // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
-                AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, false, tickData.speedKmh, false, tickData.distanceMeters, tickData.trackTimeSecs));
+                AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, tickData.speedKmh, false, tickData.distanceMeters, tickData.trackTimeSecs));
 
                 // Test tick data
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
@@ -119,10 +157,12 @@ namespace SmartTrainApplication.Data
                     if (RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration) > maxSpeed)
                     {
                         tickData.speedKmh = maxSpeed;
+                        // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
                     }
                     else
                     {
-                        tickData.speedKmh = RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                        tickData.speedKmh += RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                       // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
                     }
                 }
             }

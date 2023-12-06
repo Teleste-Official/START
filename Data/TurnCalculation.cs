@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SmartTrainApplication.Models;
 
 namespace SmartTrainApplication.Data
 {
@@ -13,15 +14,6 @@ namespace SmartTrainApplication.Data
     /// </summary>
     public class TurnCalculation
     {
-        public static void TurnCalculationTest()
-        {
-            Coor coordinate1 = new Coor(6, 5);
-            Coor coordinate2 = new Coor(50, 3);
-            Coor coordinate3 = new Coor(70, 1);
-
-            CalculateTurn(coordinate1, coordinate2, coordinate3);
-        }
-
         /// <summary>
         /// Calculates if a gap between 3 given points is a turn
         /// </summary>
@@ -29,43 +21,48 @@ namespace SmartTrainApplication.Data
         /// <param name="point2">(Coor(double X, double Y)) Middle point</param>
         /// <param name="point3">(Coor(double X, double Y)) End point</param>
         /// <returns>(bool) Is gap between given points a turn</returns>
-        public static void CalculateTurn(Coor point1, Coor point2, Coor point3)
+        public static bool CalculateTurn(RoutePoint point1, RoutePoint point2, RoutePoint point3)
         {
-            // Calculate vectors v1 and v2
-            double v1x = point2.X - point1.X;
-            double v1y = point2.Y - point1.Y;
+            bool turn;
 
-            double v2x = point3.X - point2.X;
-            double v2y = point3.Y - point2.Y;
+            // Convert string values to doubles
+            double point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
+            double point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
+
+            double point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
+            double point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
+
+            double point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
+            double point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
+
+            // Calculate vectors v1 and v2
+            double v1x = point2Longitude - point1Longitude;
+            double v1y = point2Latitude - point1Latitude;
+
+            double v2x = point3Longitude - point2Longitude;
+            double v2y = point3Latitude - point2Latitude;
 
             // Calculate the cross product of v1 and v2
             double crossProduct = v1x * v2y - v2x * v1y;
 
             // Determine direction based on the cross product
-            if (crossProduct > 0)
+            if (crossProduct > 100000)
             {
-                System.Diagnostics.Debug.WriteLine("Left");
+                // Left turn
+                turn = true;
             }
-            else if (crossProduct < 0)
+            else if (crossProduct < -100000)
             {
-                System.Diagnostics.Debug.WriteLine("Right");
+                // Right turn
+                turn = true;
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Forward");
+                // Forward
+                turn = false;
             }
-        }
-    }
 
-    public class Coor
-    {
-        public double X { get; set; }
-        public double Y { get; set; }
-
-        public Coor(double x, double y)
-        {
-            X = x;
-            Y = y;
+            return turn;
         }
     }
 

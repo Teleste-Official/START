@@ -35,6 +35,7 @@ namespace SmartTrainApplication.Data
         /// <returns>(TrainRoute) TrainRoute with name & list of RouteCoordinates</returns>
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
+
             List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
             TrainRoute NewTrainRoute = new TrainRoute("TestRoute", Geometry);
 
@@ -63,15 +64,18 @@ namespace SmartTrainApplication.Data
             {
                 TrainRoutes.Add(NewRoute);
                 CurrentTrainRoute = NewRoute;
+
             }
             else
             {
                 // Fix tunnels and stops into the modified route
                 List<string> tunnelPoints = GetTunnelPoints();
                 List<string> stopsPoints = GetStopStrings();
+
                 CurrentTrainRoute = NewRoute;
                 List<string> tunnelStrings = AddTunnels(tunnelPoints);
                 List<string> stopsStrings = AddStops(stopsPoints);
+
                 LayerManager.RedrawTunnelsToMap(tunnelStrings);
                 LayerManager.RedrawStopsToMap(stopsStrings);
             }
@@ -329,5 +333,6 @@ namespace SmartTrainApplication.Data
 
             return stopStrings;
         }
+
     }
 }

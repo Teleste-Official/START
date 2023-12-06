@@ -35,6 +35,7 @@ namespace SmartTrainApplication.Data
 
             Debug.WriteLine($"Route Length: {CalculateRouteLength(points)}");
 
+
             // Used for testing functionality
             //Debug.WriteLine(points.Count);
             //foreach (var point in points)
