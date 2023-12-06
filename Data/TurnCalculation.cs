@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
-
+    /// <summary>
+    /// Functions used for determining turns from Routes
+    /// <br/>
+    /// For Simulation Preprocessing
+    /// </summary>
     public class TurnCalculation
     {
         public static void TurnCalculationTest()
@@ -18,6 +22,13 @@ namespace SmartTrainApplication.Data
             CalculateTurn(coordinate1, coordinate2, coordinate3);
         }
 
+        /// <summary>
+        /// Calculates if a gap between 3 given points is a turn
+        /// </summary>
+        /// <param name="point1">(Coor(double X, double Y)) Startig point</param>
+        /// <param name="point2">(Coor(double X, double Y)) Middle point</param>
+        /// <param name="point3">(Coor(double X, double Y)) End point</param>
+        /// <returns>(bool) Is gap between given points a turn</returns>
         public static void CalculateTurn(Coor point1, Coor point2, Coor point3)
         {
             // Calculate vectors v1 and v2

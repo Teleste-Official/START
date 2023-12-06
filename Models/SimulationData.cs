@@ -8,6 +8,15 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {
+    /// <summary>
+    /// The TickData, TrainRoute and Train data generated from TrainRoutes in Simulation
+    /// <list type="bullet">
+    /// <item>(string) Name</item>
+    /// <item>(List of TickData) TickData</item>
+    /// <item>(Train) Train</item>
+    /// <item>(TrainRoute) TrainRoute</item>
+    /// </list>
+    /// </summary>
     public class SimulationData
     {
         public string Name { get; set; } // Datetime? Might not need this one, this information could be in the files name itself -Metso

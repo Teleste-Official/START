@@ -19,6 +19,10 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    /// <summary>
+    /// Old build-in UI buttons
+    /// </summary>
+    /// <param name="map">(Map) The map</param>
     [Obsolete("Functionality has been moved to Avalonia UI elements.")]
     private void InitEditWidgets(Map map)
     {

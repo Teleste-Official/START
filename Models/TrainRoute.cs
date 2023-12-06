@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {
+    /// <summary>
+    /// The railway route that the Train will follow
+    /// <list type="bullet">
+    /// <item>(string) Name</item>
+    /// <item>(List of RouteCoordinate) Coords</item>
+    /// </list>
+    /// </summary>
     public class TrainRoute
     {
         public string Name { get; set; }

@@ -1,5 +1,14 @@
 ﻿namespace SmartTrainApplication.Models;
 
+/// <summary>
+/// The singular coordinate points that make up TrainRoutes
+/// <list type="bullet">
+/// <item>(string) Longitude</item>
+/// <item>(string) Longitude</item>
+/// <item>(string) Type</item>
+/// <item>(string) StopName</item>
+/// </list>
+/// </summary>
 public class RouteCoordinate
 {
     public string Longitude { get; set; }
@@ -23,6 +32,10 @@ public class RouteCoordinate
         StopName = "";
     }
 
+    /// <summary>
+    /// Changes the Type of the RouteCoordinate object to a given Type
+    /// </summary>
+    /// <param name="Type">(string) Type to set</param>
     public void SetType(string Type)
     {
         this.Type = Type;

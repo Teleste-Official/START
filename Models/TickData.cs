@@ -6,6 +6,18 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {
+    /// <summary>
+    /// Data points used for Train's data in TrainRoute generation and simulation
+    /// <list type="bullet">
+    /// <item>(double) latitudeDD</item>
+    /// <item>(bool) IsGpsFix</item>
+    /// <item>(double) longitudeDD</item>
+    /// <item>(float) speedKmh</item>
+    /// <item>(bool) doorsOpen</item>
+    /// <item>(float) distanceMeters</item>
+    /// <item>(float) trackTimeSecs</item>
+    /// </list>
+    /// </summary>
     public class TickData
     {
         //RouteDataPoint: 0, Dafug is this? -Metso

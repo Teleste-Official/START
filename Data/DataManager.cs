@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
+    /// <summary>
+    /// Functions used for adding or updating tunnels, stops, etc. features to new or existing TrainRoutes
+    /// </summary>
     internal class DataManager
     {
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
@@ -25,6 +28,11 @@ namespace SmartTrainApplication.Data
         public static List<Train> Trains = new List<Train>();
         public static Train CurrentTrain;
 
+        /// <summary>
+        /// Creates a new TrainRoute with a list of RouteCoordinates from a given GeometryString
+        /// </summary>
+        /// <param name="GeometryString">(String) TrainRoute's GeometryString to be parsed</param>
+        /// <returns>(TrainRoute) TrainRoute with name & list of RouteCoordinates</returns>
         public static TrainRoute CreateNewRoute(String GeometryString)
         {
             List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
@@ -33,6 +41,12 @@ namespace SmartTrainApplication.Data
             return NewTrainRoute;
         }
 
+        /// <summary>
+        /// Adds the given TrainRoute to the list of TrainRoutes
+        /// <br/>
+        /// Or If TrainRoute is already in the list, updates it's tunnels and stops
+        /// </summary>
+        /// <param name="NewRoute">(TrainRoute) The TrainRoute to be added (or updated) to the list</param>
         public static void AddToRoutes(TrainRoute NewRoute)
         {
             TrainRoute? oldRoute = null;
@@ -65,6 +79,11 @@ namespace SmartTrainApplication.Data
             return;
         }
 
+        /// <summary>
+        /// Parses the given GeometryString to a list of RouteCoordinates
+        /// </summary>
+        /// <param name="GeometryString">(String) TrainRoute's GeometryString to be parsed </param>
+        /// <returns>(List of RoudeCoordinate(string X, string Y)) TrainRoute's coordinates</returns>
         private static List<RouteCoordinate> ParseGeometryString(String GeometryString)
         {
             // Parse the line string into individual values
@@ -89,6 +108,11 @@ namespace SmartTrainApplication.Data
             return Coordinates;
         }        
 
+        /// <summary>
+        /// Adds tunnel data types to the given list of TunnelPoints
+        /// </summary>
+        /// <param name="TunnelPoints">(List of string) Points that contain Tunnels</param>
+        /// <returns>(List of string) List of TunnelPoints with added tunnel data types</returns>
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {
             List<string> tunnelStrings = new List<string>();
@@ -136,6 +160,10 @@ namespace SmartTrainApplication.Data
             return tunnelStrings;
         }
 
+        /// <summary>
+        /// Gets a list of Tunnel Entrance Points from the CurrentTrainRoute's coordinates
+        /// </summary>
+        /// <returns>(List of string) List of Tunnel Entrance Points gotten from CurrentTrainRoute.Coords</returns>
         static List<string> GetTunnelPoints()
         {
             List<string> points = new List<string>();
@@ -162,6 +190,10 @@ namespace SmartTrainApplication.Data
             return GeometryString;
         }
 
+        /// <summary>
+        /// Gets a list of TunnelStrings from the CurrentTrainRoute's coordinates
+        /// </summary>
+        /// <returns>(List of string) List of tunnelStrings (points that contain tunnels) gotten from CurrentTrainRoute.Coords</returns>
         public static List<string> GetTunnelStrings()
         {
             List<string> tunnelStrings = new List<string>();
@@ -190,6 +222,10 @@ namespace SmartTrainApplication.Data
             return tunnelStrings;
         }
 
+        /// <summary>
+        /// Gets a list of StopPoints from the CurrentTrainRoute's coordinates
+        /// </summary>
+        /// <returns>(List of string) List of stopStrings (points that contain stops) gotten from CurrenTrainRoute.Coords</returns>
         public static List<string> GetStopStrings()
         {
             List<string> stopStrings = new List<string>();
@@ -205,6 +241,14 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
+        /// <summary>
+        /// Calculates a distance between 2 given RoutePoints
+        /// <br/>
+        /// Used to determine the closest RoutePoint to which to add the tunnel entrance when creating tunnels
+        /// </summary>
+        /// <param name="point1">(RoutePoint) RoutePoint from which to calculate the distance</param>
+        /// <param name="point2">(RoutePoint) RoutePoint to which to calculate the distance</param>
+        /// <returns>(double) Distance between the 2 given RoutePoints</returns>
         public static double CalculateDistance(RoutePoint point1, RoutePoint point2)
         {
             double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) - double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -213,6 +257,9 @@ namespace SmartTrainApplication.Data
             return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         }
 
+        /// <summary>
+        /// Updates the data types of points in-between Tunnel Entrances to Tunnels in CurrentTrainRoute.Coords
+        /// </summary>
         private static void FixTunnelTypes()
         {
             bool tunnelEntrance = false;
@@ -232,6 +279,11 @@ namespace SmartTrainApplication.Data
             }
         }
 
+        /// <summary>
+        /// Adds stop data types to the given list of StopsPoints
+        /// </summary>
+        /// <param name="StopsPoints">(List of string) Points that contain Stops</param>
+        /// <returns>(List of string) List of stopStrings with added stop data types</returns>
         public static List<string> AddStops(List<string> StopsPoints)
         {
             List<string> stopStrings = new List<string>();

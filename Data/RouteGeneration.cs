@@ -11,9 +11,14 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
+    /// <summary>
+    /// Functions used for calculation Route/Train data during simulation loop
+    /// </summary>
     internal class RouteGeneration
     {
-        // Used in testing, triggered from 'Save' button. -Sami
+        /// <summary>
+        /// Used in initial testing to calculate route's length, now implemented in <c>Simulation.RunSimulation()</c>. 
+        /// </summary>
         public static void GenerateRoute()
         {
             TrainRoute route = DataManager.CurrentTrainRoute;
@@ -38,6 +43,11 @@ namespace SmartTrainApplication.Data
             //}
         }
 
+        /// <summary>
+        /// Calculates given route's length using <c>CalculatePointDistance()</c>
+        /// </summary>
+        /// <param name="points">(List of MPoint(double X, double Y)) Route's points</param>
+        /// <returns>(double) Route's length in meters</returns>
         public static double CalculateRouteLength(List<MPoint> points)
         {
             double length = 0;
@@ -58,29 +68,56 @@ namespace SmartTrainApplication.Data
             return length;
         }
 
+        /// <summary>
+        /// Converts given degrees to radians
+        /// </summary>
+        /// <param name="degrees">(double) Degrees</param>
+        /// <returns>(double) Radians</returns>
         static double ConvertToRadians(double degrees)
         {
             return (degrees * Math.PI) / 180;
         }
 
+        /// <summary>
+        /// Calculates a distance between 2 points based on given EPSG:4326 coordinates.
+        /// <br/>
+        /// The Haversine formula is used in the calculation.
+        /// </summary>
+        /// <param name="lon1">(double) First point's longitude in degrees</param>
+        /// <param name="lon2">(double) Second point's longitude in degrees</param>
+        /// <param name="lat1">(double) First point's latitude in degrees</param>
+        /// <param name="lat2">(double) Second point's latitude in degrees</param>
+        /// <returns>(double) Distance between given points in meters</returns>
         public static double CalculatePointDistance(double lon1, double lon2, double lat1, double lat2)
         {
+            // Earth's radius in kilometers
             const double R = 6371;
+
+            // φ is latitude, Δ is longitude, converted to radians
             var φ1 = ConvertToRadians(lat1);
             var φ2 = ConvertToRadians(lat2);
             var Δφ = ConvertToRadians(lat2 - lat1);
             var Δλ = ConvertToRadians(lon2 - lon1);
 
+            //Haversine formula
             var a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
                     Math.Cos(φ1) * Math.Cos(φ2) *
                     Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
             var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
+            // d is the distance in kilometers
             var d = R * c;
             return d * 1000;
         }
-        
-        // For EPSG:3857, major projection errors except at Equator. -Sami
+
+        /// <summary>
+        /// Calculates a distance between 2 points based on given EPSG:3857 coordinates.
+        /// <br/>
+        /// Not in use, major projection errors except at Equator. -Sami
+        /// </summary>
+        /// <param name="point1">(MPoint(double X, double Y)) First point in EPSG:3857</param>
+        /// <param name="point2">(MPoint(double X, double Y)) Second point in EPSG:3857</param>
+        /// <returns>(double) Distance between given points in meters</returns>
         //public static double CalculatePointDistance(MPoint point1, MPoint point2)
         //{
         //    double deltaX = point2.X - point1.X;
@@ -89,6 +126,16 @@ namespace SmartTrainApplication.Data
         //    return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
         //}
 
+        /// <summary>
+        /// Calculates the train's new coordinates based on given EPSG:4326 coordinates and distances
+        /// </summary>
+        /// <param name="currentX">(double) Train's current longitude in degrees</param>
+        /// <param name="currentY">(double) Train's current latitude in degrees</param>
+        /// <param name="nextX">(double) Next route point's longitude in degrees</param>
+        /// <param name="nextY">(double) Next route point's latitude in degrees</param>
+        /// <param name="trainMovement">(double) Distance that the train moves in meters</param>
+        /// <param name="pointDistance">(double) Train's distance to the next route point in meters</param>
+        /// <returns>(double, double) Train's new coordinates in degrees</returns>
         public static (double, double) CalculateNewTrainPoint(double currentX, double currentY, double nextX, double nextY, double trainMovement, double pointDistance)
         {
             double newX = currentX + (trainMovement / pointDistance) * (nextX - currentX);
@@ -97,14 +144,28 @@ namespace SmartTrainApplication.Data
             return (newX, newY);
         }
 
+        /// <summary>
+        /// Calculates train's movement distance in given interval using time, current speed and acceleration
+        /// </summary>
+        /// <param name="currentSpeedKmh">(float) Train's current speed in km/h</param>
+        /// <param name="timeInterval">(float) Time interval("tick's" length) in seconds</param>
+        /// <param name="acceleration">(float) Train's acceleration in m/s^2</param>
+        /// <returns>(double) Train's movement distance in meters</returns>
         public static double CalculateTrainMovement(float currentSpeedKmh, float timeInterval, float acceleration)
         {
             return (currentSpeedKmh / 3.6) * timeInterval + 0.5 * acceleration * timeInterval * timeInterval;
         }
 
+        /// <summary>
+        /// Calculates train's new speed(after moving/"tick") given time, current speed and acceleration
+        /// </summary>
+        /// <param name="currentSpeedKmh">(float) Train's current speed in km/h</param>
+        /// <param name="timeInterval">(float) Time interval("tick's" length) in seconds</param>
+        /// <param name="acceleration">(float) Train's acceleration in m/s^2</param>
+        /// <returns>(float) Train's new speed in km/h</returns>
         public static float CalculateNewSpeed(float currentSpeedKmh, float timeInterval, float acceleration)
         {
-            return (currentSpeedKmh / 3.6f) + timeInterval * acceleration;
+            return ((currentSpeedKmh / 3.6f) + timeInterval * acceleration) * 3.6f;
         }
     }
 }
