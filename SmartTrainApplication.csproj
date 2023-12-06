@@ -27,7 +27,6 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\*" />
     <Folder Include="Assets\" />
-    <Folder Include="Tools\" />
   </ItemGroup>
 
 

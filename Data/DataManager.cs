@@ -149,6 +149,19 @@ namespace SmartTrainApplication.Data
             return points;
         }
 
+        public static string GetCurrentLinestring()
+        {
+            string GeometryString = "LINESTRING (";
+
+            foreach (var coord in CurrentTrainRoute.Coords)
+            {
+                GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+            }
+            GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+            
+            return GeometryString;
+        }
+
         public static List<string> GetTunnelStrings()
         {
             List<string> tunnelStrings = new List<string>();

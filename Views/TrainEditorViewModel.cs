@@ -5,6 +5,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using BruTile.Wms;
 using BruTile.Wmts;
+using DynamicData;
 using Mapsui.UI.Avalonia;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
@@ -50,17 +51,20 @@ namespace SmartTrainApplication.Views
             };
 
             // TESTING 
-            Trains = new List<ListedTrain> { 
-                new ListedTrain(new Train("Add a new train","Train description",0,0,0),Icons[0]),
-                new ListedTrain(new Train("Train 1","Test",0,0,0),Icons[0]),
-                new ListedTrain(new Train("Train 2","Test",0,0,0),Icons[2]),
-                new ListedTrain(new Train("Train 3","Test",0,0,0),Icons[1])
-            };
+
             // TESTING
-            DataManager.Trains.Add(new Train("Add new train", "Train description", 0, 0, 0));
-            DataManager.Trains.Add(new Train("Train 1", "Train 1 Test", 500, 20, 0));
-            DataManager.Trains.Add(new Train("Train 2", "Train 2 Test", 1000, 50, 2));
-            DataManager.Trains.Add(new Train("Train 3", "Train 3 Test", 100, 5, 1));
+            if (DataManager.Trains.Count == 0)
+            {
+                DataManager.Trains.Add(new Train("Add new train", "Train description", 0, 0, 0));
+                DataManager.Trains.Add(new Train("Train 1", "Train 1 Test", 500, 20, 0));
+                DataManager.Trains.Add(new Train("Train 2", "Train 2 Test", 1000, 50, 2));
+                DataManager.Trains.Add(new Train("Train 3", "Train 3 Test", 100, 5, 1));
+            }
+            Trains = new List<ListedTrain>();
+            foreach (var Train in DataManager.Trains)
+            {
+                Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+            }
         }
 
         public void SaveTrainButton()
@@ -69,7 +73,12 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
-            DataManager.CurrentTrain = new Models.Train(Title, Description, Decimal.ToSingle((decimal)Speed), Decimal.ToSingle((decimal)Acceleration), IconIndex);
+            Train newTrain = new Train(Title, Description, Decimal.ToSingle((decimal)Speed), Decimal.ToSingle((decimal)Acceleration), IconIndex);
+            DataManager.CurrentTrain = newTrain;
+            DataManager.Trains.Add(newTrain);
+            Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+            RaisePropertyChanged(nameof(Trains));
+            SetValuesToUI();
             FileManager.SaveTrain();
         }
 

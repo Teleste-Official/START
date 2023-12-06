@@ -59,6 +59,27 @@ namespace SmartTrainApplication
             return;
         }
 
+        public static void ClearAllLayers()
+        {
+            var importLayer = CreateImportLayer();
+            var tunnelLayer = CreateTunnelLayer();
+            var tunnelstringLayer = CreateTunnelStringLayer();
+            var stopsLayer = CreateStopsLayer();
+            //var animationLayer = CreateAnimationLayer();
+
+            importLayer.Clear();
+            tunnelLayer.Clear();
+            tunnelstringLayer.Clear();
+            stopsLayer.Clear();
+            //animationLayer.ClearCache();
+
+            MapViewControl._mapControl?.RefreshGraphics();
+
+            MapViewControl._editManager.EditMode = EditMode.None;
+
+            MapViewControl._tempFeatures = null;
+        }
+
         public static void ExportNewRoute(TopLevel topLevel)
         {
             // TODO: Add naming and multible feature saving with it
@@ -79,8 +100,6 @@ namespace SmartTrainApplication
             LayerManager.TurnImportToFeature(GeometryData, importLayer);
             LayerManager.RedrawTunnelsToMap(tunnelStrings);
             LayerManager.RedrawStopsToMap(stopsStrings);
-
-            return;
         }
 
         public static void ConfirmNewRoute()
@@ -335,6 +354,20 @@ namespace SmartTrainApplication
             MapViewControl._tempFeatures = null;
 
             return;
+        }
+
+        public static void SwitchRoute()
+        {
+            ClearAllLayers();
+            string GeometryString = DataManager.GetCurrentLinestring();
+            var importLayer = CreateImportLayer();
+            TurnImportToFeature(GeometryString, importLayer);
+
+            List<string> tunnelStrings = DataManager.GetTunnelStrings();
+            RedrawTunnelsToMap(tunnelStrings);
+
+            List<string> stopStrings = DataManager.GetStopStrings();
+            RedrawStopsToMap(stopStrings);
         }
 
         public static void RedrawTunnelsToMap(List<string> tunnelStrings)

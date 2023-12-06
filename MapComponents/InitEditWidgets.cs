@@ -19,6 +19,7 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    [Obsolete("Functionality has been moved to Avalonia UI elements.")]
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;

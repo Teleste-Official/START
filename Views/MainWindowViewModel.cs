@@ -38,7 +38,7 @@ namespace SmartTrainApplication.Views
             }
         }
 
-        public void NavigateToTackEditor()
+        public void NavigateToTrackEditor()
         { 
             CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
             //TurnCalculation.TurnCalculationTest();

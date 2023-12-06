@@ -1,4 +1,5 @@
-﻿using Mapsui.Nts.Editing;
+﻿using Avalonia;
+using Mapsui.Nts.Editing;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using System;
@@ -20,9 +21,11 @@ namespace SmartTrainApplication.Views
 
         public TrackEditorViewModel()
         {
-            Routes = DataManager.TrainRoutes;
-            //Routes = DataManager.TrainRoutes.ToList();
+            if (DataManager.TrainRoutes.Count == 0)
+                LayerManager.ImportNewRoute(MainWindow.TopLevel);
+            Routes = DataManager.TrainRoutes.ToList();
             TrackName = "Track Name...";
+            CurrentAction = "None";
         }
 
         public void AddLineButton()
@@ -66,8 +69,29 @@ namespace SmartTrainApplication.Views
             {
                 LayerManager.ConfirmTunnel();
             }
+            if (CurrentAction == "None")
+            {
+                DataManager.CurrentTrainRoute.Name = TrackName;
+            }
             CurrentAction = "None";
             return;
+        }
+
+        public void SetValuesToUI()
+        {
+            TrackName = DataManager.CurrentTrainRoute.Name;
+
+            // Notify the UI about the property changes
+            RaisePropertyChanged(nameof(TrackName));
+        }
+
+        public void UpdateRoutesToUI()
+        {
+            TrackName = DataManager.CurrentTrainRoute.Name;
+
+            // Notify the UI about the property changes
+            RaisePropertyChanged(nameof(TrackName));
+            RaisePropertyChanged(nameof(Routes));
         }
     }
 }

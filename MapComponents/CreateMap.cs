@@ -16,7 +16,7 @@ public partial class MapViewControl
     public void Setup(IMapControl mapControl)
     {
         _editManager = InitEditMode(mapControl, EditMode.Modify);
-        InitEditWidgets(mapControl.Map); // - Remove this only after UI is completely done with functionality -Metso
+        //InitEditWidgets(mapControl.Map);
         _mapControl = mapControl;
     }
     public static Map CreateMap()
