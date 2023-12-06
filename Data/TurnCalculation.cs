@@ -16,14 +16,14 @@ namespace SmartTrainApplication.Data
             bool turn;
 
             // Convert string values to doubles
-            double point1Longitude = double.Parse(point1.Longitude);
-            double point1Latitude = double.Parse(point1.Latitude);
+            double point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
+            double point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
 
-            double point2Longitude = double.Parse(point2.Longitude);
-            double point2Latitude = double.Parse(point2.Latitude);
+            double point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
+            double point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
 
-            double point3Longitude = double.Parse(point3.Longitude);
-            double point3Latitude = double.Parse(point3.Latitude);
+            double point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
+            double point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
 
             // Calculate vectors v1 and v2
             double v1x = point2Longitude - point1Longitude;
@@ -36,12 +36,12 @@ namespace SmartTrainApplication.Data
             double crossProduct = v1x * v2y - v2x * v1y;
 
             // Determine direction based on the cross product
-            if (crossProduct > 0)
+            if (crossProduct > 100000)
             {
                 // Left turn
                 turn = true;
             }
-            else if (crossProduct < 0)
+            else if (crossProduct < -100000)
             {
                 // Right turn
                 turn = true;

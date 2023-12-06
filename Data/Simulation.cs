@@ -21,9 +21,11 @@ namespace SmartTrainApplication.Data
             public Dictionary<RouteCoordinate, bool> RouteTurnPoints;
             public Dictionary<RouteCoordinate, bool> RouteStops;
 
-            public SimulatedTrainRoute()
+            public SimulatedTrainRoute(TrainRoute _route)
             {
-                RouteTurnPoints = Coords.ToDictionary(x => x, x => false);
+                Name = _route.Name;
+                Coords = _route.Coords;
+                RouteTurnPoints = _route.Coords.ToDictionary(x => x, x => false);
             }
         }
 
@@ -31,7 +33,7 @@ namespace SmartTrainApplication.Data
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
 
-            Dictionary <RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute().RouteTurnPoints;
+            Dictionary<RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute(DataManager.CurrentTrainRoute).RouteTurnPoints;
 
             foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
             {
@@ -43,7 +45,7 @@ namespace SmartTrainApplication.Data
 
                     bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
 
-                    TurnPoints.Add(DataManager.CurrentTrainRoute.Coords[i], turn);
+                    TurnPoints[DataManager.CurrentTrainRoute.Coords[i]] =  turn;
                 }
 
                 Debug.WriteLine("Key: {0}, Value: {1}", kvp.Key, kvp.Value);
@@ -55,6 +57,8 @@ namespace SmartTrainApplication.Data
         public static void RunSimulation() // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
+
+            PreprocessRoute();
 
             // Const test variables for train & simulation info
             const float acceleration = 2;
