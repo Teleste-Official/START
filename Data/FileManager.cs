@@ -26,7 +26,6 @@ namespace SmartTrainApplication.Data
         };
 
         public static List<string>? ImportedRoutesAsStrings { get; set; }
-        public static List<TrainRoute>? ImportedRoutes { get; set; }
         public static string DefaultRouteFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
 
         /// <summary>
@@ -171,7 +170,7 @@ namespace SmartTrainApplication.Data
 
             //Update lists
             ImportedRoutesAsStrings = routesAsStrings;
-            ImportedRoutes = ImportedTrainRoutes;
+            DataManager.TrainRoutes = ImportedTrainRoutes;
 
             return routesAsStrings;
         }
@@ -183,15 +182,15 @@ namespace SmartTrainApplication.Data
         /// <returns>New active route</returns>
         public static string ChangeCurrentRoute(int RouteIndex)
         {
-            if (ImportedRoutes[RouteIndex] == null)
+            if (DataManager.TrainRoutes[RouteIndex] == null)
             {
                 string FirstRoute = ImportedRoutesAsStrings[0];
-                DataManager.CurrentTrainRoute = ImportedRoutes[0];
+                DataManager.CurrentTrainRoute = DataManager.TrainRoutes[0];
                 return FirstRoute;
             }
                 
             string NewCurrentRoute = ImportedRoutesAsStrings[RouteIndex];
-            DataManager.CurrentTrainRoute = ImportedRoutes[RouteIndex];
+            DataManager.CurrentTrainRoute = DataManager.TrainRoutes[RouteIndex];
             return NewCurrentRoute;
         }
 

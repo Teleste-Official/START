@@ -42,7 +42,7 @@
 
 		<DockPanel LastChildFill="False">
 
-      <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding ImportedRoutes}" SelectionChanged="TrackComboBox_SelectionChanged">
+      <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}" SelectionChanged="TrackComboBox_SelectionChanged">
         <ComboBox.ItemTemplate>
           <DataTemplate>
             <Panel>

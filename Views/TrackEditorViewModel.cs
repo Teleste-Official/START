@@ -18,14 +18,14 @@ namespace SmartTrainApplication.Views
     public class TrackEditorViewModel : ViewModelBase
     {
         public string TrackName { get; set; }
-        public List<TrainRoute> ImportedRoutes { get; set; }
+        public List<TrainRoute> Routes { get; set; }
         private string CurrentAction {  get; set; }
 
         public TrackEditorViewModel()
         {
-            if (FileManager.ImportedRoutes.Count == 0)
-                LayerManager.ImportNewRoute(MainWindow.TopLevel);
-            Routes = FileManager.ImportedRoutes.ToList();
+            if (DataManager.TrainRoutes.Count == 0)
+                LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+            Routes = DataManager.TrainRoutes.ToList();
             TrackName = "Track Name...";
             CurrentAction = "None";
         }

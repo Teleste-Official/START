@@ -253,7 +253,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            LayerManager.ImportNewRoute(Settings.RouteDirectories);
+            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
 
             e.Handled = true;
         };

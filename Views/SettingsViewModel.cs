@@ -26,6 +26,7 @@ namespace SmartTrainApplication.Views
             // in the textbox or we implement a button that when clicked opens a file picker pop-up whatever it was called
             // and the user can select the directory there. Latter option would be better, because it eliminates user error.
             // -Metso
+            List<string> ListOfRoutes = SettingsManager.CurrentSettings.RouteDirectories;
             foreach (string dir in SettingsManager.CurrentSettings.RouteDirectories)
             {
                 RouteDirectories += dir + "\n";

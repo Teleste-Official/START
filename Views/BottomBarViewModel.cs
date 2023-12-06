@@ -1,4 +1,5 @@
 ﻿using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace SmartTrainApplication.Views
 
         public void ImportButton()
         {
-            LayerManager.ImportNewRoute(MainWindow.TopLevel);
+            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
         }
     }
 }
