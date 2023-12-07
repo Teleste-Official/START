@@ -82,8 +82,21 @@ namespace SmartTrainApplication.Data
         public static List<string> StartupFolderImport(List<string> SavedPaths)
         {
             List<string> Files = new List<string>();
+            List<string> routesAsStrings = new List<string>();
             
-            if (SavedPaths == null) return Files;
+            //Create default folder if it doesn't exist
+            try
+            {
+                if (!Directory.Exists(DefaultRouteFolderPath))
+                {
+                    Directory.CreateDirectory(DefaultRouteFolderPath);
+                }
+            }
+            catch (Exception Ex)
+            {
+
+                Debug.WriteLine(Ex.Message);
+            }
 
 
             try {
@@ -114,25 +127,7 @@ namespace SmartTrainApplication.Data
                     }
                     else
                     {
-                        var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
-
-                        foreach (var file in FilesInFolder)
-                        {
-                            var FileAsString = "";
-                            using (StreamReader sr = File.OpenText(file))
-                            {
-                                string S;
-                                while ((S = sr.ReadLine()) != null)
-                                {
-                                    FileAsString += S;
-                                }
-                            }
-                            if (FileAsString.Contains("Coords"))
-                            {
-                                Files.Add(FileAsString);
-                            }
-
-                        }
+                       //Do nothing, because folder doesn't exist
                     }
                 }
             }
@@ -141,36 +136,39 @@ namespace SmartTrainApplication.Data
                 Debug.WriteLine(Ex.Message);
             }
             
-
-            // Deserialise the JSON strings into objects and add to list
-            var Json_options = new JsonSerializerOptions { IncludeFields = true };
-            List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
-            foreach (var file in Files)
+            if (Files.Count > 0)
             {
-                TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(file, Json_options);
-                DataManager.TrainRoutes.Add(ImportedTrainRoute);
-                ImportedTrainRoutes.Add(ImportedTrainRoute);
-            }
-
-            // Set the first imported train route as the currently selected one
-            DataManager.CurrentTrainRoute = ImportedTrainRoutes[0];
-
-            // Turn the coordinates back to geometry strings
-            List<string> routesAsStrings = new List<string>();
-            string GeometryString = "LINESTRING (";
-            foreach (var route in ImportedTrainRoutes)
-            {
-                foreach (var coord in route.Coords)
+                // Deserialise the JSON strings into objects and add to list
+                var Json_options = new JsonSerializerOptions { IncludeFields = true };
+                List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
+                foreach (var file in Files)
                 {
-                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+                    TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(file, Json_options);
+                    DataManager.TrainRoutes.Add(ImportedTrainRoute);
+                    ImportedTrainRoutes.Add(ImportedTrainRoute);
                 }
-                GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-                routesAsStrings.Add(GeometryString);
-            }
 
-            //Update lists
-            ImportedRoutesAsStrings = routesAsStrings;
-            DataManager.TrainRoutes = ImportedTrainRoutes;
+                // Set the first imported train route as the currently selected one
+                DataManager.CurrentTrainRoute = ImportedTrainRoutes[0];
+
+                // Turn the coordinates back to geometry strings
+
+                string GeometryString = "LINESTRING (";
+                foreach (var route in ImportedTrainRoutes)
+                {
+                    foreach (var coord in route.Coords)
+                    {
+                        GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+                    }
+                    GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+                    routesAsStrings.Add(GeometryString);
+                }
+
+                //Update lists
+                ImportedRoutesAsStrings = routesAsStrings;
+                DataManager.TrainRoutes = ImportedTrainRoutes;
+            }
+            
 
             return routesAsStrings;
         }
