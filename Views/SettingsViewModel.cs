@@ -2,6 +2,7 @@
 using SmartTrainApplication.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -67,6 +68,14 @@ namespace SmartTrainApplication.Views
 
         public void LogsButton()
         {
+            return;
+        }
+
+        public async void AddRouteButton()
+        {
+            string NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+            SettingsManager.CurrentSettings.AddRouteDirectory(NewPath);
+            FileManager.SaveSettings(SettingsManager.CurrentSettings);
             return;
         }
     }
