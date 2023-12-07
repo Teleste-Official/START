@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NetTopologySuite.Operation.Distance;
 
 namespace SmartTrainApplication.Data
 {
@@ -55,19 +56,18 @@ namespace SmartTrainApplication.Data
                 }
 
                 Debug.WriteLine("Key: {0}, Value: {1}", kvp.Key, kvp.Value);
+                RunSimulation(TurnPoints);
             }
-
             return;
+
         }
 
         /// <summary>
         /// Generate the TickData for use in simulation playback and simulation export data
         /// </summary>
-        public static void RunSimulation() // See if async would be more preferrable for this -Metso
+        public static void RunSimulation(Dictionary<RouteCoordinate, bool> TurnPoints) // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
-
-            PreprocessRoute();
 
             // Const test variables for train & simulation info
             const float acceleration = 2;
@@ -97,7 +97,10 @@ namespace SmartTrainApplication.Data
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
-            while (IsRunning)
+
+            foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+            {
+                while (IsRunning)
             {
                 // Iterate through the route and save all data
                 // In each iteration move the train based on time, velocity and acceleration
@@ -106,7 +109,7 @@ namespace SmartTrainApplication.Data
                 while (travelDistance > pointDistance)
                 {
                     // Stop loop in trying to go past last point
-                    if (pointIndex ==  points.Count-1)
+                    if (pointIndex == points.Count - 1)
                     {
                         IsRunning = false; // Remove this after functionality is added. -Metso
                         travelDistance = pointDistance;
@@ -134,7 +137,9 @@ namespace SmartTrainApplication.Data
                 tickData.distanceMeters += (float)travelDistance;
                 tickData.trackTimeSecs += interval;
 
-                if(tickData.distanceMeters > routeLengthMeters)
+
+
+                if (tickData.distanceMeters > routeLengthMeters)
                 {
                     //Debug.WriteLine(tickData.distanceMeters);
                     //Debug.WriteLine(routeLengthMeters);
@@ -148,24 +153,36 @@ namespace SmartTrainApplication.Data
                 // Test tick data
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
-                
-                if (IsRunning)
-                {
-                    pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
-                    travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
-                    if (RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration) > maxSpeed)
+
+                    if (IsRunning)
                     {
-                        tickData.speedKmh = maxSpeed;
-                        // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
+                        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+                        travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+
+                        if (kvp.Value == true)
+                        {
+                            double pointLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
+                            double pointLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
+                            double distance = RouteGeneration.CalculatePointDistance(pointLongitude, nextLon, pointLatitude, nextLat);
+                            tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, distance, tickData.speedKmh, acceleration, maxSpeed);
+                        }
+
+                        if (RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration) > maxSpeed)
+                        {
+                            tickData.speedKmh = maxSpeed;
+                        }
+                        else
+                        {
+                            tickData.speedKmh = RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                        }
+
                     }
-                    else
-                    {
-                        tickData.speedKmh += RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
-                       // tickData.speedKmh = SlowZone.CalculateSlowZone(pointDistance, tickData.speedKmh, acceleration, maxSpeed);
-                    }
-                }
+                
             }
+
+            }
+            Debug.WriteLine(tickData.speedKmh);
 
             AllTickData.RemoveAt(AllTickData.Count - 1);
             SimulationData newSim = new SimulationData("Test", AllTickData);
@@ -194,6 +211,11 @@ namespace SmartTrainApplication.Data
                 
             }
             return;
+        }
+
+        internal static void RunSimulation(Dictionary<RouteCoordinate, bool> dictionary, object turnPoints)
+        {
+            throw new NotImplementedException();
         }
     }
 }

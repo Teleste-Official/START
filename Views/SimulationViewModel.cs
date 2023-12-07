@@ -1,4 +1,5 @@
 ﻿using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace SmartTrainApplication.Views
 {
     public class SimulationViewModel : ViewModelBase
     {
-
         public SimulationViewModel()
         {
 
@@ -17,7 +17,7 @@ namespace SmartTrainApplication.Views
 
         public void RunSimulationButton()
         {
-            Simulation.RunSimulation();
+            Simulation.PreprocessRoute();
             return;
         }
     }
