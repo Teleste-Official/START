@@ -74,8 +74,11 @@ namespace SmartTrainApplication.Views
         public async void AddRouteButton()
         {
             string NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
-            SettingsManager.CurrentSettings.AddRouteDirectory(NewPath);
-            FileManager.SaveSettings(SettingsManager.CurrentSettings);
+            if (!String.IsNullOrEmpty(NewPath))
+            {
+                SettingsManager.CurrentSettings.AddRouteDirectory(NewPath);
+                FileManager.SaveSettings(SettingsManager.CurrentSettings);
+            }           
             return;
         }
     }

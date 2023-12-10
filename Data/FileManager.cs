@@ -336,7 +336,7 @@ namespace SmartTrainApplication.Data
                 Title = "Choose folder"
             });
 
-            if (folder is not null)
+            if (folder.Count > 0)
             {
                 Path = folder[0].Path.AbsolutePath;
             }
