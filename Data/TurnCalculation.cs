@@ -64,6 +64,69 @@ namespace SmartTrainApplication.Data
 
             return turn;
         }
-    }
+        /// <summary>
+        /// Calculates a radius of turn
+        /// </summary>
+        /// <param name="point1">(Coor(double X, double Y)) Startig point</param>
+        /// <param name="point2">(Coor(double X, double Y)) Middle point</param>
+        /// <param name="point3">(Coor(double X, double Y)) End point</param>
+        /// <returns>(double) calculated curve radius</returns>
+        public static float CalculateRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3)
+        {
+            // Convert string values to doubles
+            double point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
+            double point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
 
+            double point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
+            double point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
+
+            double point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
+            double point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
+
+            // Calculate the lengths of the sides of the triangle formed by the three points
+            double a = Math.Sqrt(Math.Pow(point2Longitude - point1Longitude, 2) + Math.Pow(point2Latitude - point1Latitude, 2));
+            double b = Math.Sqrt(Math.Pow(point3Longitude - point2Longitude, 2) + Math.Pow(point3Latitude - point2Latitude, 2));
+            double c = Math.Sqrt(Math.Pow(point3Longitude - point1Longitude, 2) + Math.Pow(point3Latitude - point1Latitude, 2));
+
+            // Calculate the semi-perimeter of the triangle
+            double s = (a + b + c) / 2;
+
+            // Calculate the radius
+            double radius = (a * b * c) / (4 * Math.Sqrt(s * (s - a) * (s - b) * (s - c)));
+
+            return (float)radius;
+        }
+
+        /// <summary>
+        /// Calculates new speed based on curve radius
+        /// </summary>
+        /// <param name="point1">(Coor(double X, double Y)) Startig point</param>
+        /// <param name="point2">(Coor(double X, double Y)) Middle point</param>
+        /// <param name="point3">(Coor(double X, double Y)) End point</param>
+        /// <returns>(double) new speed based on curve radius</returns>
+        public static float CalculateSpeedByRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3, float currentSpeed, float maxRadius)
+        {
+            bool turn = CalculateTurn(point1, point2, point3);
+
+            float curveRadius = CalculateRadius(point1, point2, point3);
+
+            float deceleration = 2;
+
+            if (curveRadius > maxRadius)
+            {
+                // Reduce speed proportionally to the severity of the turn
+                deceleration = maxRadius / curveRadius;
+            }
+
+            float newSpeed = currentSpeed * deceleration;
+
+            // if turn, reduce speed further
+            if (turn)
+            {
+                newSpeed *= 0.5f;
+            }
+
+            return newSpeed;
+        }
+    }
 }
