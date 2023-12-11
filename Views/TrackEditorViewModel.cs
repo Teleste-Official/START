@@ -1,17 +1,7 @@
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Mapsui.Nts.Editing;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
-using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using static SmartTrainApplication.Views.TrainEditorViewModel;
 
 namespace SmartTrainApplication.Views
 {
@@ -20,6 +10,7 @@ namespace SmartTrainApplication.Views
         public string TrackName { get; set; }
         public List<TrainRoute> Routes { get; set; }
         private string CurrentAction {  get; set; }
+        public bool AddingNew { get; set; } // This is for switching the combobox on a newly created route
 
         public TrackEditorViewModel()
         {
@@ -28,28 +19,33 @@ namespace SmartTrainApplication.Views
             Routes = DataManager.TrainRoutes.ToList();
             TrackName = "Track Name...";
             CurrentAction = "None";
+            AddingNew = false;
         }
 
         public void AddLineButton()
         {
+            LayerManager.ClearFeatures();
             LayerManager.AddLine();
             CurrentAction = "AddLine";
         }
 
         public void AddTunnelButton()
         {
+            LayerManager.ClearFeatures();
             LayerManager.AddTunnel();
             CurrentAction = "AddTunnel";
         }
 
         public void AddStopButton()
         {
+            LayerManager.ClearFeatures();
             LayerManager.AddTunnel();
             CurrentAction = "AddStop";
         }
 
         public void ModifyButton()
         {
+            LayerManager.ClearFeatures();
             LayerManager.TurnImportToEdit();
             CurrentAction = "ModifyTrack";
         }
@@ -58,10 +54,15 @@ namespace SmartTrainApplication.Views
         {
             if (CurrentAction == "ModifyTrack")
             {
-                LayerManager.ApplyEditing();
+                LayerManager.ApplyEditing(DataManager.CurrentTrainRoute.Name, DataManager.CurrentTrainRoute.Id);
             }
             if (CurrentAction == "AddLine"){
-                LayerManager.ExportNewRoute(MainWindow.TopLevel);
+                AddingNew = true;
+                LayerManager.ClearAllLayers();
+                LayerManager.ApplyEditing("Route " + (DataManager.TrainRoutes.Count + 1));
+                Routes = DataManager.TrainRoutes.ToList();
+                RaisePropertyChanged(nameof(Routes));
+                AddingNew = false;
             }
             if (CurrentAction == "AddStop")
             {
@@ -74,9 +75,18 @@ namespace SmartTrainApplication.Views
             if (CurrentAction == "None")
             {
                 DataManager.CurrentTrainRoute.Name = TrackName;
+                Routes = DataManager.TrainRoutes.ToList();
+                RaisePropertyChanged(nameof(Routes));
             }
             CurrentAction = "None";
-            return;
+        }
+
+        public void CancelButton()
+        {
+            CurrentAction = "None";
+            LayerManager.ClearFeatures();
+            LayerManager.ClearAllLayers();
+            LayerManager.ChangeCurrentRoute(-1);
         }
 
         public void SetValuesToUI()
@@ -101,5 +111,9 @@ namespace SmartTrainApplication.Views
             LayerManager.ChangeCurrentRoute(index);
         }
 
+        public void ImportButton()
+        {
+            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+        }
     }
 }

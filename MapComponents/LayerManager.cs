@@ -6,8 +6,6 @@ using Mapsui.Layers.AnimatedLayers;
 using Mapsui.Nts;
 using Mapsui.Nts.Editing;
 using Mapsui.Styles;
-using Mapsui.UI;
-using Mapsui.UI.Avalonia;
 using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.MapComponents;
@@ -16,8 +14,6 @@ using SmartTrainApplication.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTrainApplication
 {
@@ -61,8 +57,6 @@ namespace SmartTrainApplication
             MapViewControl._editManager.EditMode = EditMode.None;
 
             MapViewControl._tempFeatures = null;
-            
-            return;
         }
 
         public static void ClearAllLayers()
@@ -87,22 +81,19 @@ namespace SmartTrainApplication
         }
 
         /// <summary>
-        /// Exports the Route as a string using <c>FileManager.Export()</c>
+        /// Exports the Route as a JSON using <c>FileManager.Export()</c>
         /// </summary>
         /// <param name="_editManager">(EditManager) Edit manager</param>
         /// <param name="topLevel">(TopLevel) Top level</param>
         public static void ExportNewRoute(TopLevel topLevel)
         {
-            // TODO: Add naming and multible feature saving with it
             FileManager.Export(GetRouteAsString(), topLevel);
-
-            return;
         }
 
         /// <summary>
         /// Adds new Routes from imports to an import layer and redraws the map
         /// </summary>
-        /// <param name="topLevel">(TopLevel) Top level</param>
+        /// <param name="SavedPaths">Saved Paths</param>
         public static void ImportNewRoute(List<string> SavedPaths)
         {
             List<string> ImportedRoutes = FileManager.StartupFolderImport(SavedPaths);
@@ -133,14 +124,14 @@ namespace SmartTrainApplication
         /// <summary>
         /// Adds the new Route to data, turns it to a feature and redraws the map
         /// </summary>
-        public static void ConfirmNewRoute()
+        public static void ConfirmNewRoute(string Name = "Route", string ID = "")
         {
             string RouteString = GetRouteAsString();
 
             if (RouteString == "")
                 return;
             
-            TrainRoute newRoute = DataManager.CreateNewRoute(RouteString);
+            TrainRoute newRoute = DataManager.CreateNewRoute(RouteString, Name, ID);
             DataManager.AddToRoutes(newRoute);
 
             WritableLayer _importLayer = CreateImportLayer();
@@ -151,8 +142,6 @@ namespace SmartTrainApplication
 
             List<string> stopStrings = DataManager.GetStopStrings();
             RedrawStopsToMap(stopStrings);
-
-            return;
         }
 
         /// <summary>
@@ -195,8 +184,6 @@ namespace SmartTrainApplication
             MapViewControl._tempFeatures = new List<IFeature>(features);
 
             MapViewControl._editManager.EditMode = EditMode.AddPoint;
-
-            return;
         }
 
         /// <summary>
@@ -272,15 +259,13 @@ namespace SmartTrainApplication
         /// <summary>
         /// Applies the edits to the TrainRoute and clears the edit layer
         /// </summary>
-        public static void ApplyEditing()
+        public static void ApplyEditing(string Name = "Route", string ID = "")
         {
-            ConfirmNewRoute();
+            ConfirmNewRoute(Name, ID);
 
             MapViewControl._editManager.Layer.Clear();
-
             MapViewControl._editManager.EditMode = EditMode.None;
-
-            return;
+            MapViewControl._mapControl?.RefreshGraphics();
         }
 
         /// <summary>
@@ -293,8 +278,6 @@ namespace SmartTrainApplication
             var lineString = new WKTReader().Read(GeometryData);
             IFeature feature = new GeometryFeature { Geometry = lineString };
             importLayer.Add(feature);
-            
-            return;
         }
 
         /// <summary>
@@ -386,8 +369,6 @@ namespace SmartTrainApplication
             MapViewControl._editManager.EditMode = EditMode.None;
 
             MapViewControl._tempFeatures = null;
-
-            return;
         }
 
         /// <summary>
@@ -428,8 +409,6 @@ namespace SmartTrainApplication
             MapViewControl._editManager.EditMode = EditMode.None;
 
             MapViewControl._tempFeatures = null;
-
-            return;
         }
 
         public static void SwitchRoute()

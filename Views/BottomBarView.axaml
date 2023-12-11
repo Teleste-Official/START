@@ -35,11 +35,10 @@
             Padding="0,4">
 
         <DockPanel LastChildFill="False">
-            <Button DockPanel.Dock="Left" 
-                    Foreground="Black" 
-                    Command="{Binding ImportButton}"  >Import</Button>
-            <Button DockPanel.Dock="Left" Foreground="Black"  >Export</Button>
-            <Button DockPanel.Dock="Right" Foreground="Black"  >Cancel</Button>
+            <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Import</Button>-->
+            <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Export</Button>-->
+            <!-- <Button DockPanel.Dock="Right" Foreground="Black"  >Cancel</Button>-->
+            <Button DockPanel.Dock="Right" Classes="primary" >Save as</Button>
             <Button DockPanel.Dock="Right" Classes="primary" >Save</Button>
             <TextBlock DockPanel.Dock="Right" Foreground="Black">Confirm current changes</TextBlock>
         </DockPanel>

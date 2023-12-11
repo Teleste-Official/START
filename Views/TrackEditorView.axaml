@@ -73,7 +73,7 @@
       <Button Command="{Binding ConfirmButton}">
         Confirm
       </Button>
-      <Button Command="{Binding ModifyButton}">
+      <Button Command="{Binding CancelButton}">
         Cancel
       </Button>
 

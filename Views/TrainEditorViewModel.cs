@@ -1,16 +1,10 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using BruTile.Wms;
-using BruTile.Wmts;
-using DynamicData;
-using Mapsui.UI.Avalonia;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SmartTrainApplication.Views
 {
@@ -18,8 +12,8 @@ namespace SmartTrainApplication.Views
     {
         public string Title { get; set; }
         public string Description { get; set; }
-        public object Speed { get; set; }
-        public object Acceleration { get; set; }
+        public string Speed { get; set; }
+        public string Acceleration { get; set; }
         public int IconIndex { get; set; }
 
         public List<Bitmap> Icons { get; set; }
@@ -43,6 +37,9 @@ namespace SmartTrainApplication.Views
 
         public TrainEditorViewModel()
         {
+            if (DataManager.Trains.Count == 0)
+                DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
+
             Icons = new List<Bitmap>
             {
                 new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train1.png"))),
@@ -50,21 +47,21 @@ namespace SmartTrainApplication.Views
                 new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_tram.png")))
             };
 
-            // TESTING 
-
-            // TESTING
-            if (DataManager.Trains.Count == 0)
-            {
-                DataManager.Trains.Add(new Train("Add new train", "Train description", 0, 0, 0));
-                DataManager.Trains.Add(new Train("Train 1", "Train 1 Test", 500, 20, 0));
-                DataManager.Trains.Add(new Train("Train 2", "Train 2 Test", 1000, 50, 2));
-                DataManager.Trains.Add(new Train("Train 3", "Train 3 Test", 100, 5, 1));
-            }
             Trains = new List<ListedTrain>();
-            foreach (var Train in DataManager.Trains)
+            SetTrainsToUI();
+        }
+
+        public void UpdateTrainButton()
+        {
+            if (Title == null || Description == null || Speed == null || Acceleration == null)
             {
-                Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+                return;
             }
+            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.CurrentTrain.Id, DataManager.CurrentTrain.FilePath);
+            DataManager.UpdateTrain(newTrain);
+            Trains[DataManager.Trains.FindIndex(a => a.Id.Contains(DataManager.CurrentTrain.Id))].Name = Title;
+            Trains = Trains;
+            RaisePropertyChanged(nameof(Trains));
         }
 
         public void SaveTrainButton()
@@ -73,7 +70,8 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
-            Train newTrain = new Train(Title, Description, Decimal.ToSingle((decimal)Speed), Decimal.ToSingle((decimal)Acceleration), IconIndex);
+            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.CurrentTrain.Id, DataManager.CurrentTrain.FilePath);
+            
             DataManager.CurrentTrain = newTrain;
             DataManager.Trains.Add(newTrain);
             Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
@@ -86,8 +84,8 @@ namespace SmartTrainApplication.Views
         {
             Title = DataManager.CurrentTrain.Name;
             Description = DataManager.CurrentTrain.Description;
-            Speed = DataManager.CurrentTrain.MaxSpeed;
-            Acceleration = DataManager.CurrentTrain.Acceleration;
+            Speed = DataManager.CurrentTrain.MaxSpeed.ToString();
+            Acceleration = DataManager.CurrentTrain.Acceleration.ToString();
             IconIndex = DataManager.CurrentTrain.Icon;
 
             // Notify the UI about the property changes
@@ -96,6 +94,32 @@ namespace SmartTrainApplication.Views
             RaisePropertyChanged(nameof(Speed));
             RaisePropertyChanged(nameof(Acceleration));
             RaisePropertyChanged(nameof(IconIndex));
+        }
+
+        public void ClearValues()
+        {
+            Title = null;
+            Description = null;
+            Speed = null;
+            Acceleration = null;
+            IconIndex = 0;
+
+            // Notify the UI about the property changes
+            RaisePropertyChanged(nameof(Title));
+            RaisePropertyChanged(nameof(Description));
+            RaisePropertyChanged(nameof(Speed));
+            RaisePropertyChanged(nameof(Acceleration));
+            RaisePropertyChanged(nameof(IconIndex));
+        }
+
+        public void SetTrainsToUI()
+        {
+            Trains.Clear();
+            foreach (var Train in DataManager.Trains)
+            {
+                Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+            }
+            Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
         }
     }
 }

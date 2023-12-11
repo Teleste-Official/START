@@ -107,11 +107,17 @@
           </Panel>
         </ComboBoxItem>
       </ComboBox>
-      
-			<Button Command="{Binding SaveTrainButton}" 
+
+      <Button Command="{Binding UpdateTrainButton}"
               Height="30"
               Margin="5 10 5 0">
-				Add Train</Button>
+        Update current
+      </Button>
+      <Button Command="{Binding SaveTrainButton}"
+        Height="30"
+        Margin="5 10 5 0">
+        Create new
+      </Button>
 
 		</DockPanel>
 	</Border>

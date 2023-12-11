@@ -1,13 +1,10 @@
 ﻿using Mapsui.Projections;
 using Mapsui;
 using SmartTrainApplication.Models;
-using SmartTrainApplication.Data;
-using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
@@ -56,8 +53,6 @@ namespace SmartTrainApplication.Data
 
                 Debug.WriteLine("Key: {0}, Value: {1}", kvp.Key, kvp.Value);
             }
-
-            return;
         }
 
         /// <summary>
@@ -178,7 +173,6 @@ namespace SmartTrainApplication.Data
             LayerManager.CreateAnimationLayer();
 
             // Possibly return the simulation data for playback
-            return;
         }
 
         /// <summary>
@@ -193,7 +187,6 @@ namespace SmartTrainApplication.Data
             {
                 
             }
-            return;
         }
     }
 }

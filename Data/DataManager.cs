@@ -1,24 +1,13 @@
-﻿using Avalonia.Controls;
-using Avalonia.Platform.Storage;
-using DynamicData;
-using Mapsui;
-using NetTopologySuite.Geometries;
-using SmartTrainApplication.Models;
+﻿using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace SmartTrainApplication.Data
 {
     /// <summary>
-    /// Functions used for adding or updating tunnels, stops, etc. features to new or existing TrainRoutes
+    /// Holder for getting and setting trains and routes and functions used for adding or updating tunnels, stops, etc. features to new or existing TrainRoutes
     /// </summary>
     internal class DataManager
     {
@@ -28,16 +17,18 @@ namespace SmartTrainApplication.Data
         public static List<Train> Trains = new List<Train>();
         public static Train CurrentTrain;
 
+        private static List<string> AllIdentities = new List<string>();
+
         /// <summary>
         /// Creates a new TrainRoute with a list of RouteCoordinates from a given GeometryString
         /// </summary>
         /// <param name="GeometryString">(String) TrainRoute's GeometryString to be parsed</param>
         /// <returns>(TrainRoute) TrainRoute with name & list of RouteCoordinates</returns>
-        public static TrainRoute CreateNewRoute(String GeometryString)
+        public static TrainRoute CreateNewRoute(String GeometryString, string Name = "Route", string ID = "")
         {
 
             List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
-            TrainRoute NewTrainRoute = new TrainRoute("TestRoute", Geometry);
+            TrainRoute NewTrainRoute = new TrainRoute(Name, Geometry, ID);
 
             return NewTrainRoute;
         }
@@ -54,7 +45,7 @@ namespace SmartTrainApplication.Data
             // Check if the route is new or edited existing one
             foreach (var Route in TrainRoutes)
             {
-                if (Route.Name == NewRoute.Name)
+                if (Route.Id == NewRoute.Id)
                 {
                     oldRoute = Route;
                 }
@@ -64,7 +55,6 @@ namespace SmartTrainApplication.Data
             {
                 TrainRoutes.Add(NewRoute);
                 CurrentTrainRoute = NewRoute;
-
             }
             else
             {
@@ -79,8 +69,6 @@ namespace SmartTrainApplication.Data
                 LayerManager.RedrawTunnelsToMap(tunnelStrings);
                 LayerManager.RedrawStopsToMap(stopsStrings);
             }
-
-            return;
         }
 
         /// <summary>
@@ -154,7 +142,10 @@ namespace SmartTrainApplication.Data
                 }
 
                 if(pointStatusToBeChanged != -1)
-                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE");
+                    if (CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "STOP")
+                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
+                    else
+                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE");
             }
 
             FixTunnelTypes();
@@ -181,6 +172,10 @@ namespace SmartTrainApplication.Data
             return points;
         }
 
+        /// <summary>
+        /// Parses the routes coordinates back into a mapsui linestring
+        /// </summary>
+        /// <returns>string "LINESTRING (...."</returns>
         public static string GetCurrentLinestring()
         {
             string GeometryString = "LINESTRING (";
@@ -206,10 +201,10 @@ namespace SmartTrainApplication.Data
             string GeometryString = "LINESTRING (";
             foreach (var coord in CurrentTrainRoute.Coords)
             {
-                if (coord.Type == "TUNNEL" || coord.Type == "TUNNEL_ENTRANCE")
+                if (coord.Type == "TUNNEL" || coord.Type == "TUNNEL_ENTRANCE" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                     GeometryString += coord.Longitude + " " + coord.Latitude + ",";
 
-                if (coord.Type == "TUNNEL_ENTRANCE")
+                if (coord.Type == "TUNNEL_ENTRANCE" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                     EntranceCount++;
 
                 if (EntranceCount == 2)
@@ -236,7 +231,7 @@ namespace SmartTrainApplication.Data
 
             foreach (var coord in CurrentTrainRoute.Coords)
             {
-                if (coord.Type == "STOP")
+                if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                 {
                     stopStrings.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
                 }
@@ -269,7 +264,7 @@ namespace SmartTrainApplication.Data
             bool tunnelEntrance = false;
             foreach (var coords in CurrentTrainRoute.Coords)
             {
-                if(coords.Type == "TUNNEL_ENTRANCE")
+                if(coords.Type == "TUNNEL_ENTRANCE" || coords.Type == "TUNNEL_ENTRANCE_STOP")
                 {
                     if(!tunnelEntrance)
                         tunnelEntrance = true;
@@ -279,6 +274,9 @@ namespace SmartTrainApplication.Data
                 else if (coords.Type == "NORMAL" && tunnelEntrance)
                 {
                     coords.SetType("TUNNEL");
+                }
+                else if (coords.Type == "STOP" && tunnelEntrance){
+                    coords.SetType("TUNNEL_STOP");
                 }
             }
         }
@@ -325,7 +323,14 @@ namespace SmartTrainApplication.Data
                 }
 
                 if (pointStatusToBeChanged != -1)
-                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("STOP");
+                {
+                    if (CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "TUNNEL")
+                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_STOP");
+                    else if ((CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "TUNNEL_ENTRANCE"))
+                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
+                    else
+                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("STOP");
+                }
             }
 
 
@@ -334,5 +339,37 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
+        /// <summary>
+        /// Creates a unique identifier for trains and routes
+        /// </summary>
+        /// <returns>string "xxxx-xxxx-xxxx-xxxx"</returns>
+        public static string CreateID()
+        {
+            string NewID = RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" + RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" + RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" + RandomNumberGenerator.GetInt32(1000, 9999).ToString();
+            if (AllIdentities.Count != 0)
+            {
+                foreach (string ExistingID in AllIdentities)
+                {
+                    if (ExistingID.Contains(NewID))
+                    {
+                        NewID = CreateID();
+                    }
+                }
+            }
+            AllIdentities.Add(NewID);
+            return NewID;
+        }
+
+        public static void UpdateTrain(Train newTrain)
+        {
+            foreach (var oldTrain in Trains)
+            {
+                if (oldTrain.Id == newTrain.Id)
+                {
+                    oldTrain.SetValues(newTrain);
+                    CurrentTrain = oldTrain;
+                }
+            }
+        }
     }
 }
