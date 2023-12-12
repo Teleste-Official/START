@@ -1,13 +1,8 @@
-﻿using NetTopologySuite.Operation.Distance;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace SmartTrainApplication.Data;
 
-    public class SlowZone
+public class SlowZone
     {
         /* Calculates the speed in a slow zone based on the given distance and current speed */
         public static float CalculateSlowZone(double distance, float currentSpeed, float acceleration, float maxSpeed)

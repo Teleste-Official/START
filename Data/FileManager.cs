@@ -33,7 +33,7 @@ namespace SmartTrainApplication.Data
             if (GeometryString == "")
                 return;
 
-            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Export JSON",
                 FileTypeChoices = new[] { JSON },
@@ -51,8 +51,6 @@ namespace SmartTrainApplication.Data
                 using var streamWriter = new StreamWriter(stream);
                 await streamWriter.WriteLineAsync(output);
             }
-
-            //Import();
         }
 
         /// <summary>
@@ -170,7 +168,6 @@ namespace SmartTrainApplication.Data
 
             //Update lists
             ImportedRoutesAsStrings = routesAsStrings;
-            //DataManager.TrainRoutes = ImportedTrainRoutes;
 
             return routesAsStrings;
         }
@@ -224,6 +221,11 @@ namespace SmartTrainApplication.Data
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
         }
 
+        /// <summary>
+        /// Imports all train Json-files from folders defined by user in settings view.
+        /// </summary>
+        /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
+        /// <returns>Returns imported trains</returns>
         public static List<Train> StartupTrainFolderImport(List<string> SavedPaths)
         {
             List<Train> Trains = new List<Train>();

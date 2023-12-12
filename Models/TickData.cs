@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SmartTrainApplication.Models
+﻿namespace SmartTrainApplication.Models
 {
     /// <summary>
     /// Data points used for Train's data in TrainRoute generation and simulation
@@ -20,7 +14,6 @@ namespace SmartTrainApplication.Models
     /// </summary>
     public class TickData
     {
-        //RouteDataPoint: 0, Dafug is this? -Metso
         public double latitudeDD { get; set; }
         public bool IsGpsFix { get; set; }
         public double longitudeDD { get; set; }

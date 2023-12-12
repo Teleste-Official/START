@@ -8,12 +8,6 @@
             
         }
 
-        /*
-        public void ImportButton()
-        {
-            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
-        }*/
-
         public void SaveButton()
         {
 
