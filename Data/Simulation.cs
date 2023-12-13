@@ -53,7 +53,6 @@ namespace SmartTrainApplication.Data
                     TurnPoints[DataManager.CurrentTrainRoute.Coords[i]] = turn;
                 }
 
-
             }
             RunSimulation(TurnPoints);
             return;
@@ -80,6 +79,7 @@ namespace SmartTrainApplication.Data
             RoutePoint point1 = new RoutePoint();
             RoutePoint point2 = new RoutePoint();
             RoutePoint point3 = new RoutePoint();
+            bool turn = false;
 
             List<TickData> AllTickData = new List<TickData>();
 
@@ -104,21 +104,9 @@ namespace SmartTrainApplication.Data
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
-            // Loop trough TurnPoints dictionary to get turn points for slow zone
-            foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
-            {
-                for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
-                {
-                    kvpKeyLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
-                    kvpKeyLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
-                    point1Longitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Longitude.Replace(".", ","));
-                    point1Latitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Latitude.Replace(".", ","));
 
-                    point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
-                    point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
-                    point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
 
-                while (IsRunning)
+            while (IsRunning)
             {
                 // Iterate through the route and save all data
                 // In each iteration move the train based on time, velocity and acceleration
@@ -170,18 +158,32 @@ namespace SmartTrainApplication.Data
                 // Test tick data
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
-
-
-                if (IsRunning)
+                // Loop trough TurnPoints dictionary to get turn points for slow zone
+                foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
                 {
-                    pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
-                    travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
-
-                    distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
-
-
-                    if (TurnPoints.ElementAt(pointIndex).Value)
+                    for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
                     {
+                        kvpKeyLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
+                        kvpKeyLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
+                        point1Longitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Longitude.Replace(".", ","));
+                        point1Latitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Latitude.Replace(".", ","));
+
+                        point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
+                        point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
+                        point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
+
+                        turn = kvp.Value;
+
+                    if (IsRunning)
+                    {
+                        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+                        travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+
+                        distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
+
+                    if (turn)
+                    {
+
                         slowZoneDistance = distance + 100;
                         // Calculate slow zone speed with current distance and slow zone distance
                         tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
@@ -208,11 +210,12 @@ namespace SmartTrainApplication.Data
                         tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
                     }
 
-                    Debug.WriteLine(tickData.speedKmh);
-                }
-              }
+                    
+                  }
+               }
+                  //  Debug.WriteLine(tickData.speedKmh);
 
-                }
+               }
             }
 
 
