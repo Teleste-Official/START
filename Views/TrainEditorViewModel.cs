@@ -16,7 +16,7 @@ namespace SmartTrainApplication.Views
         public string Acceleration { get; set; }
         public int IconIndex { get; set; }
 
-        public List<Bitmap> Icons { get; set; }
+        public static List<Bitmap> Icons { get; set; }
 
         public List<ListedTrain> Trains { get; set; }
 
@@ -40,12 +40,7 @@ namespace SmartTrainApplication.Views
             if (DataManager.Trains.Count == 0)
                 DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
 
-            Icons = new List<Bitmap>
-            {
-                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train1.png"))),
-                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train2.png"))),
-                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_tram.png")))
-            };
+            SetIcons();
 
             Trains = new List<ListedTrain>();
             SetTrainsToUI();
@@ -120,6 +115,16 @@ namespace SmartTrainApplication.Views
                 Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
             }
             Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
+        }
+
+        public static void SetIcons()
+        {
+            Icons = new List<Bitmap>
+            {
+                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train1.png"))),
+                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train2.png"))),
+                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_tram.png")))
+            };
         }
     }
 }
