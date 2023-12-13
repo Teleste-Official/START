@@ -184,7 +184,7 @@ namespace SmartTrainApplication.Data
                                 float maxRadius = 180;
 
                                 // New speed based on curve radius
-                                tickData.speedKmh = TurnCalculation.CalculateSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
+                                tickData.speedKmh = TurnCalculation.CalculateTurnSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
 
                             }
                             else
@@ -214,16 +214,23 @@ namespace SmartTrainApplication.Data
                     travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
                     turn = TurnPoints.Values.ElementAt(pointIndex);
+                    
 
                     // If the current/"next" RoutePoint is marked as turn
                     if (turn)
                     {
+                        // Calculate turn speed using turn's radius
+                        RoutePoint point1 = new RoutePoint(TurnPoints.Keys.ElementAt(pointIndex - 1).Longitude, TurnPoints.Keys.ElementAt(pointIndex - 1).Latitude);
+                        RoutePoint point2 = new RoutePoint(TurnPoints.Keys.ElementAt(pointIndex).Longitude, TurnPoints.Keys.ElementAt(pointIndex).Latitude);
+                        RoutePoint point3 = new RoutePoint(TurnPoints.Keys.ElementAt(pointIndex + 1).Longitude, TurnPoints.Keys.ElementAt(pointIndex + 1).Latitude);
+                        float turnSpeed = TurnCalculation.CalculateTurnSpeedByRadius(point1, point2, point3, maxSpeed, 180);
+
                         // If the distance to next RoutePoint is shorter than
                         // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
                         // decelerate to turnSpeed (currently 20km/h) and coast at that speed until turn's RoutePoint
-                        if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 20f, -acceleration))
+                        if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, turnSpeed, -acceleration))
                         {
-                            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 20f);
+                            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), turnSpeed);
                         }
                         // Else accelerate normally.
                         else

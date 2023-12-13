@@ -103,14 +103,15 @@ namespace SmartTrainApplication.Data
         /// <param name="point1">(Coor(double X, double Y)) Startig point</param>
         /// <param name="point2">(Coor(double X, double Y)) Middle point</param>
         /// <param name="point3">(Coor(double X, double Y)) End point</param>
-        /// <returns>(double) new speed based on curve radius</returns>
-        public static float CalculateSpeedByRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3, float currentSpeed, float maxRadius)
+        /// <param name="maxSpeed">(float) Train's maximum speed</param>
+        /// <param name="maxRadius">(float) Maximum radius</param>
+        /// <returns>(double) new turn speed based on curve radius</returns>
+        public static float CalculateTurnSpeedByRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3, float maxSpeed, float maxRadius)
         {
             bool turn = CalculateTurn(point1, point2, point3);
 
             float curveRadius = CalculateRadius(point1, point2, point3);
-
-            float deceleration = 2;
+            /*float deceleration = 2;
 
             if (curveRadius > maxRadius)
             {
@@ -126,7 +127,18 @@ namespace SmartTrainApplication.Data
                 newSpeed *= 0.5f;
             }
 
-            return newSpeed;
+            return newSpeed;*/
+
+            float turnSpeed = maxSpeed;
+
+            if (curveRadius > maxRadius)
+            {
+                // Reduce speed proportionally to the severity of the turn
+                // The scale/multiplier maybe needs to be adjusted -Sami
+                turnSpeed -= (maxRadius / curveRadius) * turnSpeed * 1.25f;
+            }
+
+            return turnSpeed;
         }
     }
 }
