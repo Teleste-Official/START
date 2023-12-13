@@ -1,10 +1,5 @@
-﻿using Avalonia;
-using SmartTrainApplication.Data;
-using System;
+﻿using SmartTrainApplication.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {

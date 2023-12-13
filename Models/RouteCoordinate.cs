@@ -19,7 +19,8 @@ public class RouteCoordinate
     // "TUNNEL_ENTRANCE" - Entrance for a tunnel
     // "TUNNEL" - Point is underground in a tunnel
     // "STOP" - Point is a possible stop
-    // "TUNNELSTOP" - Point is a possible stop that is in a tunnel, not implemented yet -Metso
+    // "TUNNEL_STOP" - Point is a possible stop that is in a tunnel
+    // "TUNNEL_ENTRANCE_STOP" - Point is a possible stop that is in a tunnel entrance
     public string StopName { get; set; } // This is only for stops, and can remain empty otherwise
 
     public RouteCoordinate() { }

@@ -37,6 +37,8 @@ namespace SmartTrainApplication.Data
 
         public static void PreprocessRoute()
         {
+            // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
+
             Dictionary<RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute(DataManager.CurrentTrainRoute).RouteTurnPoints;
 
             foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)

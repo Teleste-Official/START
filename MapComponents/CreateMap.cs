@@ -1,9 +1,6 @@
 using Mapsui;
-using Mapsui.Layers;
 using Mapsui.Nts.Editing;
 using Mapsui.Nts.Layers;
-using Mapsui.Styles.Thematics;
-using Mapsui.Styles;
 using Mapsui.Tiling;
 using Mapsui.UI;
 

@@ -1,9 +1,4 @@
-﻿
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using SmartTrainApplication.Data;
+﻿using Avalonia.Controls;
 
 namespace SmartTrainApplication.Views
 {
@@ -41,7 +36,6 @@ namespace SmartTrainApplication.Views
         public void NavigateToTrackEditor()
         { 
             CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
-            //TurnCalculation.TurnCalculationTest();
         }
 
         public void NavigateToTrainEditor()

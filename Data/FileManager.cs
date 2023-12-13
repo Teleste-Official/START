@@ -5,11 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
@@ -37,7 +33,7 @@ namespace SmartTrainApplication.Data
             if (GeometryString == "")
                 return;
 
-            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new Avalonia.Platform.Storage.FilePickerSaveOptions
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Export JSON",
                 FileTypeChoices = new[] { JSON },
@@ -55,8 +51,6 @@ namespace SmartTrainApplication.Data
                 using var streamWriter = new StreamWriter(stream);
                 await streamWriter.WriteLineAsync(output);
             }
-
-            //Import();
         }
 
         /// <summary>
@@ -82,8 +76,9 @@ namespace SmartTrainApplication.Data
         public static List<string> StartupFolderImport(List<string> SavedPaths)
         {
             List<string> Files = new List<string>();
+            List<string> Paths = new List<string>();
             List<string> routesAsStrings = new List<string>();
-            
+
             //Create default folder if it doesn't exist
             try
             {
@@ -121,6 +116,7 @@ namespace SmartTrainApplication.Data
                             if (FileAsString.Contains("Coords"))
                             {
                                 Files.Add(FileAsString);
+                                Paths.Add(file);
                             }
 
                         }
@@ -136,17 +132,18 @@ namespace SmartTrainApplication.Data
                 Debug.WriteLine(Ex.Message);
             }
             
-            if (Files.Count > 0)
+
+            // Deserialise the JSON strings into objects and add to list
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+            List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
+            for (int i = 0;i < Files.Count; i++)
             {
-                // Deserialise the JSON strings into objects and add to list
-                var Json_options = new JsonSerializerOptions { IncludeFields = true };
-                List<TrainRoute> ImportedTrainRoutes = new List<TrainRoute>();
-                foreach (var file in Files)
-                {
-                    TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(file, Json_options);
-                    DataManager.TrainRoutes.Add(ImportedTrainRoute);
-                    ImportedTrainRoutes.Add(ImportedTrainRoute);
-                }
+                TrainRoute ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(Files[i], Json_options);
+                ImportedTrainRoute.FilePath = Paths[i];
+                ImportedTrainRoute.Id = DataManager.CreateID();
+                DataManager.TrainRoutes.Add(ImportedTrainRoute);
+                ImportedTrainRoutes.Add(ImportedTrainRoute);
+            }
 
                 // Set the first imported train route as the currently selected one
                 DataManager.CurrentTrainRoute = ImportedTrainRoutes[0];
@@ -180,6 +177,11 @@ namespace SmartTrainApplication.Data
         /// <returns>New active route</returns>
         public static string ChangeCurrentRoute(int RouteIndex)
         {
+            if (RouteIndex == -1)
+            {
+                return DataManager.GetCurrentLinestring();
+            }
+
             if (DataManager.TrainRoutes[RouteIndex] == null)
             {
                 string FirstRoute = ImportedRoutesAsStrings[0];
@@ -215,6 +217,58 @@ namespace SmartTrainApplication.Data
             // Save the simulation
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
+        }
+
+        /// <summary>
+        /// Imports all train Json-files from folders defined by user in settings view.
+        /// </summary>
+        /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
+        /// <returns>Returns imported trains</returns>
+        public static List<Train> StartupTrainFolderImport(List<string> SavedPaths)
+        {
+            List<Train> Trains = new List<Train>();
+
+            if (SavedPaths == null) return Trains;
+
+            var Json_options = new JsonSerializerOptions { IncludeFields = true };
+
+            try
+            {
+                foreach (var Path in SavedPaths)
+                {
+                    Debug.WriteLine(Path);
+                    if (Directory.Exists(Path))
+                    {
+                        var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
+
+                        foreach (var file in FilesInFolder)
+                        {
+                            var FileAsString = "";
+                            using (StreamReader sr = File.OpenText(file))
+                            {
+                                string S;
+                                while ((S = sr.ReadLine()) != null)
+                                {
+                                    FileAsString += S;
+                                }
+                            }
+                            if (FileAsString.Contains("MaxSpeed"))
+                            {
+                                Train LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
+                                LoadedTrain.Id = DataManager.CreateID();
+                                Trains.Add(LoadedTrain);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception Ex)
+            {
+                Debug.WriteLine(Ex.Message);
+            }
+
+            return Trains;
         }
 
         /// <summary>
@@ -257,8 +311,6 @@ namespace SmartTrainApplication.Data
             // Set the imported train as the currently selected one
             DataManager.Trains.Add(LoadedTrain);
             DataManager.CurrentTrain = LoadedTrain;
-
-            return;
         }
 
         /// <summary>
@@ -324,8 +376,6 @@ namespace SmartTrainApplication.Data
 
             // Set the settings
             SettingsManager.CurrentSettings = LoadedSettings;
-
-            return;
         }
 
         public static async Task<string> OpenFolder(TopLevel topLevel)

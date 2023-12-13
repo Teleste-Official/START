@@ -1,20 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Controls;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
-using Mapsui.Nts;
 using Mapsui.Nts.Editing;
 using Mapsui.Styles;
 using Mapsui.Widgets.BoxWidget;
 using Mapsui.Widgets.ButtonWidget;
 using Mapsui.Widgets.MouseCoordinatesWidget;
-using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
-using SmartTrainApplication.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SmartTrainApplication.Views;
 

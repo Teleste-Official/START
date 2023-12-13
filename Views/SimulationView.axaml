@@ -46,61 +46,103 @@
 
 		<DockPanel LastChildFill="False">
 
-      <ComboBox>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Select Track...</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 1</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 2</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-            <TextBlock Margin="40 10 0 5">Track 3</TextBlock>
-          </Panel>
-        </ComboBoxItem>
+      <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}" SelectionChanged="TrackComboBox_SelectionChanged">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <Panel>
+              <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
+              <TextBlock Margin="40 10 0 5" Text="{Binding Name}"></TextBlock>
+            </Panel>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
       </ComboBox>
 
-      <ComboBox>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_train1.png"/>
-            <TextBlock Margin="40 10 0 5">Train 1</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_tram.png"/>
-            <TextBlock Margin="40 10 0 5">Train 2</TextBlock>
-          </Panel>
-        </ComboBoxItem>
-        <ComboBoxItem>
-          <Panel>
-            <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_train2.png"/>
-            <TextBlock Margin="40 10 0 5">Train 3</TextBlock>
-          </Panel>
-        </ComboBoxItem>
+      <ComboBox x:Name="TrainComboBox" ItemsSource="{Binding Trains}" SelectionChanged="TrainComboBox_SelectionChanged">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <Panel>
+              <Image Margin="5 0 175 0" Height="25" Width="25" Source="{Binding Image}"/>
+              <TextBlock Margin="40 10 0 5" Text="{Binding Name}"/>
+            </Panel>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
       </ComboBox>
 
 			<TextBlock>Interval:</TextBlock>
 			<NumericUpDown Minimum="0"
 						   Watermark="Interval(ms)..."/>
+      
 
+      
 			<Button Command="{Binding RunSimulationButton}">
 				Run Simulation
 			</Button>
+
+      <TextBlock>Stops:</TextBlock>
+      <Panel VerticalAlignment="Top">
+        <ScrollViewer>
+          <StackPanel Width="240">
+            
+				    <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+					    <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+					    <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+				    </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
+              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
+              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
+            </Grid>
+            
+          </StackPanel>
+        </ScrollViewer>
+      </Panel>
 
 		</DockPanel>
 	</Border>

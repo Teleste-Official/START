@@ -1,8 +1,6 @@
-﻿using System;
+﻿using SmartTrainApplication.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace SmartTrainApplication.Models
 {
@@ -15,15 +13,24 @@ namespace SmartTrainApplication.Models
     /// </summary>
     public class TrainRoute
     {
+        [JsonIgnore]
+        public string Id { get; set; }
+        [JsonIgnore]
+        public string FilePath { get; set; }
         public string Name { get; set; }
         public List<RouteCoordinate> Coords { get; set; }
 
         public TrainRoute() { }
 
-        public TrainRoute(string name, List<RouteCoordinate> coords)
+        public TrainRoute(string name, List<RouteCoordinate> coords, string ID = "", string filePath = "")
         {
             Name = name;
             Coords = coords;
+            if (ID == "")
+                Id = DataManager.CreateID();
+            else
+                Id = ID;
+            FilePath = filePath;
         }
     }
 }

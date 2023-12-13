@@ -1,9 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Views;
-using static SmartTrainApplication.Views.TrainEditorViewModel;
 
 namespace SmartTrainApplication;
 

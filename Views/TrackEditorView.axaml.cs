@@ -1,10 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using SmartTrainApplication.Data;
-using SmartTrainApplication.Models;
 using SmartTrainApplication.Views;
-using System.Collections.Generic;
 
 namespace SmartTrainApplication;
 
@@ -26,6 +22,10 @@ public partial class TrackEditorView : UserControl
 
             if (DataContext is TrackEditorViewModel viewModel)
             {
+                // If we are adding a new line, switch the combobox to it
+                if (viewModel.AddingNew)
+                    comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
+
                 viewModel.Routes = DataManager.TrainRoutes;
                 DataManager.CurrentTrainRoute = DataManager.TrainRoutes[comboBox.SelectedIndex];
                 viewModel.SetValuesToUI();

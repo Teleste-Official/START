@@ -1,12 +1,4 @@
-﻿using SmartTrainApplication.Data;
-using SmartTrainApplication.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SmartTrainApplication.Views
+﻿namespace SmartTrainApplication.Views
 {
     public class BottomBarViewModel : ViewModelBase
     {
@@ -16,9 +8,9 @@ namespace SmartTrainApplication.Views
             
         }
 
-        public void ImportButton()
+        public void SaveButton()
         {
-            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+
         }
     }
 }
