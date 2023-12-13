@@ -32,6 +32,7 @@ namespace SmartTrainApplication.Data
                 Name = _route.Name;
                 Coords = _route.Coords;
                 RouteTurnPoints = _route.Coords.ToDictionary(x => x, x => false);
+                RouteStops = _route.Coords.ToDictionary(x => x, x => false);
             }
         }
 
@@ -40,6 +41,7 @@ namespace SmartTrainApplication.Data
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
 
             Dictionary<RouteCoordinate, bool> TurnPoints = new SimulatedTrainRoute(DataManager.CurrentTrainRoute).RouteTurnPoints;
+            Dictionary<RouteCoordinate, bool> StopPoints = new SimulatedTrainRoute(DataManager.CurrentTrainRoute).RouteStops;
 
             foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
             {
@@ -54,14 +56,24 @@ namespace SmartTrainApplication.Data
                     TurnPoints[DataManager.CurrentTrainRoute.Coords[i + 1]] = turn;
                 }
             }
-            RunSimulation(TurnPoints);
+            for (int i = 0; i < StopPoints.Count; i++)
+            {
+                var kvp = StopPoints.ElementAt(i);
+                if (kvp.Key.Type == "STOP" || kvp.Key.Type == "TUNNEL_STOP" || kvp.Key.Type == "TUNNEL_ENTRANCE_STOP")
+                {
+                    StopPoints[kvp.Key] = true;
+                }
+            }
+            RunSimulation(TurnPoints, StopPoints);
             return;
         }
 
         /// <summary>
         /// Generate the TickData for use in simulation playback and simulation export data
         /// </summary>
-        public static void RunSimulation(Dictionary<RouteCoordinate, bool> TurnPoints) // See if async would be more preferrable for this -Metso
+        /// <param name="TurnPoints">(Dictionary<RouteCoordinate, bool>) Dictionary with Turn data</param>
+        /// <param name="StopPoints">(Dictionary<RouteCoordinate, bool>) Dictionary with Stop data</param>
+        public static void RunSimulation(Dictionary<RouteCoordinate, bool> TurnPoints, Dictionary<RouteCoordinate, bool> StopPoints) // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
 
@@ -79,6 +91,7 @@ namespace SmartTrainApplication.Data
             RoutePoint point2 = new RoutePoint();
             RoutePoint point3 = new RoutePoint();*/
             bool turn = false;
+            bool stop = false;
 
             List<TickData> AllTickData = new List<TickData>();
 
@@ -130,6 +143,7 @@ namespace SmartTrainApplication.Data
                     }
 
                     turn = false;
+                    stop = false;
 
                     pointIndex++;
                     nextLat = points[pointIndex].Y;
@@ -216,10 +230,37 @@ namespace SmartTrainApplication.Data
                     travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
                     turn = TurnPoints.Values.ElementAt(pointIndex);
-                    
+                    stop = StopPoints.Values.ElementAt(pointIndex);
 
+                    // If the current/"next" RoutePoint is marked as stop
+                    if (stop)
+                    {
+                        // If the distance to next RoutePoint is shorter than
+                        // 1.75 times the stopping distance (distance needed to decelerate from maxSpeed to 0),
+                        // decelerate to 7.2km/h and coast at that speed until turn's RoutePoint
+                        if (pointDistance < 1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
+                        {
+                            //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
+                            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
+
+                            // If within 3 meters from the RoutePoint, stop for 10 seconds.
+                            if (pointDistance < 3)
+                            {
+                                for (int i = 1; i <= 10; i++)
+                                {
+                                    tickData.trackTimeSecs += interval;
+                                    AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0, true, tickData.distanceMeters, tickData.trackTimeSecs));
+                                }
+                            }
+                        } 
+                        // Else accelerate normally.
+                        else
+                        {
+                            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
+                        }
+                    }
                     // If the current/"next" RoutePoint is marked as turn
-                    if (turn)
+                    else if (turn)
                     {
                         // Calculate turn speed using turn's radius
                         RoutePoint point1 = new RoutePoint(TurnPoints.Keys.ElementAt(pointIndex - 1).Longitude, TurnPoints.Keys.ElementAt(pointIndex - 1).Latitude);
@@ -229,7 +270,7 @@ namespace SmartTrainApplication.Data
 
                         // If the distance to next RoutePoint is shorter than
                         // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
-                        // decelerate to turnSpeed (currently 20km/h) and coast at that speed until turn's RoutePoint
+                        // decelerate to turnSpeed and coast at that speed until turn's RoutePoint
                         if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, turnSpeed, -acceleration))
                         {
                             tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), turnSpeed);
@@ -244,7 +285,7 @@ namespace SmartTrainApplication.Data
                     {
                         // If the train isn't a stopping distance (distance needed to decelerate from maxSpeed to 0)
                         // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
-                        if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
+                        if (tickData.distanceMeters < routeLengthMeters - 1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
                         {
                             tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
                         }
