@@ -53,8 +53,9 @@ namespace SmartTrainApplication.Data
                     TurnPoints[DataManager.CurrentTrainRoute.Coords[i]] = turn;
                 }
 
-                RunSimulation(TurnPoints);
+
             }
+            RunSimulation(TurnPoints);
             return;
 
         }
@@ -70,6 +71,15 @@ namespace SmartTrainApplication.Data
             const float acceleration = 2;
             const float maxSpeed = 50;
             const float interval = 1;
+            double distance;
+            double slowZoneDistance = 100000000;
+            double kvpKeyLongitude = 0.0;
+            double kvpKeyLatitude = 0.0;
+            double point1Longitude = 0.0;
+            double point1Latitude = 0.0;
+            RoutePoint point1 = new RoutePoint();
+            RoutePoint point2 = new RoutePoint();
+            RoutePoint point3 = new RoutePoint();
 
             List<TickData> AllTickData = new List<TickData>();
 
@@ -94,8 +104,21 @@ namespace SmartTrainApplication.Data
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
+            // Loop trough TurnPoints dictionary to get turn points for slow zone
+            foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+            {
+                for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
+                {
+                    kvpKeyLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
+                    kvpKeyLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
+                    point1Longitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Longitude.Replace(".", ","));
+                    point1Latitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Latitude.Replace(".", ","));
 
-            while (IsRunning)
+                    point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
+                    point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
+                    point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
+
+                while (IsRunning)
             {
                 // Iterate through the route and save all data
                 // In each iteration move the train based on time, velocity and acceleration
@@ -132,9 +155,7 @@ namespace SmartTrainApplication.Data
                 (tickData.longitudeDD, tickData.latitudeDD) = RouteGeneration.CalculateNewTrainPoint(tickData.longitudeDD, tickData.latitudeDD, nextLon, nextLat, travelDistance, pointDistance);
                 tickData.distanceMeters += (float)travelDistance;
                 tickData.trackTimeSecs += interval;
-
-                
-
+       
                 if (tickData.distanceMeters > routeLengthMeters)
                 {
                     //Debug.WriteLine(tickData.distanceMeters);
@@ -150,62 +171,50 @@ namespace SmartTrainApplication.Data
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
                 //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
 
-                 if (IsRunning)
-                 {
+
+                if (IsRunning)
+                {
                     pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
                     travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
+                    distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
 
-                    if (RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration) > maxSpeed)
+
+                    if (TurnPoints.ElementAt(pointIndex).Value)
                     {
-                        tickData.speedKmh = maxSpeed;
+                        slowZoneDistance = distance + 100;
+                        // Calculate slow zone speed with current distance and slow zone distance
+                        tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
+
+                        float maxRadius = 180;
+
+                        // New speed based on curve radius
+                        tickData.speedKmh = TurnCalculation.CalculateSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
+
                     }
                     else
                     {
-                        tickData.speedKmh += RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration);
+                        slowZoneDistance = 100000000;
                     }
 
-                    // Loop trough TurnPoints dictionary to get turn points for slow zone
-                    foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+
+                    if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
                     {
-                      for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
-                      {
-                        double kvpKeyLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
-                        double kvpKeyLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
-                        double point1Longitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Longitude.Replace(".", ","));
-                        double point1Latitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Latitude.Replace(".", ","));
-
-                        double distance;
-                        double slowZoneDistance = 100000000;
-
-                        distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
-
-                        if (kvp.Value == true)
-                        {                          
-                          slowZoneDistance = distance + 100;
-                        }
-                        else if (kvp.Value == false)
-                        {
-                          slowZoneDistance = 100000000;
-                        }
-
-                          // Calculate slow zone speed with current distance and slow zone distance
-                          tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
-
-                          float maxRadius = 180;
-
-                          RoutePoint point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
-                          RoutePoint point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
-                          RoutePoint point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
-
-                          // New speed based on curve radius
-                          tickData.speedKmh = TurnCalculation.CalculateSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
-                        }
+                        tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
                     }
+                    else
+                    {
+                        //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
+                        tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
+                    }
+
+                    Debug.WriteLine(tickData.speedKmh);
+                }
+              }
+
                 }
             }
-    
-            Debug.WriteLine(tickData.speedKmh);
+
 
             AllTickData.RemoveAt(AllTickData.Count - 1);
             SimulationData newSim = new SimulationData("Test", AllTickData);

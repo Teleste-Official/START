@@ -168,5 +168,12 @@ namespace SmartTrainApplication.Data
         {
             return ((currentSpeedKmh / 3.6f) + timeInterval * acceleration) * 3.6f;
         }
+
+        public static double CalculateStoppingDistance(float currentSpeedKmh, float targetSpeedKmh, float deceleration)
+        {
+            float stoppingTime = ((targetSpeedKmh / 3.6f) - (currentSpeedKmh / 3.6f)) / deceleration;
+
+            return CalculateTrainMovement(currentSpeedKmh, stoppingTime, deceleration);
+        }
     }
 }
