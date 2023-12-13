@@ -49,9 +49,8 @@ namespace SmartTrainApplication.Data
 
                     bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
 
-                    TurnPoints[DataManager.CurrentTrainRoute.Coords[i]] = turn;
+                    TurnPoints[DataManager.CurrentTrainRoute.Coords[i + 1]] = turn;
                 }
-
             }
             RunSimulation(TurnPoints);
             return;
@@ -68,7 +67,7 @@ namespace SmartTrainApplication.Data
             const float acceleration = 2;
             const float maxSpeed = 50;
             const float interval = 1;
-            double distance;
+            /*double distance;
             double slowZoneDistance = 100000000;
             double kvpKeyLongitude = 0.0;
             double kvpKeyLatitude = 0.0;
@@ -76,7 +75,7 @@ namespace SmartTrainApplication.Data
             double point1Latitude = 0.0;
             RoutePoint point1 = new RoutePoint();
             RoutePoint point2 = new RoutePoint();
-            RoutePoint point3 = new RoutePoint();
+            RoutePoint point3 = new RoutePoint();*/
             bool turn = false;
 
             List<TickData> AllTickData = new List<TickData>();
@@ -97,7 +96,7 @@ namespace SmartTrainApplication.Data
             int pointIndex = 1;
             double nextLat = points[pointIndex].Y;
             double nextLon = points[pointIndex].X;
-            bool isGpsFix = false;
+            bool isGpsFix = true;
 
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
@@ -123,10 +122,12 @@ namespace SmartTrainApplication.Data
                     tickData.latitudeDD = nextLat;
                     tickData.longitudeDD = nextLon;
 
-                    if (route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE")
+                    if (route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" || route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP")
                     {
                         isGpsFix = !isGpsFix;
                     }
+
+                    turn = false;
 
                     pointIndex++;
                     nextLat = points[pointIndex].Y;
@@ -150,11 +151,8 @@ namespace SmartTrainApplication.Data
                 // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
                 AllTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, tickData.speedKmh, false, tickData.distanceMeters, tickData.trackTimeSecs));
 
-                // Test tick data
-                //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
-                //AllTickData.Add(new TickData(0, 0, false, 0, false, 0, 0));
                 // Loop trough TurnPoints dictionary to get turn points for slow zone
-                foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
+                /*foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
                 {
                     for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
                     {
@@ -169,47 +167,87 @@ namespace SmartTrainApplication.Data
 
                         turn = kvp.Value;
 
-                    if (IsRunning)
-                    {
-                        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
-                        travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+                        if (IsRunning)
+                        {
+                            pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+                            travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
 
-                        distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
+                            distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
 
+                            if (turn)
+                            {
+
+                                slowZoneDistance = distance + 100;
+                                // Calculate slow zone speed with current distance and slow zone distance
+                                tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
+
+                                float maxRadius = 180;
+
+                                // New speed based on curve radius
+                                tickData.speedKmh = TurnCalculation.CalculateSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
+
+                            }
+                            else
+                            {
+                                slowZoneDistance = 100000000;
+                            }
+
+                            // If the train isn't a stopping distance (distance needed to go from maxspeed to 0)
+                            // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
+                            // Else start decelerating.
+                            // With this the train coast at 7.2km/h for a few seconds at the end before stopping
+                            if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
+                            {
+                                tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
+                            } else {
+                                //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
+                                tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
+                            }
+                        }
+                    }
+                  //  Debug.WriteLine(tickData.speedKmh);
+
+                }*/
+                if (IsRunning)
+                {
+                    pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+                    travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+
+                    turn = TurnPoints.Values.ElementAt(pointIndex);
+
+                    // If the current/"next" RoutePoint is marked as turn
                     if (turn)
                     {
-
-                        slowZoneDistance = distance + 100;
-                        // Calculate slow zone speed with current distance and slow zone distance
-                        tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
-
-                        float maxRadius = 180;
-
-                        // New speed based on curve radius
-                        tickData.speedKmh = TurnCalculation.CalculateSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
-
+                        // If the distance to next RoutePoint is shorter than
+                        // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
+                        // decelerate to turnSpeed (currently 20km/h) and coast at that speed until turn's RoutePoint
+                        if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 20f, -acceleration))
+                        {
+                            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 20f);
+                        }
+                        // Else accelerate normally.
+                        else
+                        {
+                            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
+                        }
                     }
                     else
                     {
-                        slowZoneDistance = 100000000;
-                    }
-
-                    // If the train isn't a stopping distance (distance needed to go from maxspeed to 0)
-                    // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
-                    // Else start decelerating.
-                    // With this the train coast at 7.2km/h for a few seconds at the end before stopping
-                    if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
-                    {
-                        tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
-                    } else {
-                        //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
-                        tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
+                        // If the train isn't a stopping distance (distance needed to decelerate from maxSpeed to 0)
+                        // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
+                        if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
+                        {
+                            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
+                        }
+                        // Else start decelerating.
+                        // With this the train coast at 7.2km/h for a few seconds at the end before stopping
+                        else
+                        {
+                            //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
+                            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
+                        }
                     }
                 }
-                }
-                  //  Debug.WriteLine(tickData.speedKmh);
-
-               }
             }
 
             AllTickData.RemoveAt(AllTickData.Count - 1);
