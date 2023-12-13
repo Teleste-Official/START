@@ -9,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NetTopologySuite.Operation.Distance;
 
 namespace SmartTrainApplication.Data
 {
@@ -56,7 +55,6 @@ namespace SmartTrainApplication.Data
             }
             RunSimulation(TurnPoints);
             return;
-
         }
 
         /// <summary>
@@ -104,8 +102,6 @@ namespace SmartTrainApplication.Data
             double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
             double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
-
-
             while (IsRunning)
             {
                 // Iterate through the route and save all data
@@ -138,7 +134,6 @@ namespace SmartTrainApplication.Data
 
                     pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
                 }
-
 
                 (tickData.longitudeDD, tickData.latitudeDD) = RouteGeneration.CalculateNewTrainPoint(tickData.longitudeDD, tickData.latitudeDD, nextLon, nextLat, travelDistance, pointDistance);
                 tickData.distanceMeters += (float)travelDistance;
@@ -199,27 +194,28 @@ namespace SmartTrainApplication.Data
                         slowZoneDistance = 100000000;
                     }
 
-
+                    // If the train isn't a stopping distance (distance needed to go from maxspeed to 0)
+                    // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
+                    // Else start decelerating.
+                    // With this the train coast at 7.2km/h for a few seconds at the end before stopping
                     if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
                     {
                         tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
-                    }
-                    else
-                    {
+                    } else {
                         //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
                         tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
                     }
-
-                    
-                  }
-               }
+                }
+                }
                   //  Debug.WriteLine(tickData.speedKmh);
 
                }
             }
 
-
             AllTickData.RemoveAt(AllTickData.Count - 1);
+            //change last data to have 0 speed and open doors
+            AllTickData[AllTickData.Count - 1].speedKmh = 0f;
+            AllTickData[AllTickData.Count - 1].doorsOpen = true;
             SimulationData newSim = new SimulationData("Test", AllTickData);
 
             // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json

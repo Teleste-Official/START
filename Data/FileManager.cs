@@ -327,5 +327,20 @@ namespace SmartTrainApplication.Data
 
             return;
         }
+
+        public static async Task<string> OpenFolder(TopLevel topLevel)
+        {
+            string Path = "";
+            var folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Choose folder"
+            });
+
+            if (folder.Count > 0)
+            {
+                Path = folder[0].Path.AbsolutePath;
+            }
+            return Path;
+        }
     }
 }
