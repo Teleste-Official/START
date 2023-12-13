@@ -1,4 +1,5 @@
 ﻿using SmartTrainApplication.Models;
+using System;
 
 namespace SmartTrainApplication.Data
 {
