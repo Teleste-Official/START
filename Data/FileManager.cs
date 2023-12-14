@@ -28,7 +28,7 @@ namespace SmartTrainApplication.Data
         /// Export the created lines into a file.
         /// </summary>
         /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
-        public static async void Export(String GeometryString, TopLevel topLevel)
+        public static async void Export(String GeometryString, TopLevel topLevel, string Name = "", string Id = "")
         {
             if (GeometryString == "")
                 return;
@@ -39,8 +39,9 @@ namespace SmartTrainApplication.Data
                 FileTypeChoices = new[] { JSON },
                 SuggestedFileName = "export"
             });
-
-            TrainRoute NewTrainRoute = DataManager.CreateNewRoute(GeometryString);
+            if (file == null) return;
+            string FilePath = file.TryGetLocalPath() ?? string.Empty;
+            TrainRoute NewTrainRoute = DataManager.CreateNewRoute(GeometryString, Name, Id, FilePath);
 
             // Create a file and write empty the new route to it
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
@@ -66,6 +67,17 @@ namespace SmartTrainApplication.Data
             // Save the current train route
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
             System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrainRoute, Json_options));
+        }
+
+        public static void SaveSpecific(TrainRoute route)
+        {
+            if (route == null) return;
+
+            string Path = route.FilePath;
+            Debug.WriteLine("Save: " + Path);
+            // Save the current train route
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(route, Json_options));
         }
 
         /// <summary>

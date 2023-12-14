@@ -1,7 +1,9 @@
 ﻿using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace SmartTrainApplication.Data
@@ -24,11 +26,11 @@ namespace SmartTrainApplication.Data
         /// </summary>
         /// <param name="GeometryString">(String) TrainRoute's GeometryString to be parsed</param>
         /// <returns>(TrainRoute) TrainRoute with name & list of RouteCoordinates</returns>
-        public static TrainRoute CreateNewRoute(String GeometryString, string Name = "Route", string ID = "")
+        public static TrainRoute CreateNewRoute(String GeometryString, string Name = "Route", string ID = "", string FilePath = "")
         {
 
             List<RouteCoordinate> Geometry = ParseGeometryString(GeometryString);
-            TrainRoute NewTrainRoute = new TrainRoute(Name, Geometry, ID);
+            TrainRoute NewTrainRoute = new TrainRoute(Name, Geometry, ID, FilePath);
 
             return NewTrainRoute;
         }
@@ -358,6 +360,18 @@ namespace SmartTrainApplication.Data
             }
             AllIdentities.Add(NewID);
             return NewID;
+        }
+
+        /// <summary>
+        /// Creates a unique FilePath for trains and routes
+        /// </summary>
+        /// <param name="Id">The routes or trains unique ID-number</param>
+        /// <returns>String, for example "C:/Start/Routes/export1234.json"</returns>
+        public static string CreateFilePath(string Id)
+        {
+            string NewPath = FileManager.DefaultRouteFolderPath + "\\" + "export" + Id[..4] + ".json";
+            Debug.WriteLine("create path: " + NewPath);
+            return NewPath;
         }
 
         public static void UpdateTrain(Train newTrain)

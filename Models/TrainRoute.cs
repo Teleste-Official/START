@@ -30,7 +30,11 @@ namespace SmartTrainApplication.Models
                 Id = DataManager.CreateID();
             else
                 Id = ID;
-            FilePath = filePath;
+
+            if (filePath == "")
+                FilePath = DataManager.CreateFilePath(Id);
+            else
+                FilePath = filePath;
         }
     }
 }
