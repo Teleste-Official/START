@@ -17,7 +17,7 @@ namespace SmartTrainApplication.Views
 
         public void SaveAsButton()
         {
-            LayerManager.ExportNewRoute(MainWindow.TopLevel, DataManager.CurrentTrainRoute.Name, DataManager.CurrentTrainRoute.Id);
+            LayerManager.ExportNewRoute(MainWindow.TopLevel, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
             
         }
     }

@@ -43,7 +43,7 @@ namespace SmartTrainApplication.Views
         public void RunSimulationButton()
         {
             Simulation.intervalTime = (int)float.Parse(Interval);
-            Simulation.RunSimulation(StopsDictionary);
+            //Simulation.RunSimulation(StopsDictionary);
             Simulation.PreprocessRoute();
             return;
         }
