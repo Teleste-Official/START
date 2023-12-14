@@ -18,7 +18,7 @@ namespace SmartTrainApplication.Data
         /// </summary>
         public static void GenerateRoute()
         {
-            TrainRoute route = DataManager.CurrentTrainRoute;
+            TrainRoute route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
             List<MPoint> points = new List<MPoint>();
 
             foreach (var coord in route.Coords)

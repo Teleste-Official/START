@@ -67,5 +67,11 @@ namespace SmartTrainApplication.Views
             RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
             StopsDictionary[selectedStop] = value;
         }
+
+        public void DrawFocusedStop(string _Id)
+        {
+            RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
+            LayerManager.AddFocusStop(selectedStop);
+        }
     }
 }

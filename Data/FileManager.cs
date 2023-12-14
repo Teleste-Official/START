@@ -58,14 +58,14 @@ namespace SmartTrainApplication.Data
         /// </summary>
         public static void Save()
         {
-            if (DataManager.CurrentTrainRoute == null)
+            if (DataManager.TrainRoutes[DataManager.CurrentTrainRoute] == null)
                 return;
 
             string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "export.json");
 
             // Save the current train route
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrainRoute, Json_options));
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], Json_options));
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace SmartTrainApplication.Data
             }
 
             // Set the first imported train route as the currently selected one
-            DataManager.CurrentTrainRoute = ImportedTrainRoutes[0];
+            DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
 
             // Turn the coordinates back to geometry strings
             List<string> routesAsStrings = new List<string>();
@@ -187,12 +187,12 @@ namespace SmartTrainApplication.Data
             if (DataManager.TrainRoutes[RouteIndex] == null)
             {
                 string FirstRoute = ImportedRoutesAsStrings[0];
-                DataManager.CurrentTrainRoute = DataManager.TrainRoutes[0];
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = DataManager.TrainRoutes[0];
                 return FirstRoute;
             }
                 
             string NewCurrentRoute = ImportedRoutesAsStrings[RouteIndex];
-            DataManager.CurrentTrainRoute = DataManager.TrainRoutes[RouteIndex];
+            DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = DataManager.TrainRoutes[RouteIndex];
             return NewCurrentRoute;
         }
 
@@ -312,7 +312,7 @@ namespace SmartTrainApplication.Data
 
             // Set the imported train as the currently selected one
             DataManager.Trains.Add(LoadedTrain);
-            DataManager.CurrentTrain = LoadedTrain;
+            DataManager.CurrentTrain = DataManager.Trains.Count - 1;
         }
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace SmartTrainApplication.Data
         public static void SaveTrain()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", string.Concat(DataManager.CurrentTrain.Name.Replace(" ", "_").Split(System.IO.Path.GetInvalidFileNameChars())) + ".json");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", string.Concat(DataManager.Trains[DataManager.CurrentTrain].Name.Replace(" ", "_").Split(System.IO.Path.GetInvalidFileNameChars())) + ".json");
             try
             {
                 if (!Directory.Exists(TrainsDirectory))
@@ -336,7 +336,7 @@ namespace SmartTrainApplication.Data
 
             // Save the train
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.CurrentTrain, Json_options));
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.Trains[DataManager.CurrentTrain], Json_options));
         }
 
         public static void SaveSettings(Settings settings)

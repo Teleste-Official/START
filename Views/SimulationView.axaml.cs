@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Views;
 using System.Diagnostics;
@@ -23,10 +24,10 @@ public partial class SimulationView : UserControl
             if (DataContext is SimulationViewModel viewModel)
             {
                 viewModel.Routes = DataManager.TrainRoutes;
-                DataManager.CurrentTrainRoute = DataManager.TrainRoutes[comboBox.SelectedIndex];
+                DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
                 LayerManager.SwitchRoute();
                 viewModel.SetStopsToUI();
-                Debug.WriteLine("Current route " + DataManager.CurrentTrainRoute.Id);
+                Debug.WriteLine("Current route " + DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
             }
         }
     }
@@ -39,8 +40,8 @@ public partial class SimulationView : UserControl
             if (DataManager.Trains.Count == 0)
                 return;
 
-            DataManager.CurrentTrain = DataManager.Trains[comboBox.SelectedIndex];
-            Debug.WriteLine("Current train " + DataManager.CurrentTrain.Id);
+            DataManager.CurrentTrain = comboBox.SelectedIndex;
+            Debug.WriteLine("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
         }
     }
 
@@ -48,6 +49,23 @@ public partial class SimulationView : UserControl
     {
         TextBlock textBlock = sender as TextBlock;
         Debug.WriteLine("Clicked! " + textBlock.Text.ToString());
+    }
+
+    private void EnterHoverStop(object? sender, PointerEventArgs e)
+    {
+        TextBlock textBlock = sender as TextBlock;
+        if (DataContext is SimulationViewModel viewModel)
+        {
+            viewModel.DrawFocusedStop(textBlock.Name);
+        }
+        Debug.WriteLine("Hover over: " + textBlock.Name);
+    }
+
+    private void ExitHoverStop(object? sender, PointerEventArgs e)
+    {
+        TextBlock textBlock = sender as TextBlock;
+        LayerManager.RemoveFocusStop();
+        Debug.WriteLine("Lost focus: " + textBlock.Name);
     }
 
     private void CheckStop(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

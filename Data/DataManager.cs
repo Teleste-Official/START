@@ -1,11 +1,9 @@
 ﻿using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace SmartTrainApplication.Data
 {
@@ -15,10 +13,10 @@ namespace SmartTrainApplication.Data
     internal class DataManager
     {
         public static List<TrainRoute> TrainRoutes = new List<TrainRoute>();
-        public static TrainRoute CurrentTrainRoute;
+        public static int CurrentTrainRoute;
 
         public static List<Train> Trains = new List<Train>();
-        public static Train CurrentTrain;
+        public static int CurrentTrain;
 
         private static List<string> AllIdentities = new List<string>();
 
@@ -57,7 +55,7 @@ namespace SmartTrainApplication.Data
             if(oldRoute == null)
             {
                 TrainRoutes.Add(NewRoute);
-                CurrentTrainRoute = NewRoute;
+                CurrentTrainRoute = TrainRoutes.Count - 1;
             }
             else
             {
@@ -65,7 +63,6 @@ namespace SmartTrainApplication.Data
                 List<string> tunnelPoints = GetTunnelPoints();
                 List<string> stopsPoints = GetStopStrings();
 
-                CurrentTrainRoute = NewRoute;
                 List<string> tunnelStrings = AddTunnels(tunnelPoints);
                 List<string> stopsStrings = AddStops(stopsPoints);
 
@@ -111,7 +108,7 @@ namespace SmartTrainApplication.Data
         public static List<string> AddTunnels(List<string> TunnelPoints)
         {
             List<string> tunnelStrings = new List<string>();
-            if (CurrentTrainRoute == null) return tunnelStrings;
+            if (TrainRoutes[CurrentTrainRoute] == null) return tunnelStrings;
 
             foreach (var PointString in TunnelPoints)
             {
@@ -125,9 +122,9 @@ namespace SmartTrainApplication.Data
                 int pointStatusToBeChanged = -1;
                 List<double> diffpoints = new List<double>();
 
-                for (int i = 0; i < CurrentTrainRoute.Coords.Count; i++)
+                for (int i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++)
                 {
-                    double diff = CalculateDistance(new RoutePoint(CurrentTrainRoute.Coords[i].Longitude, CurrentTrainRoute.Coords[i].Latitude), routePoint);
+                    double diff = CalculateDistance(new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude, TrainRoutes[CurrentTrainRoute].Coords[i].Latitude), routePoint);
                     diffpoints.Add(diff);
                     if (i == 0)
                     {
@@ -145,10 +142,10 @@ namespace SmartTrainApplication.Data
                 }
 
                 if(pointStatusToBeChanged != -1)
-                    if (CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "STOP")
-                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
+                    if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "STOP")
+                        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
                     else
-                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE");
+                        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE");
             }
 
             FixTunnelTypes();
@@ -166,7 +163,7 @@ namespace SmartTrainApplication.Data
         {
             List<string> points = new List<string>();
 
-            foreach (var coord in CurrentTrainRoute.Coords)
+            foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if (coord.Type == "TUNNEL_ENTRANCE")
                     points.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
@@ -183,7 +180,7 @@ namespace SmartTrainApplication.Data
         {
             string GeometryString = "LINESTRING (";
 
-            foreach (var coord in CurrentTrainRoute.Coords)
+            foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 GeometryString += coord.Longitude + " " + coord.Latitude + ",";
             }
@@ -202,7 +199,7 @@ namespace SmartTrainApplication.Data
 
             int EntranceCount = 0;
             string GeometryString = "LINESTRING (";
-            foreach (var coord in CurrentTrainRoute.Coords)
+            foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if (coord.Type == "TUNNEL" || coord.Type == "TUNNEL_ENTRANCE" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                     GeometryString += coord.Longitude + " " + coord.Latitude + ",";
@@ -232,7 +229,7 @@ namespace SmartTrainApplication.Data
         {
             List<string> stopStrings = new List<string>();
 
-            foreach (var coord in CurrentTrainRoute.Coords)
+            foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                 {
@@ -247,7 +244,7 @@ namespace SmartTrainApplication.Data
         {
             int stopsCount = 1;
             List<RouteCoordinate> stops = new List<RouteCoordinate>();
-            foreach (var coord in CurrentTrainRoute.Coords)
+            foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
                 {
@@ -266,7 +263,7 @@ namespace SmartTrainApplication.Data
         {
             foreach (RouteCoordinate stop in stops)
             {
-                CurrentTrainRoute.Coords.First(item => item.Id == stop.Id).StopName = stop.StopName;
+                TrainRoutes[CurrentTrainRoute].Coords.First(item => item.Id == stop.Id).StopName = stop.StopName;
             }
         }
 
@@ -292,7 +289,7 @@ namespace SmartTrainApplication.Data
         private static void FixTunnelTypes()
         {
             bool tunnelEntrance = false;
-            foreach (var coords in CurrentTrainRoute.Coords)
+            foreach (var coords in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if(coords.Type == "TUNNEL_ENTRANCE" || coords.Type == "TUNNEL_ENTRANCE_STOP")
                 {
@@ -319,7 +316,7 @@ namespace SmartTrainApplication.Data
         public static List<string> AddStops(List<string> StopsPoints)
         {
             List<string> stopStrings = new List<string>();
-            if (CurrentTrainRoute == null) return stopStrings;
+            if (TrainRoutes[CurrentTrainRoute] == null) return stopStrings;
 
             foreach (var PointString in StopsPoints)
             {
@@ -333,9 +330,9 @@ namespace SmartTrainApplication.Data
                 int pointStatusToBeChanged = -1;
                 List<double> diffpoints = new List<double>();
 
-                for (int i = 0; i < CurrentTrainRoute.Coords.Count; i++)
+                for (int i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++)
                 {
-                    double diff = CalculateDistance(new RoutePoint(CurrentTrainRoute.Coords[i].Longitude, CurrentTrainRoute.Coords[i].Latitude), routePoint);
+                    double diff = CalculateDistance(new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude, TrainRoutes[CurrentTrainRoute].Coords[i].Latitude), routePoint);
                     diffpoints.Add(diff);
                     if (i == 0)
                     {
@@ -354,13 +351,13 @@ namespace SmartTrainApplication.Data
 
                 if (pointStatusToBeChanged != -1)
                 {
-                    if (CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "TUNNEL")
-                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_STOP");
-                    else if ((CurrentTrainRoute.Coords[pointStatusToBeChanged].Type == "TUNNEL_ENTRANCE"))
-                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
+                    if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL")
+                        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_STOP");
+                    else if ((TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL_ENTRANCE"))
+                        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
                     else
-                        CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("STOP");
-                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetName("No name");
+                        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("STOP");
+                    TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetName("No name");
                 }
             }
 
@@ -398,7 +395,6 @@ namespace SmartTrainApplication.Data
                 if (oldTrain.Id == newTrain.Id)
                 {
                     oldTrain.SetValues(newTrain);
-                    CurrentTrain = oldTrain;
                 }
             }
         }

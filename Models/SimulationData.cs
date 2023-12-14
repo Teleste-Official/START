@@ -29,7 +29,7 @@ namespace SmartTrainApplication.Models
             TickData = tickData;
             //Train = DataManager.CurrentTrain;
             Train = new Train("Test", "Testing Train", 0, 0, 0); // For testing only -Metso
-            TrainRoute = DataManager.CurrentTrainRoute;
+            TrainRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
         }
     }
 }

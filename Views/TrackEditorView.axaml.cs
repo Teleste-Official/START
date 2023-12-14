@@ -31,7 +31,7 @@ public partial class TrackEditorView : UserControl
                     comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
 
                 viewModel.Routes = DataManager.TrainRoutes;
-                DataManager.CurrentTrainRoute = DataManager.TrainRoutes[comboBox.SelectedIndex];
+                DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
                 viewModel.SetValuesToUI();
                 LayerManager.SwitchRoute();
                 viewModel.SetStopsToUI();

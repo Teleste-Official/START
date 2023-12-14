@@ -21,7 +21,7 @@ public partial class TrainEditorView : UserControl
 
             if (DataContext is TrainEditorViewModel viewModel)
             {
-                DataManager.CurrentTrain = DataManager.Trains[comboBox.SelectedIndex];
+                DataManager.CurrentTrain = comboBox.SelectedIndex;
                 viewModel.SetValuesToUI();
             }
         }

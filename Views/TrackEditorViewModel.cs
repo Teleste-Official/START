@@ -61,7 +61,7 @@ namespace SmartTrainApplication.Views
         {
             if (CurrentAction == "ModifyTrack")
             {
-                LayerManager.ApplyEditing(DataManager.CurrentTrainRoute.Name, DataManager.CurrentTrainRoute.Id);
+                LayerManager.ApplyEditing(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
             }
             if (CurrentAction == "AddLine"){
                 AddingNew = true;
@@ -82,7 +82,7 @@ namespace SmartTrainApplication.Views
             }
             if (CurrentAction == "None")
             {
-                DataManager.CurrentTrainRoute.Name = TrackName;
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = TrackName;
                 DataManager.SetStopsNames(Stops);
                 Routes = DataManager.TrainRoutes.ToList();
                 SetStopsToUI();
@@ -101,7 +101,7 @@ namespace SmartTrainApplication.Views
 
         public void SetValuesToUI()
         {
-            TrackName = DataManager.CurrentTrainRoute.Name;
+            TrackName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
 
             // Notify the UI about the property changes
             RaisePropertyChanged(nameof(TrackName));
@@ -109,7 +109,7 @@ namespace SmartTrainApplication.Views
 
         public void UpdateRoutesToUI()
         {
-            TrackName = DataManager.CurrentTrainRoute.Name;
+            TrackName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
 
             // Notify the UI about the property changes
             RaisePropertyChanged(nameof(TrackName));

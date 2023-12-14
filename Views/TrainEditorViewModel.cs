@@ -52,9 +52,9 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
-            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.CurrentTrain.Id, DataManager.CurrentTrain.FilePath);
+            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
             DataManager.UpdateTrain(newTrain);
-            Trains[DataManager.Trains.FindIndex(a => a.Id.Contains(DataManager.CurrentTrain.Id))].Name = Title;
+            Trains[DataManager.Trains.FindIndex(a => a.Id.Contains(DataManager.Trains[DataManager.CurrentTrain].Id))].Name = Title;
             Trains = Trains;
             RaisePropertyChanged(nameof(Trains));
         }
@@ -65,9 +65,9 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
-            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.CurrentTrain.Id, DataManager.CurrentTrain.FilePath);
+            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
             
-            DataManager.CurrentTrain = newTrain;
+            DataManager.CurrentTrain = DataManager.Trains.Count - 1;
             DataManager.Trains.Add(newTrain);
             Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
             RaisePropertyChanged(nameof(Trains));
@@ -77,11 +77,11 @@ namespace SmartTrainApplication.Views
 
         public void SetValuesToUI()
         {
-            Title = DataManager.CurrentTrain.Name;
-            Description = DataManager.CurrentTrain.Description;
-            Speed = DataManager.CurrentTrain.MaxSpeed.ToString();
-            Acceleration = DataManager.CurrentTrain.Acceleration.ToString();
-            IconIndex = DataManager.CurrentTrain.Icon;
+            Title = DataManager.Trains[DataManager.CurrentTrain].Name;
+            Description = DataManager.Trains[DataManager.CurrentTrain].Description;
+            Speed = DataManager.Trains[DataManager.CurrentTrain].MaxSpeed.ToString();
+            Acceleration = DataManager.Trains[DataManager.CurrentTrain].Acceleration.ToString();
+            IconIndex = DataManager.Trains[DataManager.CurrentTrain].Icon;
 
             // Notify the UI about the property changes
             RaisePropertyChanged(nameof(Title));
