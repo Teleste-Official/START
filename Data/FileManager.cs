@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
 {
@@ -89,8 +90,21 @@ namespace SmartTrainApplication.Data
         {
             List<string> Files = new List<string>();
             List<string> Paths = new List<string>();
-            
-            if (SavedPaths == null) return Files;
+            List<string> routesAsStrings = new List<string>();
+
+            //Create default folder if it doesn't exist
+            try
+            {
+                if (!Directory.Exists(DefaultRouteFolderPath))
+                {
+                    Directory.CreateDirectory(DefaultRouteFolderPath);
+                }
+            }
+            catch (Exception Ex)
+            {
+
+                Debug.WriteLine(Ex.Message);
+            }
 
 
             try {
@@ -122,25 +136,7 @@ namespace SmartTrainApplication.Data
                     }
                     else
                     {
-                        var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
-
-                        foreach (var file in FilesInFolder)
-                        {
-                            var FileAsString = "";
-                            using (StreamReader sr = File.OpenText(file))
-                            {
-                                string S;
-                                while ((S = sr.ReadLine()) != null)
-                                {
-                                    FileAsString += S;
-                                }
-                            }
-                            if (FileAsString.Contains("Coords"))
-                            {
-                                Files.Add(FileAsString);
-                            }
-
-                        }
+                       //Do nothing, because folder doesn't exist
                     }
                 }
             }
@@ -165,22 +161,23 @@ namespace SmartTrainApplication.Data
             // Set the first imported train route as the currently selected one
             DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
 
-            // Turn the coordinates back to geometry strings
-            List<string> routesAsStrings = new List<string>();
-            string GeometryString = "LINESTRING (";
-            foreach (var route in ImportedTrainRoutes)
-            {
-                foreach (var coord in route.Coords)
+                // Turn the coordinates back to geometry strings
+
+                string GeometryString = "LINESTRING (";
+                foreach (var route in ImportedTrainRoutes)
                 {
-                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+                    foreach (var coord in route.Coords)
+                    {
+                        GeometryString += coord.Longitude + " " + coord.Latitude + ",";
+                    }
+                    GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+                    routesAsStrings.Add(GeometryString);
                 }
-                GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-                routesAsStrings.Add(GeometryString);
-            }
 
-            //Update lists
-            ImportedRoutesAsStrings = routesAsStrings;
-
+                //Update lists
+                ImportedRoutesAsStrings = routesAsStrings;
+                DataManager.TrainRoutes = ImportedTrainRoutes;
+            
             return routesAsStrings;
         }
 
@@ -409,6 +406,21 @@ namespace SmartTrainApplication.Data
             {
                 Debug.WriteLine("No guide");
             }
+        }
+        
+        public static async Task<string> OpenFolder(TopLevel topLevel)
+        {
+            string Path = "";
+            var folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Choose folder"
+            });
+
+            if (folder.Count > 0)
+            {
+                Path = folder[0].Path.AbsolutePath;
+            }
+            return Path;
         }
     }
 }

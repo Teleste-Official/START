@@ -165,5 +165,19 @@ namespace SmartTrainApplication.Data
         {
             return ((currentSpeedKmh / 3.6f) + timeInterval * acceleration) * 3.6f;
         }
+
+        /// <summary>
+        /// Calculates the (theoretical) distance needed to slow speed to target speed with given deceleration
+        /// </summary>
+        /// <param name="currentSpeedKmh">(float) Train's current speed in km/h</param>
+        /// <param name="targetSpeedKmh">(float) Train's target speed in km/h</param>
+        /// <param name="deceleration">(float) Train's deceleration (negative value) in m/s^2</param>
+        /// <returns>(double) The needed slowing distance in meters</returns>
+        public static double CalculateStoppingDistance(float currentSpeedKmh, float targetSpeedKmh, float deceleration)
+        {
+            float stoppingTime = ((targetSpeedKmh / 3.6f) - (currentSpeedKmh / 3.6f)) / deceleration;
+
+            return CalculateTrainMovement(currentSpeedKmh, stoppingTime, deceleration);
+        }
     }
 }

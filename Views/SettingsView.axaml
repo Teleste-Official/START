@@ -51,7 +51,11 @@
                AcceptsReturn="True">
       </TextBox>
 
-      <TextBlock Margin="5 15 0 5">Train import directories:</TextBlock>
+			<Button Margin="0 15 0 0" Width="150" Command="{Binding AddRouteButton}">
+				Add Directory
+			</Button>
+
+			<TextBlock Margin="5 15 0 5">Train import directories:</TextBlock>
       <TextBox Height="150" 
                Margin="0 2 0 0" 
                Watermark="..." 

@@ -13,6 +13,7 @@ using SmartTrainApplication.Models;
 using SmartTrainApplication.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SmartTrainApplication
@@ -98,15 +99,24 @@ namespace SmartTrainApplication
         public static void ImportNewRoute(List<string> SavedPaths)
         {
             List<string> ImportedRoutes = FileManager.StartupFolderImport(SavedPaths);
-            string GeometryData = ImportedRoutes[0];
-            
-            var importLayer = LayerManager.CreateImportLayer();
-            List<string> tunnelStrings = DataManager.GetTunnelStrings();
-            List<string> stopsStrings = DataManager.GetStopStrings();
+            try
+            {
+                string GeometryData = ImportedRoutes[0];
 
-            LayerManager.TurnImportToFeature(GeometryData, importLayer);
-            LayerManager.RedrawTunnelsToMap(tunnelStrings);
-            LayerManager.RedrawStopsToMap(stopsStrings);
+                var importLayer = LayerManager.CreateImportLayer();
+                List<string> tunnelStrings = DataManager.GetTunnelStrings();
+                List<string> stopsStrings = DataManager.GetStopStrings();
+
+                LayerManager.TurnImportToFeature(GeometryData, importLayer);
+                LayerManager.RedrawTunnelsToMap(tunnelStrings);
+                LayerManager.RedrawStopsToMap(stopsStrings);
+            }
+            catch (Exception Ex)
+            {
+
+                Debug.WriteLine(Ex);
+            }
+            
         }
 
         public static void ChangeCurrentRoute(int RouteIndex)
