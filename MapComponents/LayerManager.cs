@@ -65,13 +65,14 @@ namespace SmartTrainApplication
             var tunnelLayer = CreateTunnelLayer();
             var tunnelstringLayer = CreateTunnelStringLayer();
             var stopsLayer = CreateStopsLayer();
-            //var animationLayer = CreateAnimationLayer();
+            var focusedStopsLayer = CreateFocusStopsLayer();
 
             importLayer.Clear();
             tunnelLayer.Clear();
             tunnelstringLayer.Clear();
             stopsLayer.Clear();
-            //animationLayer.ClearCache();
+            focusedStopsLayer.Clear();
+            RemoveAnimationLayer();
 
             MapViewControl._mapControl?.RefreshGraphics();
 
@@ -215,7 +216,7 @@ namespace SmartTrainApplication
                 // Animation layer doesnt exist yet, create the import layer
                 MapViewControl.map.Layers.Add(new AnimatedPointLayer(new TrainPointProvider())
                 {
-                    Name = "Trains",
+                    Name = "Playback",
                     Style = new LabelStyle
                     {
                         BackColor = new Brush(Color.Black),
@@ -227,6 +228,16 @@ namespace SmartTrainApplication
             }
 
             return animationLayer;
+        }
+
+        /// <summary>
+        /// Removes the animation layer
+        /// </summary>
+        public static void RemoveAnimationLayer()
+        {
+            var animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
+            if (animationLayer != null)
+                MapViewControl.map.Layers.Remove(animationLayer);
         }
 
         /// <summary>

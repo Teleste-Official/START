@@ -21,7 +21,6 @@ namespace SmartTrainApplication.MapComponents
     internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
     {
         public event DataChangedEventHandler? DataChanged;
-        static double intervalTime = 5;
 
         private readonly PeriodicTimer _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
 
@@ -46,7 +45,7 @@ namespace SmartTrainApplication.MapComponents
                 await _timer.WaitForNextTickAsync();
 
                 _prevCoords = (Simulation.LatestSimulation.TickData[TickPointIndex].longitudeDD, Simulation.LatestSimulation.TickData[TickPointIndex].latitudeDD);
-                TickPointIndex = TickPointIndex + (int)intervalTime;
+                TickPointIndex = TickPointIndex + (int)Simulation.intervalTime;
 
                 OnDataChanged();
             }

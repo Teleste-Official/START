@@ -1,4 +1,6 @@
 ﻿using Avalonia.Controls;
+using SmartTrainApplication.Data;
+using System.Diagnostics;
 
 namespace SmartTrainApplication.Views
 {
@@ -51,6 +53,11 @@ namespace SmartTrainApplication.Views
         public void NavigateToSettings()
         {
             CurrentView = new SettingsView { DataContext = new SettingsViewModel() };
+        }
+
+        public void GuideButton()
+        {
+            FileManager.OpenGuide();
         }
     }
 }

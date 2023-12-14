@@ -15,6 +15,7 @@ namespace SmartTrainApplication.Data
     internal class Simulation
     {
         public static SimulationData? LatestSimulation = null;
+        public static int intervalTime = 1;
 
         /// <summary>
         /// Run Preprocess functions for TrainRoutes before simulating the TrainRoute
@@ -170,6 +171,7 @@ namespace SmartTrainApplication.Data
             FileManager.SaveSimulationData(newSim);
             LatestSimulation = newSim;
 
+            LayerManager.RemoveAnimationLayer();
             LayerManager.CreateAnimationLayer();
 
             // Possibly return the simulation data for playback
@@ -181,6 +183,7 @@ namespace SmartTrainApplication.Data
         /// <returns>Creates an async Task of Simulation animation</returns>
         public static async Task StartSimulationPlayback()
         {
+            LayerManager.RemoveAnimationLayer();
             LayerManager.CreateAnimationLayer();
             // Read tickdata from simulation data in set intervals and move a bitmap on the map accordingly
             foreach (TickData tick in LatestSimulation.TickData)

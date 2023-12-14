@@ -11,7 +11,7 @@ namespace SmartTrainApplication.Views
 
         public List<TrainRoute> Routes { get; set; }
         public List<ListedTrain> Trains { get; set; }
-
+        public string Interval { get; set; }
         public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
         public List<bool> StopsBooleans { get; set; }
         public List<RouteCoordinate> Stops { get; set; }
@@ -33,6 +33,8 @@ namespace SmartTrainApplication.Views
             Trains = new List<ListedTrain>();
             SetTrainsToUI();
 
+            Interval = Simulation.intervalTime.ToString();
+
             Stops = DataManager.GetStops();
             StopsDictionary = Stops.ToDictionary(x => x, x => false);
             StopsBooleans = new List<bool>();
@@ -40,6 +42,7 @@ namespace SmartTrainApplication.Views
 
         public void RunSimulationButton()
         {
+            Simulation.intervalTime = (int)float.Parse(Interval);
             Simulation.RunSimulation(StopsDictionary);
             return;
         }

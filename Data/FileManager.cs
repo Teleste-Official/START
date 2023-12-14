@@ -379,5 +379,24 @@ namespace SmartTrainApplication.Data
             // Set the settings
             SettingsManager.CurrentSettings = LoadedSettings;
         }
+
+        internal static void OpenGuide()
+        {
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "START_Guide.pdf");
+
+            try
+            {
+                var p = new Process();
+                p.StartInfo = new ProcessStartInfo(Path)
+                {
+                    UseShellExecute = true
+                };
+                p.Start();
+            }
+            catch (Exception ex) { }
+            {
+                Debug.WriteLine("No guide");
+            }
+        }
     }
 }

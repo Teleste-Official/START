@@ -69,7 +69,7 @@
       </ComboBox>
 
 			<TextBlock>Interval:</TextBlock>
-			<NumericUpDown Minimum="0"
+			<NumericUpDown Minimum="0" Value="{Binding Interval}" FormatString="0"
 						   Watermark="Interval(ms)..."/>
       
 

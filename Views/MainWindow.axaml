@@ -25,7 +25,8 @@
                 <MenuItem Command="{Binding NavigateToSettings}" Header="Settings" Foreground="Black"/>
             </Menu>
             
-              <Button HorizontalAlignment="Right" 
+              <Button Command="{Binding GuideButton}"
+                      HorizontalAlignment="Right" 
                       Margin="0 0 5 0" 
                       ZIndex="2"
                       Background="#0F6CBD"
