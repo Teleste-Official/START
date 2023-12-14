@@ -44,7 +44,7 @@ namespace SmartTrainApplication.Views
         {
             Simulation.intervalTime = (int)float.Parse(Interval);
             //Simulation.RunSimulation(StopsDictionary);
-            Simulation.PreprocessRoute();
+            Simulation.PreprocessRoute(StopsDictionary);
             return;
         }
 

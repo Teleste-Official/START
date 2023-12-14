@@ -37,7 +37,7 @@ namespace SmartTrainApplication.Data
             }
         }
 
-        public static void PreprocessRoute()
+        public static void PreprocessRoute(Dictionary<RouteCoordinate, bool> StopsDictionary)
         {
             // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
 
@@ -57,13 +57,9 @@ namespace SmartTrainApplication.Data
                     TurnPoints[DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1]] = turn;
                 }
             }
-            for (int i = 0; i < StopPoints.Count; i++)
+            foreach (KeyValuePair<RouteCoordinate, bool> kvp in StopsDictionary)
             {
-                var kvp = StopPoints.ElementAt(i);
-                if (kvp.Key.Type == "STOP" || kvp.Key.Type == "TUNNEL_STOP" || kvp.Key.Type == "TUNNEL_ENTRANCE_STOP")
-                {
-                    StopPoints[kvp.Key] = true;
-                }
+                StopPoints[kvp.Key] = kvp.Value;
             }
             RunSimulation(TurnPoints, StopPoints);
             return;
