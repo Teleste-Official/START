@@ -86,9 +86,9 @@ namespace SmartTrainApplication
         /// </summary>
         /// <param name="_editManager">(EditManager) Edit manager</param>
         /// <param name="topLevel">(TopLevel) Top level</param>
-        public static void ExportNewRoute(TopLevel topLevel)
+        public static void ExportNewRoute(TopLevel topLevel, string Name = "", string Id = "")
         {
-            FileManager.Export(GetRouteAsString(), topLevel);
+            FileManager.Export(GetRouteAsString(), topLevel, Name, Id);
         }
 
         /// <summary>
@@ -125,14 +125,14 @@ namespace SmartTrainApplication
         /// <summary>
         /// Adds the new Route to data, turns it to a feature and redraws the map
         /// </summary>
-        public static void ConfirmNewRoute(string Name = "Route", string ID = "")
+        public static void ConfirmNewRoute(string Name = "Route", string ID = "", string FilePath = "")
         {
             string RouteString = GetRouteAsString();
 
             if (RouteString == "")
                 return;
             
-            TrainRoute newRoute = DataManager.CreateNewRoute(RouteString, Name, ID);
+            TrainRoute newRoute = DataManager.CreateNewRoute(RouteString, Name, ID, FilePath);
             DataManager.AddToRoutes(newRoute);
 
             WritableLayer _importLayer = CreateImportLayer();
@@ -270,13 +270,22 @@ namespace SmartTrainApplication
         /// <summary>
         /// Applies the edits to the TrainRoute and clears the edit layer
         /// </summary>
-        public static void ApplyEditing(string Name = "Route", string ID = "")
+        public static void ApplyEditing(string Name = "Route", string ID = "", string FilePath = "")
         {
-            ConfirmNewRoute(Name, ID);
+            ConfirmNewRoute(Name, ID, FilePath);
 
             MapViewControl._editManager.Layer.Clear();
             MapViewControl._editManager.EditMode = EditMode.None;
             MapViewControl._mapControl?.RefreshGraphics();
+        }
+
+        public static void SaveEdits()
+        {
+            List<TrainRoute> Routes = DataManager.TrainRoutes;
+            for (int i = 0; i < Routes.Count; i++)
+            {
+                FileManager.SaveSpecific(Routes[i]);
+            }
         }
 
         /// <summary>

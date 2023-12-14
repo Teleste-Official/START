@@ -61,7 +61,7 @@ namespace SmartTrainApplication.Views
         {
             if (CurrentAction == "ModifyTrack")
             {
-                LayerManager.ApplyEditing(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
+                LayerManager.ApplyEditing(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].FilePath);
             }
             if (CurrentAction == "AddLine"){
                 AddingNew = true;
