@@ -58,7 +58,7 @@ namespace SmartTrainApplication.Data
         /// <summary>
         /// Generate the TickData for use in simulation playback and simulation export data
         /// </summary>
-        public static void RunSimulation() // See if async would be more preferrable for this -Metso
+        public static void RunSimulation(Dictionary<RouteCoordinate, bool> routeStops) // See if async would be more preferrable for this -Metso
         {
             bool IsRunning = true;
 

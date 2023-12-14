@@ -1,8 +1,11 @@
 ﻿using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Security.Cryptography;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace SmartTrainApplication.Data
 {
@@ -240,6 +243,33 @@ namespace SmartTrainApplication.Data
             return stopStrings;
         }
 
+        public static List<RouteCoordinate> GetStops() 
+        {
+            int stopsCount = 1;
+            List<RouteCoordinate> stops = new List<RouteCoordinate>();
+            foreach (var coord in CurrentTrainRoute.Coords)
+            {
+                if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
+                {
+                    if (coord.Id == null)
+                        coord.Id = CreateID();
+                    if (coord.StopName == "")
+                        coord.StopName = "Stop " + stopsCount.ToString();
+                    stops.Add(coord);
+                    stopsCount++;
+                }
+            }
+            return stops;
+        }
+
+        public static void SetStopsNames(List<RouteCoordinate> stops)
+        {
+            foreach (RouteCoordinate stop in stops)
+            {
+                CurrentTrainRoute.Coords.First(item => item.Id == stop.Id).StopName = stop.StopName;
+            }
+        }
+
         /// <summary>
         /// Calculates a distance between 2 given RoutePoints
         /// <br/>
@@ -330,6 +360,7 @@ namespace SmartTrainApplication.Data
                         CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
                     else
                         CurrentTrainRoute.Coords[pointStatusToBeChanged].SetType("STOP");
+                    CurrentTrainRoute.Coords[pointStatusToBeChanged].SetName("No name");
                 }
             }
 

@@ -79,71 +79,30 @@
 			</Button>
 
       <TextBlock>Stops:</TextBlock>
+
       <Panel VerticalAlignment="Top">
         <ScrollViewer>
-          <StackPanel Width="240">
-            
-				    <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-					    <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-					    <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-				    </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            <Grid RowDefinitions="*,*" ColumnDefinitions="150,*">
-              <TextBlock Grid.Row="0" Grid.Column="0">Test</TextBlock>
-              <CheckBox  Grid.Row="0" Grid.Column="1"></CheckBox>
-            </Grid>
-            
-          </StackPanel>
+          <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical" Width="240"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid RowDefinitions="*,*" ColumnDefinitions="50,100,*">
+                  <TextBlock Grid.Row="0" Grid.Column="1" PointerPressed="ClickStop"  Text="{Binding StopName}">Stop</TextBlock>
+                  <CheckBox  Grid.Row="0" Grid.Column="2" Unchecked="UncheckStop" Checked="CheckStop" Name="{Binding Id}"></CheckBox>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </ScrollViewer>
       </Panel>
 
-		</DockPanel>
+
+
+
+    </DockPanel>
 	</Border>
 </UserControl>

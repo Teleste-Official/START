@@ -2,6 +2,7 @@ using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace SmartTrainApplication.Views
 {
@@ -9,6 +10,7 @@ namespace SmartTrainApplication.Views
     {
         public string TrackName { get; set; }
         public List<TrainRoute> Routes { get; set; }
+        public List<RouteCoordinate> Stops { get; set; }
         private string CurrentAction {  get; set; }
         public bool AddingNew { get; set; } // This is for switching the combobox on a newly created route
 
@@ -20,6 +22,8 @@ namespace SmartTrainApplication.Views
             TrackName = "Track Name...";
             CurrentAction = "None";
             AddingNew = false;
+
+            Stops = DataManager.GetStops();
         }
 
         public void AddLineButton()
@@ -45,9 +49,12 @@ namespace SmartTrainApplication.Views
 
         public void ModifyButton()
         {
-            LayerManager.ClearFeatures();
-            LayerManager.TurnImportToEdit();
-            CurrentAction = "ModifyTrack";
+            if (CurrentAction != "ModifyTrack")
+            {
+                LayerManager.ClearFeatures();
+                LayerManager.TurnImportToEdit();
+                CurrentAction = "ModifyTrack";
+            }
         }
 
         public void ConfirmButton()
@@ -67,6 +74,7 @@ namespace SmartTrainApplication.Views
             if (CurrentAction == "AddStop")
             {
                 LayerManager.ConfirmStops();
+                SetStopsToUI();
             }
             if (CurrentAction == "AddTunnel")
             {
@@ -75,7 +83,9 @@ namespace SmartTrainApplication.Views
             if (CurrentAction == "None")
             {
                 DataManager.CurrentTrainRoute.Name = TrackName;
+                DataManager.SetStopsNames(Stops);
                 Routes = DataManager.TrainRoutes.ToList();
+                SetStopsToUI();
                 RaisePropertyChanged(nameof(Routes));
             }
             CurrentAction = "None";
@@ -104,6 +114,18 @@ namespace SmartTrainApplication.Views
             // Notify the UI about the property changes
             RaisePropertyChanged(nameof(TrackName));
             RaisePropertyChanged(nameof(Routes));
+        }
+
+        public void SetStopsToUI()
+        {
+            Stops = DataManager.GetStops();
+            RaisePropertyChanged(nameof(Stops));
+        }
+
+        public void DrawFocusedStop(string _Id)
+        {
+            RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
+            LayerManager.AddFocusStop(selectedStop);
         }
 
         public void ChangeCurrentRouteIndex(int index)

@@ -1,4 +1,6 @@
-﻿namespace SmartTrainApplication.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace SmartTrainApplication.Models;
 
 /// <summary>
 /// The singular coordinate points that make up TrainRoutes
@@ -11,6 +13,8 @@
 /// </summary>
 public class RouteCoordinate
 {
+    [JsonIgnore]
+    public string Id { get; set; } // This only for the simulation editor
     public string Longitude { get; set; }
     public string Latitude { get; set; }
     public string Type { get; set; } // Ie. "NORMAL", "STOP" etc. -Metso
@@ -42,4 +46,8 @@ public class RouteCoordinate
         this.Type = Type;
     }
 
+    public void SetName(string Name)
+    {
+        this.StopName = Name;
+    }
 }

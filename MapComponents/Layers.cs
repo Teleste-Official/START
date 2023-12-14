@@ -107,6 +107,34 @@ public partial class MapViewControl
     }
 
     /// <summary>
+    /// Creates a new layer for focused Stops
+    /// </summary>
+    /// <returns>(WritableLayer) The stops layer</returns>
+    public static WritableLayer CreateFocusedStopsLayer()
+    {
+        return new WritableLayer
+        {
+            Name = "FocusedStops",
+            IsMapInfoLayer = true,
+            Style = CreateFocusedStopsStyle()
+        };
+    }
+
+    /// <summary>
+    /// Creates a new style for focused Stops
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Stops</returns>
+    private static IStyle CreateFocusedStopsStyle()
+    {
+        return new VectorStyle
+        {
+            Fill = new Brush(Color.WhiteSmoke),
+            Line = null,
+            Outline = new Pen(Color.FromString("Green"), 5)
+        };
+    }
+
+    /// <summary>
     /// Creates a new layer for edit
     /// </summary>
     /// <returns>(WritableLayer) The edit layer</returns>

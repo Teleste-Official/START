@@ -1,7 +1,5 @@
-﻿using Avalonia.Platform;
-using SmartTrainApplication.Data;
+﻿using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static SmartTrainApplication.Views.TrainEditorViewModel;
@@ -13,6 +11,10 @@ namespace SmartTrainApplication.Views
 
         public List<TrainRoute> Routes { get; set; }
         public List<ListedTrain> Trains { get; set; }
+
+        public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
+        public List<bool> StopsBooleans { get; set; }
+        public List<RouteCoordinate> Stops { get; set; }
 
         public SimulationViewModel()
         {
@@ -30,11 +32,15 @@ namespace SmartTrainApplication.Views
 
             Trains = new List<ListedTrain>();
             SetTrainsToUI();
+
+            Stops = DataManager.GetStops();
+            StopsDictionary = Stops.ToDictionary(x => x, x => false);
+            StopsBooleans = new List<bool>();
         }
 
         public void RunSimulationButton()
         {
-            Simulation.RunSimulation();
+            Simulation.RunSimulation(StopsDictionary);
             return;
         }
 
@@ -46,6 +52,20 @@ namespace SmartTrainApplication.Views
                 Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
             }
             Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
+        }
+
+        public void SetStopsToUI()
+        {
+            Stops = DataManager.GetStops();
+            StopsDictionary = Stops.ToDictionary(x => x, x => false);
+            StopsBooleans = new List<bool>();
+            RaisePropertyChanged(nameof(Stops));
+        }
+
+        public void SetBool(string _Id, bool value)
+        {
+            RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
+            StopsDictionary[selectedStop] = value;
         }
     }
 }

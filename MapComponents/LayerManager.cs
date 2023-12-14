@@ -329,6 +329,22 @@ namespace SmartTrainApplication
         }
 
         /// <summary>
+        /// Creates a new, if doesn't already exist, layer for focused stops
+        /// </summary>
+        /// <returns>(WritableLayer) Focused Stops layer</returns>
+        public static WritableLayer CreateFocusStopsLayer()
+        {
+            var focusedStopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "FocusedStops");
+            if (focusedStopsLayer == null)
+            {
+                // TunnelString layer doesnt exist yet, create the import layer
+                MapViewControl.map.Layers.Add(MapViewControl.CreateFocusedStopsLayer());
+                focusedStopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "FocusedStops");
+            }
+            return focusedStopsLayer;
+        }
+
+        /// <summary>
         /// Takes the inputted tunnel points, lists them, adds them to data, (re)draws tunnels to map and clears the edit layer
         /// </summary>
         public static void ConfirmTunnel()
@@ -409,6 +425,33 @@ namespace SmartTrainApplication
             MapViewControl._editManager.EditMode = EditMode.None;
 
             MapViewControl._tempFeatures = null;
+        }
+
+        /// <summary>
+        /// Draws the focused stop to the map
+        /// </summary>
+        public static void AddFocusStop(RouteCoordinate focusedStop)
+        {
+            var focusedStopsLayer = CreateFocusStopsLayer();
+
+            string focusStopString = "POINT (" + focusedStop.Longitude + " " + focusedStop.Latitude + ")";
+
+            var pointString = new WKTReader().Read(focusStopString);
+            IFeature feature = new GeometryFeature { Geometry = pointString };
+            focusedStopsLayer.Add(feature);
+
+            MapViewControl._mapControl?.RefreshGraphics();
+        }
+
+        /// <summary>
+        /// Clears the focused stops layer
+        /// </summary>
+        public static void RemoveFocusStop()
+        {
+            var focusedStopsLayer = CreateFocusStopsLayer();
+            focusedStopsLayer.Clear();
+
+            MapViewControl._mapControl?.RefreshGraphics();
         }
 
         public static void SwitchRoute()

@@ -62,20 +62,43 @@
 				Add Tunnel
 			</Button>
 			<Button Command="{Binding AddStopButton}">
-				Add Station
+				Add Stop
 			</Button>
-			<Button>
+      <!--<Button>
 				Add Other Zone
-			</Button>
+			</Button>-->
 			<Button Command="{Binding ModifyButton}">
 				Edit Track
 			</Button>
+
       <Button Command="{Binding ConfirmButton}">
         Confirm
       </Button>
       <Button Command="{Binding CancelButton}">
         Cancel
       </Button>
+
+      <TextBlock Margin="0 10 0 5">Stops:</TextBlock>
+
+      <Panel VerticalAlignment="Top" Margin="0 30 0 5">
+        <ScrollViewer>
+          <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical" Width="240"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid RowDefinitions="*,*" ColumnDefinitions="0,*">
+                  <TextBox Width="150" Grid.Row="0" Grid.Column="1" GotFocus="StopGotFocus" LostFocus="StopLostFocus" Name="{Binding Id}" Text="{Binding StopName}"></TextBox>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Panel>
+     
 
 		</DockPanel>
 	</Border>
