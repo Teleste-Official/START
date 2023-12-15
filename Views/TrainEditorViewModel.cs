@@ -65,14 +65,29 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
-            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
+            if (!DataManager.Trains.Any())
+            {
+                Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
+                DataManager.CurrentTrain = 0;
+                DataManager.Trains.Add(newTrain);
+                Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+                FileManager.SaveTrain();
+                RaisePropertyChanged(nameof(Trains));
+                SetValuesToUI();
+                
+            } else
+            {
+                Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
+                DataManager.CurrentTrain = DataManager.Trains.Count - 1;
+                DataManager.Trains.Add(newTrain);
+                Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+                RaisePropertyChanged(nameof(Trains));
+                SetValuesToUI();
+                FileManager.SaveTrain();
+            }
             
-            DataManager.CurrentTrain = DataManager.Trains.Count - 1;
-            DataManager.Trains.Add(newTrain);
-            Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
-            RaisePropertyChanged(nameof(Trains));
-            SetValuesToUI();
-            FileManager.SaveTrain();
+            
+            
         }
 
         public void SetValuesToUI()

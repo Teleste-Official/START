@@ -82,11 +82,15 @@
 			<TextBlock Margin="5 10 0 5">Maximum speed:</TextBlock>
 			<NumericUpDown Value="{Binding Speed}" 
                      Minimum="0"
+				     Maximum="220"
+						   Increment="5"
                      Watermark="Speed..."/>
 
 			<TextBlock Margin="5 10 0 5">Acceleration:</TextBlock>
 			<NumericUpDown Value="{Binding Acceleration}"
                      Minimum="0"
+						   Maximum="3"
+						   Increment="0.1"
                      Watermark="Acceleration..."/>
 
       <TextBlock Margin="5 10 0 5">Icon:</TextBlock>

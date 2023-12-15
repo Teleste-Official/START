@@ -246,6 +246,7 @@ namespace SmartTrainApplication.Data
         {
             int stopsCount = 1;
             List<RouteCoordinate> stops = new List<RouteCoordinate>();
+            if (!TrainRoutes.Any()) { return stops; }
             foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
             {
                 if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
@@ -395,10 +396,21 @@ namespace SmartTrainApplication.Data
         /// </summary>
         /// <param name="Id">The routes or trains unique ID-number</param>
         /// <returns>String, for example "C:/Start/Routes/export1234.json"</returns>
-        public static string CreateFilePath(string Id)
+        public static string CreateFilePath(string Id, string Specifier)
         {
-            string NewPath = FileManager.DefaultRouteFolderPath + "\\" + "export" + Id[..4] + ".json";
-            Debug.WriteLine("create path: " + NewPath);
+            string NewPath = "";
+            if (Specifier == "Route")
+            {
+                NewPath = FileManager.DefaultRouteFolderPath + "\\" + "export" + Id[..4] + ".json";
+                Debug.WriteLine("create path: " + NewPath);
+            }
+
+            if (Specifier == "Train")
+            {
+                NewPath = FileManager.DefaultTrainFolderPath + "\\" + "export" + Id[..4] + ".json";
+                Debug.WriteLine("create path: " + NewPath);
+            }
+
             return NewPath;
         }
 

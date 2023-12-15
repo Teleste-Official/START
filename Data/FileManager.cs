@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -24,6 +25,7 @@ namespace SmartTrainApplication.Data
 
         public static List<string>? ImportedRoutesAsStrings { get; set; }
         public static string DefaultRouteFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
+        public static string DefaultTrainFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
 
         /// <summary>
         /// Export the created lines into a file.
@@ -159,7 +161,11 @@ namespace SmartTrainApplication.Data
             }
 
             // Set the first imported train route as the currently selected one
-            DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
+            if (ImportedTrainRoutes.Any())
+            {
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
+            }
+            
 
                 // Turn the coordinates back to geometry strings
 

@@ -23,7 +23,8 @@ namespace SmartTrainApplication.Models
         public float MaxSpeed { get; set; }
         public float Acceleration { get; set; }
         public int Icon {  get; set; }
-
+        [JsonIgnore]
+        public string Specifier = "Train";
         public Train() { }
 
         public Train(string name, string description, float maxSpeed, float acceleration, int icon, string ID = "", string filePath = "")
@@ -37,7 +38,10 @@ namespace SmartTrainApplication.Models
                 Id = DataManager.CreateID();
             else
                 Id = ID;
-            FilePath = filePath;
+            if (filePath == "")
+                FilePath = DataManager.CreateFilePath(Id, Specifier);
+            else
+                FilePath = filePath;
         }
 
         public void SetValues(Train NewTrain)
