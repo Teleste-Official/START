@@ -289,15 +289,6 @@ namespace SmartTrainApplication
             MapViewControl._mapControl?.RefreshGraphics();
         }
 
-        public static void SaveEdits()
-        {
-            List<TrainRoute> Routes = DataManager.TrainRoutes;
-            for (int i = 0; i < Routes.Count; i++)
-            {
-                FileManager.SaveSpecific(Routes[i]);
-            }
-        }
-
         /// <summary>
         /// Makes a new GeometryFeature from the given GeometryData and adds it to the given importLayer
         /// </summary>

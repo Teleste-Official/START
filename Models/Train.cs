@@ -18,6 +18,8 @@ namespace SmartTrainApplication.Models
         public string Id { get; set; }
         [JsonIgnore]
         public string FilePath { get; set; }
+        [JsonIgnore]
+        public bool Edited { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public float MaxSpeed { get; set; }
@@ -42,6 +44,7 @@ namespace SmartTrainApplication.Models
                 FilePath = DataManager.CreateFilePath(Id, Specifier);
             else
                 FilePath = filePath;
+            Edited = false;
         }
 
         public void SetValues(Train NewTrain)
@@ -51,6 +54,8 @@ namespace SmartTrainApplication.Models
             MaxSpeed = NewTrain.MaxSpeed;
             Acceleration = NewTrain.Acceleration;
             Icon = NewTrain.Icon;
+            FilePath = NewTrain.FilePath;
+            Edited = true;
         }
     }
 }

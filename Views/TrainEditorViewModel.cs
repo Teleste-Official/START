@@ -48,6 +48,8 @@ namespace SmartTrainApplication.Views
 
         public void UpdateTrainButton()
         {
+            if (!DataManager.Trains.Any())
+                return;
             if (Title == null || Description == null || Speed == null || Acceleration == null)
             {
                 return;
@@ -65,29 +67,21 @@ namespace SmartTrainApplication.Views
             {
                 return;
             }
+
+            Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
+
+            DataManager.Trains.Add(newTrain);
+            newTrain.Edited = true;
+            Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+
             if (!DataManager.Trains.Any())
-            {
-                Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
                 DataManager.CurrentTrain = 0;
-                DataManager.Trains.Add(newTrain);
-                Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
-                FileManager.SaveTrain();
-                RaisePropertyChanged(nameof(Trains));
-                SetValuesToUI();
-                
-            } else
-            {
-                Train newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex, DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
+            else
                 DataManager.CurrentTrain = DataManager.Trains.Count - 1;
-                DataManager.Trains.Add(newTrain);
-                Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
-                RaisePropertyChanged(nameof(Trains));
-                SetValuesToUI();
-                FileManager.SaveTrain();
-            }
             
-            
-            
+            Trains = Trains;
+            RaisePropertyChanged(nameof(Trains));
+            SetValuesToUI();
         }
 
         public void SetValuesToUI()
@@ -136,8 +130,8 @@ namespace SmartTrainApplication.Views
         {
             Icons = new List<Bitmap>
             {
-                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train1.png"))),
                 new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train2.png"))),
+                new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_train1.png"))),
                 new Bitmap(AssetLoader.Open(new Uri("avares://SmartTrainApplication/Assets/start_ui_icon_tram.png")))
             };
         }

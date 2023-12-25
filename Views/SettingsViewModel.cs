@@ -1,6 +1,7 @@
 ﻿using SmartTrainApplication.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace SmartTrainApplication.Views
@@ -18,19 +19,7 @@ namespace SmartTrainApplication.Views
             VersionNumber = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
             Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
             Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
-            // TODO: RouteDirectories, I see two options for this, either the user types or copy-pastes the directory
-            // in the textbox or we implement a button that when clicked opens a file picker pop-up whatever it was called
-            // and the user can select the directory there. Latter option would be better, because it eliminates user error.
-            // -Metso
-            List<string> ListOfRoutes = SettingsManager.CurrentSettings.RouteDirectories;
-            foreach (string dir in SettingsManager.CurrentSettings.RouteDirectories)
-            {
-                RouteDirectories += dir + "\n";
-            }
-            foreach (string dir in SettingsManager.CurrentSettings.TrainDirectories)
-            {
-                TrainDirectories += dir + "\n";
-            }
+            SetDirectoriesToUI();
         }
 
         public void ResetButton()
@@ -40,6 +29,8 @@ namespace SmartTrainApplication.Views
             VersionNumber = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
             Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
             Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
+
+            SetDirectoriesToUI();
 
             // Notify the UI about the property changes
             RaisePropertyChanged(nameof(VersionNumber));
@@ -71,10 +62,35 @@ namespace SmartTrainApplication.Views
             string NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
             if (!String.IsNullOrEmpty(NewPath))
             {
-                SettingsManager.CurrentSettings.AddRouteDirectory(NewPath);
-                FileManager.SaveSettings(SettingsManager.CurrentSettings);
+                SettingsManager.CurrentSettings.AddRouteDirectory(System.IO.Path.GetFullPath(NewPath));
+                SetDirectoriesToUI();
             }           
-            return;
+        }
+
+        public async void AddTrainButton()
+        {
+            string NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+            if (!String.IsNullOrEmpty(NewPath))
+            {
+                SettingsManager.CurrentSettings.AddTrainDirectory(System.IO.Path.GetFullPath(NewPath));
+                SetDirectoriesToUI();
+            }
+        }
+
+        private void SetDirectoriesToUI()
+        {
+            RouteDirectories = "";
+            TrainDirectories = "";
+            foreach (string dir in SettingsManager.CurrentSettings.RouteDirectories)
+            {
+                RouteDirectories += dir + "\n";
+            }
+            foreach (string dir in SettingsManager.CurrentSettings.TrainDirectories)
+            {
+                TrainDirectories += dir + "\n";
+            }
+            RaisePropertyChanged(nameof(RouteDirectories));
+            RaisePropertyChanged(nameof(TrainDirectories));
         }
     }
 }

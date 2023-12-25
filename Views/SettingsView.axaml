@@ -63,6 +63,10 @@
                AcceptsReturn="True">
       </TextBox>
 
+      <Button Margin="0 15 0 0" Width="150" Command="{Binding AddTrainButton}">
+        Add Directory
+      </Button>
+
       <Grid VerticalAlignment="Top" 
             HorizontalAlignment="Center" 
             Width="700" 

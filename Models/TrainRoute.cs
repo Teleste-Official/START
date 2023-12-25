@@ -17,6 +17,8 @@ namespace SmartTrainApplication.Models
         public string Id { get; set; }
         [JsonIgnore]
         public string FilePath { get; set; }
+        [JsonIgnore]
+        public bool Edited { get; set; }
         public string Name { get; set; }
         public List<RouteCoordinate> Coords { get; set; }
         [JsonIgnore]
@@ -37,6 +39,8 @@ namespace SmartTrainApplication.Models
                 FilePath = DataManager.CreateFilePath(Id, Specifier);
             else
                 FilePath = filePath;
+
+            Edited = false;
         }
     }
 }

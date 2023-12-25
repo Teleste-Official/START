@@ -36,5 +36,10 @@ namespace SmartTrainApplication.Models
         {
             RouteDirectories.Add(routeDirectory);
         }
+
+        public void AddTrainDirectory(string trainDirectory)
+        {
+            TrainDirectories.Add(trainDirectory);
+        }
     }
 }

@@ -62,6 +62,7 @@ namespace SmartTrainApplication.Views
             if (CurrentAction == "ModifyTrack")
             {
                 LayerManager.ApplyEditing(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].FilePath);
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
             }
             if (CurrentAction == "AddLine"){
                 AddingNew = true;
@@ -70,19 +71,26 @@ namespace SmartTrainApplication.Views
                 Routes = DataManager.TrainRoutes.ToList();
                 RaisePropertyChanged(nameof(Routes));
                 AddingNew = false;
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
             }
             if (CurrentAction == "AddStop")
             {
                 LayerManager.ConfirmStops();
                 SetStopsToUI();
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
             }
             if (CurrentAction == "AddTunnel")
             {
                 LayerManager.ConfirmTunnel();
+                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
             }
             if (CurrentAction == "None")
             {
-                DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = TrackName;
+                if (!DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name.Equals(TrackName))
+                {
+                    DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = TrackName;
+                    DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
+                }
                 DataManager.SetStopsNames(Stops);
                 Routes = DataManager.TrainRoutes.ToList();
                 SetStopsToUI();

@@ -58,6 +58,25 @@ namespace SmartTrainApplication.Data
         }
 
         /// <summary>
+        /// Imports the specified JSON as a string
+        /// </summary>
+        /// <param name="Path">Location of the file</param>
+        /// <returns>JSON object as a string</returns>
+        public static string ImportAsString(string Path)
+        {
+            var FileAsString = "";
+            using (StreamReader sr = File.OpenText(Path))
+            {
+                string S;
+                while ((S = sr.ReadLine()) != null)
+                {
+                    FileAsString += S;
+                }
+            }
+            return FileAsString;
+        }
+
+        /// <summary>
         /// Saves DataManager.CurrentTrainRoute to "export.json" file
         /// </summary>
         public static void Save()
@@ -165,25 +184,24 @@ namespace SmartTrainApplication.Data
             {
                 DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
             }
-            
 
-                // Turn the coordinates back to geometry strings
+            // Turn the coordinates back to geometry strings
 
-                string GeometryString = "LINESTRING (";
-                foreach (var route in ImportedTrainRoutes)
+            string GeometryString = "LINESTRING (";
+            foreach (var route in ImportedTrainRoutes)
+            {
+                foreach (var coord in route.Coords)
                 {
-                    foreach (var coord in route.Coords)
-                    {
-                        GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-                    }
-                    GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-                    routesAsStrings.Add(GeometryString);
+                    GeometryString += coord.Longitude + " " + coord.Latitude + ",";
                 }
+                GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
+                routesAsStrings.Add(GeometryString);
+            }
 
-                //Update lists
-                ImportedRoutesAsStrings = routesAsStrings;
-                DataManager.TrainRoutes = ImportedTrainRoutes;
-            
+            //Update lists
+            ImportedRoutesAsStrings = routesAsStrings;
+            DataManager.TrainRoutes = ImportedTrainRoutes;
+
             return routesAsStrings;
         }
 
@@ -244,6 +262,7 @@ namespace SmartTrainApplication.Data
         public static List<Train> StartupTrainFolderImport(List<string> SavedPaths)
         {
             List<Train> Trains = new List<Train>();
+            List<string> Paths = new List<string>();
 
             if (SavedPaths == null) return Trains;
 
@@ -272,6 +291,7 @@ namespace SmartTrainApplication.Data
                             if (FileAsString.Contains("MaxSpeed"))
                             {
                                 Train LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
+                                LoadedTrain.FilePath = file;
                                 LoadedTrain.Id = DataManager.CreateID();
                                 Trains.Add(LoadedTrain);
                             }
@@ -291,6 +311,7 @@ namespace SmartTrainApplication.Data
         /// <summary>
         /// Load saved trains from folder to Datamanager.Trains and Datamanager.CurrentTrain
         /// </summary>
+        [Obsolete]
         public static void LoadTrains()
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
@@ -333,10 +354,11 @@ namespace SmartTrainApplication.Data
         /// <summary>
         /// Saves DataManager.CurrentTrain to folder
         /// </summary>
-        public static void SaveTrain()
+        public static void SaveTrain(Train train)
         {
             string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", string.Concat(DataManager.Trains[DataManager.CurrentTrain].Name.Replace(" ", "_").Split(System.IO.Path.GetInvalidFileNameChars())) + ".json");
+            string Path = System.IO.Path.Combine(train.FilePath);
+
             try
             {
                 if (!Directory.Exists(TrainsDirectory))
@@ -351,7 +373,7 @@ namespace SmartTrainApplication.Data
 
             // Save the train
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(DataManager.Trains[DataManager.CurrentTrain], Json_options));
+            System.IO.File.WriteAllText(Path, JsonSerializer.Serialize(train, Json_options));
         }
 
         public static void SaveSettings(Settings settings)

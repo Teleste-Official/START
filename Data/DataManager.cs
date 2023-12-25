@@ -401,19 +401,24 @@ namespace SmartTrainApplication.Data
             string NewPath = "";
             if (Specifier == "Route")
             {
-                NewPath = FileManager.DefaultRouteFolderPath + "\\" + "export" + Id[..4] + ".json";
-                Debug.WriteLine("create path: " + NewPath);
+                // Generate the file path and name the file export with last 4 digits of the id for unique name.
+                NewPath = System.IO.Path.Combine(FileManager.DefaultRouteFolderPath, Specifier + Id[..4] + ".json");
+                Debug.WriteLine("created path: " + NewPath);
             }
 
             if (Specifier == "Train")
             {
-                NewPath = FileManager.DefaultTrainFolderPath + "\\" + "export" + Id[..4] + ".json";
-                Debug.WriteLine("create path: " + NewPath);
+                // Generate the file path and name the file export with last 4 digits of the id for unique name.
+                NewPath = System.IO.Path.Combine(FileManager.DefaultTrainFolderPath, Specifier + Id[..4] + ".json");
+                Debug.WriteLine("created path: " + NewPath);
             }
 
             return NewPath;
         }
 
+        /// <summary>
+        /// Updates the trains values from the UI
+        /// </summary>
         public static void UpdateTrain(Train newTrain)
         {
             foreach (var oldTrain in Trains)
