@@ -35,13 +35,16 @@
 		</Style>
 	</UserControl.Styles>
 
-	<Border DockPanel.Dock="Left"
+  <ScrollViewer DockPanel.Dock="Left"
+                AllowAutoHide="False"
+                Width="270">
+    <Border DockPanel.Dock="Left"
 			Width="250"
 			Background="#D9FCFCFC"
 			BorderBrush="#11000000"
 			BorderThickness="1"
 			BoxShadow="0 8 16 0 #22000000"
-			Margin="1"
+			Margin="0,0,10,0"
 			Padding="4,0">
 
 		<DockPanel LastChildFill="False">
@@ -105,4 +108,5 @@
 
     </DockPanel>
 	</Border>
+    </ScrollViewer>
 </UserControl>

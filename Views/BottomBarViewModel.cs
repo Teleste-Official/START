@@ -46,6 +46,10 @@ namespace SmartTrainApplication.Views
                 case "Simulation":
                     FileManager.Export(MainWindow.TopLevel, "Simulation");
                     break;
+
+                case "Settings":
+                    FileManager.Export(MainWindow.TopLevel, "Settings");
+                    break;
                 
                 default:
                     break;
