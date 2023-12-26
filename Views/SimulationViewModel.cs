@@ -1,6 +1,7 @@
 ﻿using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using static SmartTrainApplication.Views.TrainEditorViewModel;
 
@@ -38,6 +39,10 @@ namespace SmartTrainApplication.Views
             Stops = DataManager.GetStops();
             StopsDictionary = Stops.ToDictionary(x => x, x => false);
             StopsBooleans = new List<bool>();
+
+            // Switch view in file manager
+            FileManager.CurrentView = "Simulation";
+            Debug.WriteLine(FileManager.CurrentView);
         }
 
         public void RunSimulationButton()

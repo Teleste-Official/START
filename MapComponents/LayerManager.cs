@@ -87,9 +87,10 @@ namespace SmartTrainApplication
         /// </summary>
         /// <param name="_editManager">(EditManager) Edit manager</param>
         /// <param name="topLevel">(TopLevel) Top level</param>
+        [Obsolete]
         public static void ExportNewRoute(TopLevel topLevel, string Name = "", string Id = "")
         {
-            FileManager.Export(GetRouteAsString(), topLevel, Name, Id);
+            FileManager.ExportRoute(topLevel);
         }
 
         /// <summary>

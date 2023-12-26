@@ -1,6 +1,7 @@
 ﻿using SmartTrainApplication.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -20,6 +21,10 @@ namespace SmartTrainApplication.Views
             Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
             Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
             SetDirectoriesToUI();
+
+            // Switch view in file manager
+            FileManager.CurrentView = "Settings";
+            Debug.WriteLine(FileManager.CurrentView);
         }
 
         public void ResetButton()

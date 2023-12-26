@@ -1,9 +1,4 @@
 ﻿using SmartTrainApplication.Data;
-using SmartTrainApplication.Models;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
 
 namespace SmartTrainApplication.Views
 {
@@ -38,6 +33,23 @@ namespace SmartTrainApplication.Views
 
         public void SaveAsButton()
         {
-            LayerManager.ExportNewRoute(MainWindow.TopLevel, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name, DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);        }
+            switch (FileManager.CurrentView)
+            {
+                case "Route":
+                    FileManager.Export(MainWindow.TopLevel, "Route");
+                    break;
+                
+                case "Train":
+                    FileManager.Export(MainWindow.TopLevel, "Train");
+                    break;
+                
+                case "Simulation":
+                    FileManager.Export(MainWindow.TopLevel, "Simulation");
+                    break;
+                
+                default:
+                    break;
+            }
+        }
     }
 }

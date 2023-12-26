@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
@@ -27,33 +28,87 @@ namespace SmartTrainApplication.Data
         public static string DefaultRouteFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
         public static string DefaultTrainFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
 
-        /// <summary>
-        /// Export the created lines into a file.
-        /// </summary>
-        /// <param name="GeometryString">This takes a mapsui feature geometry string. Example: "LINESTRING ( x y, x y, x y ...)</param>
-        public static async void Export(String GeometryString, TopLevel topLevel, string Name = "", string Id = "")
-        {
-            if (GeometryString == "")
-                return;
+        // Currently active view
+        public static string CurrentView = "";
 
+        /// <summary>
+        /// Export route into a file using filepicker.
+        /// </summary>
+        [Obsolete]
+        public static async void ExportRoute(TopLevel topLevel)
+        {
             var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Export JSON",
                 FileTypeChoices = new[] { JSON },
                 SuggestedFileName = "export"
             });
+
             if (file == null) return;
-            string FilePath = file.TryGetLocalPath() ?? string.Empty;
-            TrainRoute NewTrainRoute = DataManager.CreateNewRoute(GeometryString, Name, Id, FilePath);
 
             // Create a file and write empty the new route to it
             var Json_options = new JsonSerializerOptions { WriteIndented = true };
-            var output = JsonSerializer.Serialize(NewTrainRoute, Json_options);
+            var output = JsonSerializer.Serialize(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], Json_options);
             if (file is not null)
             {
                 await using var stream = await file.OpenWriteAsync();
                 using var streamWriter = new StreamWriter(stream);
                 await streamWriter.WriteLineAsync(output);
+            }
+        }
+
+        /// <summary>
+        /// Export any of the JSON files with filepicker
+        /// </summary>
+        /// <param name="topLevel"></param>
+        /// <param name="type">Route, Train & Simulation</param>
+        public static async void Export(TopLevel topLevel, string type)
+        {
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Export JSON",
+                FileTypeChoices = new[] { JSON },
+                SuggestedFileName = "export"
+            });
+
+            if (file == null) return;
+
+            await using var stream = await file.OpenWriteAsync();
+            using var streamWriter = new StreamWriter(stream);
+
+            var Json_options = new JsonSerializerOptions { WriteIndented = true };
+            switch (type){
+                case "Route":
+                    if (DataManager.TrainRoutes.Any())
+                    {
+                        var RouteOutput = JsonSerializer.Serialize(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], Json_options);
+                        await streamWriter.WriteLineAsync(RouteOutput);
+                    }
+                    break;
+
+                case "Train":
+                    if (DataManager.Trains.Any())
+                    {
+                        var TrainOutput = JsonSerializer.Serialize(DataManager.Trains[DataManager.CurrentTrain], Json_options);
+                        await streamWriter.WriteLineAsync(TrainOutput);
+                    }
+                    break;
+
+                case "Simulation":
+                    if (Simulation.LatestSimulation != null)
+                    {
+                        var SimulationOutput = JsonSerializer.Serialize(Simulation.LatestSimulation, Json_options);
+                        await streamWriter.WriteLineAsync(SimulationOutput);
+                    }
+                    break;
+
+                case "Settings":
+                    var SettingsOutput = JsonSerializer.Serialize(SettingsManager.CurrentSettings, Json_options);
+                    await streamWriter.WriteLineAsync(SettingsOutput);
+                    break;
+
+                default:
+                    break;
             }
         }
 

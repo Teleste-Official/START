@@ -4,6 +4,7 @@ using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SmartTrainApplication.Views
@@ -44,6 +45,10 @@ namespace SmartTrainApplication.Views
 
             Trains = new List<ListedTrain>();
             SetTrainsToUI();
+
+            // Switch view in file manager
+            FileManager.CurrentView = "Train";
+            Debug.WriteLine(FileManager.CurrentView);
         }
 
         public void UpdateTrainButton()
