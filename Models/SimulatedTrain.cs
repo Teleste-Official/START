@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Models
 {
+    /// <summary>
+    /// Child class of Train
+    /// <list type="bullet">
+    /// <item>(float) Odometer</item>
+    /// <item>(float) CurrentSpeed</item>
+    /// </list>
+    /// </summary>
     public class SimulatedTrain : Train
     {
         public float Odometer {  get; set; }

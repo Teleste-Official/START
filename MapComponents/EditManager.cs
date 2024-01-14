@@ -6,13 +6,23 @@ using Mapsui.Nts.Editing;
 using Mapsui.Nts.Widgets;
 using Mapsui.Projections;
 using Mapsui.UI;
+using SmartTrainApplication.Data;
 
 namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    /// <summary>
+    /// Creates a new map, applies the map projection and starting coordinates, and initializes the edit mode 
+    /// </summary>
+    /// <param name="mapControl">(IMapControl) Mapsui map control</param>
+    /// <param name="editMode">(EditMode) The edit mode</param>
+    /// <returns>(EditManager) Mapsui edit manager</returns>
     public static EditManager InitEditMode(IMapControl mapControl, EditMode editMode)
     {
+        // Get the settings
+        FileManager.LoadSettings();
+
         var map = CreateMap();
 
         var editManager = new EditManager
@@ -31,7 +41,7 @@ public partial class MapViewControl
 
         map.CRS = "EPSG:3857";
         var centerOfTampere =
-            new MPoint(23.76227433384882, 61.49741016814548); //TODO move coords to a editable variable -Metso
+            new MPoint(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
 
         // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
         var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();

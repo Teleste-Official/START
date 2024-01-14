@@ -4,24 +4,25 @@ using System.Linq;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
-using Mapsui.Nts;
 using Mapsui.Nts.Editing;
 using Mapsui.Styles;
 using Mapsui.Widgets.BoxWidget;
 using Mapsui.Widgets.ButtonWidget;
 using Mapsui.Widgets.MouseCoordinatesWidget;
-using NetTopologySuite.IO;
 using SmartTrainApplication.Data;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    /// <summary>
+    /// Old build-in UI buttons
+    /// </summary>
+    /// <param name="map">(Map) The map</param>
+    [Obsolete("Functionality has been moved to Avalonia UI elements.")]
     private void InitEditWidgets(Map map)
     {
         _targetLayer = map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
-
         map.Widgets.Add(new BoxWidget
         {
             MarginY = 5,
@@ -227,7 +228,7 @@ public partial class MapViewControl
         };
         Export.WidgetTouched += (_, e) =>
         {
-            LayerManager.ExportNewRoute();
+            LayerManager.ExportNewRoute(MainWindow.TopLevel);
 
             e.Handled = true;
         };
@@ -247,7 +248,7 @@ public partial class MapViewControl
         };
         Import.WidgetTouched += (_, e) =>
         {
-            LayerManager.ImportNewRoute();
+            LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
 
             e.Handled = true;
         };
@@ -367,7 +368,7 @@ public partial class MapViewControl
         };
         SaveRoute.WidgetTouched += (_, e) =>
         {
-            DataManager.Save();
+            FileManager.Save();
 
             e.Handled = true;
         };

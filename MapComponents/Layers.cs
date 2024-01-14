@@ -7,6 +7,10 @@ namespace SmartTrainApplication.Views;
 
 public partial class MapViewControl
 {
+    /// <summary>
+    /// Creates a new layer for Imports
+    /// </summary>
+    /// <returns>(WritableLayer) The import layer</returns>
     public static WritableLayer CreateImportLayer()
     {
         var importLayer = new WritableLayer
@@ -18,6 +22,10 @@ public partial class MapViewControl
         return importLayer;
     }
 
+    /// <summary>
+    /// Creates a new style for Imports
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for imports</returns>
     public static IStyle CreateImportStyle()
     {
         return new VectorStyle
@@ -29,6 +37,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new layer for Tunnels
+    /// </summary>
+    /// <returns>(WritableLayer) The tunnel layer</returns>
     public static WritableLayer CreateTunnelLayer()
     {
         return new WritableLayer
@@ -38,6 +50,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new layer for Tunnel strings
+    /// </summary>
+    /// <returns>(WritableLayer) The tunnel string layer</returns>
     public static WritableLayer CreateTunnelstringLayer()
     {
         return new WritableLayer
@@ -47,6 +63,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new style for Tunnel strings
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for tunnel strings</returns>
     public static IStyle CreateTunnelstringStyle()
     {
         return new VectorStyle
@@ -57,6 +77,11 @@ public partial class MapViewControl
             Line = { Color = Color.FromString("Blue"), Width = 6 }
         };
     }
+
+    /// <summary>
+    /// Creates a new layer for Stops
+    /// </summary>
+    /// <returns>(WritableLayer) The stops layer</returns>
     public static WritableLayer CreateStopsLayer()
     {
         return new WritableLayer
@@ -67,6 +92,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new style for Stops
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Stops</returns>
     private static IStyle CreateStopsStyle()
     {
         return new VectorStyle
@@ -77,6 +106,38 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new layer for focused Stops
+    /// </summary>
+    /// <returns>(WritableLayer) The stops layer</returns>
+    public static WritableLayer CreateFocusedStopsLayer()
+    {
+        return new WritableLayer
+        {
+            Name = "FocusedStops",
+            IsMapInfoLayer = true,
+            Style = CreateFocusedStopsStyle()
+        };
+    }
+
+    /// <summary>
+    /// Creates a new style for focused Stops
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Stops</returns>
+    private static IStyle CreateFocusedStopsStyle()
+    {
+        return new VectorStyle
+        {
+            Fill = new Brush(Color.WhiteSmoke),
+            Line = null,
+            Outline = new Pen(Color.FromString("Green"), 5)
+        };
+    }
+
+    /// <summary>
+    /// Creates a new layer for edit
+    /// </summary>
+    /// <returns>(WritableLayer) The edit layer</returns>
     private static WritableLayer CreateEditLayer()
     {
         return new WritableLayer
@@ -87,6 +148,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates the EditLayer style collection
+    /// </summary>
+    /// <returns>(StyleCollection) Mapsui style collection</returns>
     private static StyleCollection CreateEditLayerStyle()
     {
         // The edit layer has two styles. That is why it needs to use a StyleCollection.
@@ -103,6 +168,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new style for EditLayer
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style</returns>
     private static IStyle CreateEditLayerBasicStyle()
     {
         var editStyle = new VectorStyle
@@ -114,11 +183,11 @@ public partial class MapViewControl
         return editStyle;
     }
 
+    // Define colors for use in vector styles
     private static readonly Color EditModeColor = new Color(124, 22, 111, 180);
     private static readonly Color PointLayerColor = new Color(240, 240, 240, 240);
     private static readonly Color LineLayerColor = new Color(150, 150, 150, 240);
     private static readonly Color PolygonLayerColor = new Color(20, 20, 20, 240);
-
 
     private static readonly SymbolStyle? SelectedStyle = new SymbolStyle
     {
@@ -129,6 +198,10 @@ public partial class MapViewControl
 
     private static readonly SymbolStyle? DisableStyle = new SymbolStyle { Enabled = false };
 
+    /// <summary>
+    /// Creates a new style for feature "selected"-status on EditLayer
+    /// </summary>
+    /// <returns>(IStyle) Mapsui theme style</returns>
     private static IStyle CreateSelectedStyle()
     {
         // To show the selected style a ThemeStyle is used which switches on and off the SelectedStyle
@@ -136,6 +209,10 @@ public partial class MapViewControl
         return new ThemeStyle(f => (bool?)f["Selected"] == true ? SelectedStyle : DisableStyle);
     }
 
+    /// <summary>
+    /// Creates a new layer for Points
+    /// </summary>
+    /// <returns>(WritableLayer) The point layer</returns>
     private static WritableLayer CreatePointLayer()
     {
         return new WritableLayer
@@ -145,6 +222,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new layer for Lines
+    /// </summary>
+    /// <returns>(WritableLayer) The line layer</returns>
     private static WritableLayer CreateLineLayer()
     {
         var lineLayer = new WritableLayer
@@ -156,6 +237,10 @@ public partial class MapViewControl
         return lineLayer;
     }
 
+    /// <summary>
+    /// Creates a new layer for Polygons
+    /// </summary>
+    /// <returns>(WritableLayer) The polygon layer</returns>
     private static WritableLayer CreatePolygonLayer()
     {
         var polygonLayer = new WritableLayer
@@ -167,6 +252,10 @@ public partial class MapViewControl
         return polygonLayer;
     }
 
+    /// <summary>
+    /// Creates a new style for Points
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Points</returns>
     private static IStyle CreatePointStyle()
     {
         return new VectorStyle
@@ -177,6 +266,10 @@ public partial class MapViewControl
         };
     }
 
+    /// <summary>
+    /// Creates a new style for Lines
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Lines</returns>
     private static IStyle CreateLineStyle()
     {
         return new VectorStyle
@@ -186,6 +279,11 @@ public partial class MapViewControl
             Outline = new Pen(LineLayerColor, 3)
         };
     }
+
+    /// <summary>
+    /// Creates a new style for Polygons
+    /// </summary>
+    /// <returns>(IStyle) Mapsui vector style for Polygons</returns>
     private static IStyle CreatePolygonStyle()
     {
         return new VectorStyle
