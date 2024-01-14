@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace SmartTrainApplication.Data
@@ -25,8 +24,9 @@ namespace SmartTrainApplication.Data
         };
 
         public static List<string>? ImportedRoutesAsStrings { get; set; }
-        public static string DefaultRouteFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Routes");
-        public static string DefaultTrainFolderPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+        public static string DefaultRouteFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Routes");
+        public static string DefaultTrainFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+        public static string DefaultSimulationsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
 
         // Currently active view
         public static string CurrentView = "";
@@ -134,6 +134,7 @@ namespace SmartTrainApplication.Data
         /// <summary>
         /// Saves DataManager.CurrentTrainRoute to "export.json" file
         /// </summary>
+        [Obsolete]
         public static void Save()
         {
             if (DataManager.TrainRoutes[DataManager.CurrentTrainRoute] == null)
@@ -290,13 +291,12 @@ namespace SmartTrainApplication.Data
         /// <param name="sim">(SimulationData) Route's simulation data</param>
         public static void SaveSimulationData(SimulationData sim)
         {
-            string SimulationsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Simulations", "simulation.json");
+            string Path = DataManager.CreateFilePath("", "Simulation");
             try
             {
-                if (!Directory.Exists(SimulationsDirectory))
+                if (!Directory.Exists(DefaultSimulationsFolderPath))
                 {
-                    Directory.CreateDirectory(SimulationsDirectory);
+                    Directory.CreateDirectory(DefaultSimulationsFolderPath);
                 }
             }
             catch (Exception Ex)
@@ -474,7 +474,7 @@ namespace SmartTrainApplication.Data
 
         internal static void OpenGuide()
         {
-            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "START_Guide.pdf");
+            string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "StartManual.pdf");
 
             try
             {

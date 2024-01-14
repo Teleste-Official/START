@@ -8,7 +8,7 @@
         xmlns:smartTrainApplication="clr-namespace:SmartTrainApplication"
         x:Class="SmartTrainApplication.Views.MainWindow"
         x:DataType="views1:MainWindowViewModel"
-        Title="SmartTrainApplication"
+        Title="Smart Train Application for Route Testing"
         Icon="/Assets/start.ico">
 
     <Grid>

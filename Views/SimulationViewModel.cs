@@ -48,9 +48,8 @@ namespace SmartTrainApplication.Views
         public void RunSimulationButton()
         {
             Simulation.intervalTime = (int)float.Parse(Interval);
-            //Simulation.RunSimulation(StopsDictionary);
-            Simulation.PreprocessRoute(StopsDictionary);
-            return;
+            if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any())
+                Simulation.PreprocessRoute(StopsDictionary);
         }
 
         public void SetTrainsToUI()

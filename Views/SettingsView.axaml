@@ -71,15 +71,17 @@
             HorizontalAlignment="Center" 
             Width="700" 
             Margin="0 15 0 0">
+        <!--
         <Button Margin="400 5 0 0" Width="100" Command="{Binding LogsButton}">
           Logs
         </Button>
+        -->
 
-        <Button Margin="0 5 200 0" Width="100" Command="{Binding ResetButton}">
+        <Button Margin="110 5 200 0" Width="100" Command="{Binding ResetButton}">
           Reset
         </Button>
 
-        <Button Margin="100 5 0 0" Width="100" Command="{Binding SaveButton}">
+        <Button Margin="270 5 0 0" Width="100" Command="{Binding SaveButton}">
           Save
         </Button>
       </Grid>

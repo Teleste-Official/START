@@ -228,13 +228,13 @@ namespace SmartTrainApplication
                 MapViewControl.map.Layers.Add(new AnimatedPointLayer(new TrainPointProvider())
                 {
                     Name = "Playback",
-                    Style = new LabelStyle
+                    Style = new VectorStyle
                     {
-                        BackColor = new Brush(Color.Black),
-                        ForeColor = Color.White,
-                        Text = "Train",
+                        Fill = new Brush(Color.WhiteSmoke),
+                        Line = null,
+                        Outline = new Pen(Color.FromString("Blue"), 5)
                     }
-                });
+            });
                 animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
             }
 

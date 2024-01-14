@@ -402,14 +402,21 @@ namespace SmartTrainApplication.Data
             if (Specifier == "Route")
             {
                 // Generate the file path and name the file export with last 4 digits of the id for unique name.
-                NewPath = System.IO.Path.Combine(FileManager.DefaultRouteFolderPath, Specifier + Id[..4] + ".json");
+                NewPath = Path.Combine(FileManager.DefaultRouteFolderPath, Specifier + Id[..4] + ".json");
                 Debug.WriteLine("created path: " + NewPath);
             }
 
             if (Specifier == "Train")
             {
                 // Generate the file path and name the file export with last 4 digits of the id for unique name.
-                NewPath = System.IO.Path.Combine(FileManager.DefaultTrainFolderPath, Specifier + Id[..4] + ".json");
+                NewPath = Path.Combine(FileManager.DefaultTrainFolderPath, Specifier + Id[..4] + ".json");
+                Debug.WriteLine("created path: " + NewPath);
+            }
+
+            if (Specifier == "Simulation")
+            {
+                DateTime currentTime = DateTime.Now;
+                NewPath = Path.Combine(FileManager.DefaultSimulationsFolderPath, currentTime.ToString("ddMMyyyy_HHmmss") + ".json");
                 Debug.WriteLine("created path: " + NewPath);
             }
 
