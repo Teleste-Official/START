@@ -61,15 +61,16 @@ internal class LayerManager {
   }
 
   public static void ClearAllLayers() {
+    Logger.Debug("ClearAllLayers()");
     var importLayer = CreateImportLayer();
     var tunnelLayer = CreateTunnelLayer();
-    var tunnelstringLayer = CreateTunnelStringLayer();
+    var tunnelStringLayer = CreateTunnelStringLayer();
     var stopsLayer = CreateStopsLayer();
     var focusedStopsLayer = CreateFocusStopsLayer();
 
     importLayer.Clear();
     tunnelLayer.Clear();
-    tunnelstringLayer.Clear();
+    tunnelStringLayer.Clear();
     stopsLayer.Clear();
     focusedStopsLayer.Clear();
     RemoveAnimationLayer();
@@ -96,17 +97,38 @@ internal class LayerManager {
   /// </summary>
   /// <param name="SavedPaths">Saved Paths</param>
   public static void ImportNewRoute(List<string> SavedPaths) {
-    var ImportedRoutes = FileManager.StartupFolderImport(SavedPaths);
+    var importedRoutes = FileManager.StartupFolderImport(SavedPaths); // After this, DataManager.trainroutes contains latest routes as actual objects.
     try {
-      var GeometryData = ImportedRoutes[0];
+      var geometryData = importedRoutes[0];
 
       var importLayer = CreateImportLayer();
       List<string> tunnelStrings = DataManager.GetTunnelStrings();
       List<string> stopsStrings = DataManager.GetStopStrings();
 
-      TurnImportToFeature(GeometryData, importLayer);
+
+      // TODO remove these
+      /*
+      TrainRoute currentRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+      List<String> stopNames = currentRoute.Coords.Select(c => c.StopName).ToList();
+      
+      List<RouteCoordinate> stops = new List<RouteCoordinate>();
+      foreach (RouteCoordinate coord in currentRoute.Coords) {
+        if (coord.Type == "STOP") {
+          stops.Add(coord);
+          Logger.Debug("found stop " + coord.StopName);
+        }
+      }
+      */
+      
+      TurnImportToFeature(geometryData, importLayer);
       RedrawTunnelsToMap(tunnelStrings);
-      RedrawStopsToMap(stopsStrings);
+      
+      
+      //RedrawStopsToMap(stops);
+      RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
+      
+      
+
     }
     catch (Exception Ex) {
       Logger.Debug(Ex);
@@ -114,38 +136,41 @@ internal class LayerManager {
   }
 
   public static void ChangeCurrentRoute(int RouteIndex) {
-    var GeometryData = FileManager.ChangeCurrentRoute(RouteIndex);
+    var geometryData = FileManager.ChangeCurrentRoute(RouteIndex);
 
     var importLayer = CreateImportLayer();
     var tunnelStrings = DataManager.GetTunnelStrings();
-    List<string> stopsStrings = DataManager.GetStopStrings();
+    //List<string> stopsStrings = DataManager.GetStopStrings();
 
-    TurnImportToFeature(GeometryData, importLayer);
+    TurnImportToFeature(geometryData, importLayer);
     RedrawTunnelsToMap(tunnelStrings);
-    RedrawStopsToMap(stopsStrings);
+    //RedrawStopsToMap2(DataManager.TrainRoutes[RouteIndex]);
+    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
   }
 
   /// <summary>
   ///   Adds the new Route to data, turns it to a feature and redraws the map
   /// </summary>
-  public static void ConfirmNewRoute(string Name = "Route", string ID = "", string FilePath = "") {
-    Logger.Debug($"ConfirmNewRoute() name={Name}, ID={ID}, FilePath={FilePath}");
-    var RouteString = GetRouteAsString();
+  public static void ConfirmNewRoute(string name = "Route", string id = "", string filePath = "") {
+    Logger.Debug($"ConfirmNewRoute() name={name}, id={id}, filePath={filePath}");
+    var routeString = GetRouteAsString();
 
-    if (RouteString == "")
+    if (routeString == "")
       return;
 
-    var newRoute = DataManager.CreateNewRoute(RouteString, Name, ID, FilePath);
+    var newRoute = DataManager.CreateNewRoute(routeString, name, id, filePath);
     DataManager.AddToRoutes(newRoute);
 
-    var _importLayer = CreateImportLayer();
-    TurnImportToFeature(RouteString, _importLayer);
+    var importLayer = CreateImportLayer();
+    TurnImportToFeature(routeString, importLayer);
 
     var tunnelStrings = DataManager.GetTunnelStrings();
     RedrawTunnelsToMap(tunnelStrings);
 
-    List<string> stopStrings = DataManager.GetStopStrings();
-    RedrawStopsToMap(stopStrings);
+    //List<string> stopStrings = DataManager.GetStopStrings();
+    //RedrawStopsToMap(stopStrings);
+    
+    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
   }
 
   /// <summary>
@@ -153,7 +178,7 @@ internal class LayerManager {
   /// </summary>
   /// <returns>(string) Selected features</returns>
   private static string GetRouteAsString() {
-    var RouteString = "";
+    var routeString = "";
 
     //(WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
     var selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
@@ -163,12 +188,11 @@ internal class LayerManager {
 
         // If there is multiple feature this overrides all others and only gets the frist one
         // Fix when routes can be named -Metso
-        RouteString = testFeature.Geometry.ToString();
-        // Currently this deletes all features, from the editlayer -Metso
+        routeString = testFeature.Geometry.ToString();
+        // Currently this deletes all features, from the edit layer -Metso
         //MapViewControl._editManager.Layer?.TryRemove(selectedFeature);
       }
-
-    return RouteString;
+    return routeString;
   }
 
   /// <summary>
@@ -239,8 +263,8 @@ internal class LayerManager {
 
     // TODO in the future fix these, so that the stops can be moved as well during edit.
     // Clear the tunnels and stops out of the way
-    //var tunnelstringLayer = CreateTunnelStringLayer();
-    //tunnelstringLayer.Clear();
+    //var tunnelStringLayer = CreateTunnelStringLayer();
+    //tunnelStringLayer.Clear();
     //var stopsLayer = CreateStopsLayer();
     //stopsLayer.Clear();
 
@@ -276,6 +300,7 @@ internal class LayerManager {
   public static void TurnImportToFeature(string GeometryData, WritableLayer importLayer) {
     var lineString = new WKTReader().Read(GeometryData);
     IFeature feature = new GeometryFeature { Geometry = lineString };
+    // TODO ? feature["RouteName"] = "ASDF";
     importLayer.Add(feature);
   }
 
@@ -299,14 +324,14 @@ internal class LayerManager {
   /// </summary>
   /// <returns>(WritableLayer) Tunnel string layer</returns>
   public static WritableLayer CreateTunnelStringLayer() {
-    var tunnelstringLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
-    if (tunnelstringLayer == null) {
+    var tunnelStringLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
+    if (tunnelStringLayer == null) {
       // TunnelString layer doesnt exist yet, create the import layer
       MapViewControl.map.Layers.Add(MapViewControl.CreateTunnelstringLayer());
-      tunnelstringLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
+      tunnelStringLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Tunnelstring");
     }
 
-    return tunnelstringLayer;
+    return tunnelStringLayer;
   }
 
   /// <summary>
@@ -314,8 +339,10 @@ internal class LayerManager {
   /// </summary>
   /// <returns>(WritableLayer) Stops layer</returns>
   public static WritableLayer CreateStopsLayer() {
+
     var stopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
     if (stopsLayer == null) {
+      Logger.Debug("StopsLayer is null, creating new one");
       // TunnelString layer doesnt exist yet, create the import layer
       MapViewControl.map.Layers.Add(MapViewControl.CreateStopsLayer());
       stopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
@@ -397,6 +424,7 @@ internal class LayerManager {
     var features = stopsLayer?.GetFeatures().Copy();
 
     foreach (var feature in features) {
+      // TODO iterating over stop features, check id,name,etc here
       var testFeature = feature as GeometryFeature;
 
       var point = testFeature.Geometry.ToString();
@@ -408,8 +436,9 @@ internal class LayerManager {
 
     // Add stops to data
     var stopsStrings = DataManager.AddStops(stopsPoints);
-
-    RedrawStopsToMap(stopsStrings);
+    
+    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
+    //RedrawStopsToMap(stopsStrings);
 
     MapViewControl._mapControl?.RefreshGraphics();
 
@@ -445,15 +474,16 @@ internal class LayerManager {
 
   public static void SwitchRoute() {
     ClearAllLayers();
-    var GeometryString = DataManager.GetCurrentLinestring();
+    var geometryString = DataManager.GetCurrentLinestring();
     var importLayer = CreateImportLayer();
-    TurnImportToFeature(GeometryString, importLayer);
+    TurnImportToFeature(geometryString, importLayer);
 
     var tunnelStrings = DataManager.GetTunnelStrings();
     RedrawTunnelsToMap(tunnelStrings);
 
-    List<string> stopStrings = DataManager.GetStopStrings();
-    RedrawStopsToMap(stopStrings);
+    //List<string> stopStrings = DataManager.GetStopStrings();
+    //RedrawStopsToMap(stopStrings);
+    LayerManager.RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
   }
 
   /// <summary>
@@ -461,27 +491,34 @@ internal class LayerManager {
   /// </summary>
   /// <param name="tunnelStrings">(List of string) The tunnel strings</param>
   public static void RedrawTunnelsToMap(List<string> tunnelStrings) {
-    var tunnelstringLayer = CreateTunnelStringLayer();
-    tunnelstringLayer.Clear();
+    var tunnelStringLayer = CreateTunnelStringLayer();
+    tunnelStringLayer.Clear();
     foreach (var tunnelString in tunnelStrings) {
       var lineString = new WKTReader().Read(tunnelString);
       IFeature feature = new GeometryFeature { Geometry = lineString };
-      tunnelstringLayer.Add(feature);
+      tunnelStringLayer.Add(feature);
     }
   }
-
+  
   /// <summary>
-  ///   (Re)draws the given list of tunnels to the map
+  ///   (Re)draws the given list of stops to the map
   /// </summary>
-  /// <param name="stopsStrings">(List of string) The stop strings</param>
-  public static void RedrawStopsToMap(List<string> stopsStrings) {
+  /// <param name="coords">(List of RouteCoordinate) The stop coordinates</param>
+  public static void RedrawStopsToMap(List<RouteCoordinate> coords) {
     var stopsLayer = CreateStopsLayer();
     stopsLayer.Clear();
-    if (stopsStrings.Count > 0)
-      foreach (var stopString in stopsStrings) {
-        var pointString = new WKTReader().Read(stopString);
-        IFeature feature = new GeometryFeature { Geometry = pointString };
-        stopsLayer.Add(feature);
-      }
+    
+    if (coords.Count <= 0) return;
+    foreach (RouteCoordinate stopCoordinate in coords) {
+      var pointString = new WKTReader().Read(getCoordinateString(stopCoordinate));
+      IFeature feature = new GeometryFeature { Geometry = pointString };
+      feature["StopName"] = stopCoordinate.StopName;
+      stopsLayer.Add(feature);
+    }
+
+  }
+
+  private static string getCoordinateString(RouteCoordinate coord) {
+    return "POINT (" + coord.Longitude + " " + coord.Latitude + ")";
   }
 }

@@ -80,10 +80,11 @@ internal class DataManager {
     }
 
     var tunnelPoints = GetTunnelPoints();
-    List<string> stopPoints = GetStopStrings();
-
+    //List<string> stopPoints = GetStopStrings();
+    //LayerManager.RedrawStopsToMap(stopPoints);
     LayerManager.RedrawTunnelsToMap(tunnelPoints);
-    LayerManager.RedrawStopsToMap(stopPoints);
+    LayerManager.RedrawStopsToMap(DataManager.TrainRoutes[CurrentTrainRoute].GetStopCoordinates());
+    
   }
 
   /// <summary>
@@ -298,6 +299,8 @@ internal class DataManager {
   /// <param name="StopsPoints">(List of string) Points that contain Stops</param>
   /// <returns>(List of string) List of stopStrings with added stop data types</returns>
   public static List<string> AddStops(List<string> StopsPoints) {
+    
+    //TODO check if previous stop names are not handled correctly here!!!
     var stopStrings = new List<string>();
     if (TrainRoutes[CurrentTrainRoute] == null) return stopStrings;
 
@@ -336,7 +339,7 @@ internal class DataManager {
           TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
         else
           TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("STOP");
-        TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetName("No name");
+        //TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetName("No name");
       }
     }
 

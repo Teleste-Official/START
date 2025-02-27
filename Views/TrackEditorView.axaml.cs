@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using NLog;
 using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using SmartTrainApplication.Views;
 
 #endregion
@@ -44,6 +45,20 @@ public partial class TrackEditorView : UserControl {
     if (DataContext is TrackEditorViewModel viewModel) viewModel.DrawFocusedStop(textBox.Name);
     Logger.Debug("Focused: " + textBox.Name);
   }
+  
+  /*
+  public void StopGotFocus2(object sender, GotFocusEventArgs e) {
+    var textBox = sender as TextBox;
+    // TODO investigate why id is not getting set to switch back to using id.
+    if (DataContext is TrackEditorViewModel viewModel) {
+      if (textBox.DataContext != null) {
+        RouteCoordinate focussed = (RouteCoordinate)textBox.DataContext;
+        viewModel.DrawFocusedStop(focussed);
+        Logger.Debug($"Focused: {focussed}");
+      }
+    }
+    
+  }*/
 
   public void StopLostFocus(object sender, RoutedEventArgs e) {
     var textBox = sender as TextBox;

@@ -29,6 +29,7 @@ public class TrainRoute {
   public TrainRoute(string name, List<RouteCoordinate> coords, string ID = "", string filePath = "") {
     Name = name;
     Coords = coords;
+    
     if (ID == "")
       Id = DataManager.CreateID();
     else
@@ -40,5 +41,16 @@ public class TrainRoute {
       FilePath = filePath;
 
     Edited = false;
+  }
+
+  public List<RouteCoordinate> GetStopCoordinates() {
+    List<RouteCoordinate> stopsCoordinates = new List<RouteCoordinate>();
+    
+    foreach (RouteCoordinate coord in Coords) {
+      if (coord.Type == "STOP") {
+        stopsCoordinates.Add(coord);
+      }
+    }
+    return stopsCoordinates;
   }
 }

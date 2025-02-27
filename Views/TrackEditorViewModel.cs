@@ -14,9 +14,17 @@ public class TrackEditorViewModel : ViewModelBase {
   public List<TrainRoute> Routes { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
 
-  private string _currentAction;
+  public enum EditorAction {
+    None,
+    AddLine,
+    AddTunnel,
+    AddStop,
+    ModifyTrack
+  }
 
-  public string CurrentAction {
+  private EditorAction _currentAction;
+
+  public EditorAction CurrentAction {
     get => _currentAction;
     set {
       if (_currentAction != value) {
@@ -37,9 +45,10 @@ public class TrackEditorViewModel : ViewModelBase {
     //TrackName = DataManager.GetCurrentRouteName().Name;
     //SetValuesToUI();
     TrackName = "";
-    CurrentAction = "None";
+    CurrentAction = EditorAction.None;
     AddingNew = false;
 
+    //Stops = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates();
     Stops = DataManager.GetStops();
 
     // Switch view in file manager
@@ -49,39 +58,39 @@ public class TrackEditorViewModel : ViewModelBase {
   public void AddLineButton() {
     LayerManager.ClearFeatures();
     LayerManager.AddLine();
-    CurrentAction = "AddLine";
+    CurrentAction = EditorAction.AddLine;
   }
 
   public void AddTunnelButton() {
     LayerManager.ClearFeatures();
     LayerManager.AddTunnel();
-    CurrentAction = "AddTunnel";
+    CurrentAction = EditorAction.AddTunnel;
   }
 
   public void AddStopButton() {
     LayerManager.ClearFeatures();
     LayerManager.AddTunnel();
-    CurrentAction = "AddStop";
+    CurrentAction = EditorAction.AddStop;
   }
 
   public void ModifyButton() {
-    if (CurrentAction != "ModifyTrack") {
+    if (CurrentAction != EditorAction.ModifyTrack) {
       LayerManager.ClearFeatures();
       LayerManager.TurnImportToEdit();
-      CurrentAction = "ModifyTrack";
+      CurrentAction = EditorAction.ModifyTrack;
     }
   }
 
   public void ConfirmButton() {
     switch (CurrentAction) {
-      case "ModifyTrack":
+      case EditorAction.ModifyTrack:
         LayerManager.ApplyEditing(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].FilePath);
         DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
         break;
 
-      case "AddLine":
+      case EditorAction.AddLine:
         AddingNew = true;
         LayerManager.ClearAllLayers();
         LayerManager.ApplyEditing("Route " + (DataManager.TrainRoutes.Count + 1));
@@ -91,13 +100,13 @@ public class TrackEditorViewModel : ViewModelBase {
         DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
         break;
 
-      case "AddStop":
+      case EditorAction.AddStop:
         LayerManager.ConfirmStops();
         SetStopsToUI();
         DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
         break;
 
-      case "AddTunnel":
+      case EditorAction.AddTunnel:
         LayerManager.ConfirmTunnel();
         DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Edited = true;
         break;
@@ -115,11 +124,11 @@ public class TrackEditorViewModel : ViewModelBase {
         break;
     }
 
-    CurrentAction = "None";
+    CurrentAction = EditorAction.None;
   }
 
   public void CancelButton() {
-    CurrentAction = "None";
+    CurrentAction = EditorAction.None;
     LayerManager.ClearFeatures();
     LayerManager.ClearAllLayers();
     LayerManager.ChangeCurrentRoute(-1);
@@ -141,7 +150,7 @@ public class TrackEditorViewModel : ViewModelBase {
   }
 
   public void SetStopsToUI() {
-    Stops = DataManager.GetStops();
+    Stops = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates();//DataManager.GetStops();
     RaisePropertyChanged(nameof(Stops));
   }
 
@@ -149,6 +158,20 @@ public class TrackEditorViewModel : ViewModelBase {
     var selectedStop = Stops.First(item => item.Id == _Id);
     LayerManager.AddFocusStop(selectedStop);
   }
+  
+  /*
+  public void DrawFocusedStop(RouteCoordinate selectedStop) {
+    foreach (RouteCoordinate c in Stops) {
+      // Could be better I know...
+      if (c.Latitude == selectedStop.Latitude && c.Longitude == selectedStop.Longitude) {
+        LayerManager.AddFocusStop(c);
+        break;
+      }
+    }
+    
+    //var selectedStop = Stops.First(item => item.Id == _Id);
+    //LayerManager.AddFocusStop(selectedStop);
+  }*/
 
   public void ChangeCurrentRouteIndex(int index) {
     LayerManager.ChangeCurrentRoute(index);
