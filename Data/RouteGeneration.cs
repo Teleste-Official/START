@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Mapsui;
 using Mapsui.Projections;
+using NLog;
 
 #endregion
 
@@ -15,6 +16,7 @@ namespace SmartTrainApplication.Data;
 /// Functions used for calculation Route/Train data during simulation loop
 /// </summary>
 internal class RouteGeneration {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
   /// <summary>
   /// Used in initial testing to calculate route's length, now implemented in <c>Simulation.RunSimulation()</c>. 
   /// </summary>
@@ -30,14 +32,14 @@ internal class RouteGeneration {
     }
 
 
-    Debug.WriteLine($"Route Length: {CalculateRouteLength(points)}");
+    Logger.Debug($"Route Length: {CalculateRouteLength(points)}");
 
 
     // Used for testing functionality
-    //Debug.WriteLine(points.Count);
+    //Logger.Debug(points.Count);
     //foreach (var point in points)
     //{
-    //    Debug.WriteLine($"{point.X}, {point.Y}");
+    //    Logger.Debug($"{point.X}, {point.Y}");
     //}
   }
 
@@ -58,7 +60,7 @@ internal class RouteGeneration {
       //length += CalculatePointDistance(currentPoint, nextPoint);
 
       // Used for testing functionality
-      //Debug.WriteLine(length);
+      //Logger.Debug(length);
     }
 
     return length;

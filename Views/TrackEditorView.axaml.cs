@@ -1,9 +1,9 @@
 #region
 
-using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Views;
 
@@ -12,8 +12,11 @@ using SmartTrainApplication.Views;
 namespace SmartTrainApplication;
 
 public partial class TrackEditorView : UserControl {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
   public TrackEditorView() {
     InitializeComponent();
+    RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
   }
 
   public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -24,8 +27,8 @@ public partial class TrackEditorView : UserControl {
 
       if (DataContext is TrackEditorViewModel viewModel) {
         // If we are adding a new line, switch the combobox to it
-        if (viewModel.AddingNew)
-          comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
+        if (viewModel.AddingNew) comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
+
 
         viewModel.Routes = DataManager.TrainRoutes;
         DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
@@ -39,12 +42,12 @@ public partial class TrackEditorView : UserControl {
   public void StopGotFocus(object sender, GotFocusEventArgs e) {
     var textBox = sender as TextBox;
     if (DataContext is TrackEditorViewModel viewModel) viewModel.DrawFocusedStop(textBox.Name);
-    Debug.WriteLine("Focused: " + textBox.Name);
+    Logger.Debug("Focused: " + textBox.Name);
   }
 
   public void StopLostFocus(object sender, RoutedEventArgs e) {
     var textBox = sender as TextBox;
     LayerManager.RemoveFocusStop();
-    Debug.WriteLine("Lost focus: " + textBox.Name);
+    Logger.Debug("Lost focus: " + textBox.Name);
   }
 }

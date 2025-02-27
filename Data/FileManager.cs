@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using NLog;
 using SmartTrainApplication.Models;
 
 #endregion
@@ -19,6 +20,7 @@ namespace SmartTrainApplication.Data;
 /// Functions used for saving and loading data to and from files
 /// </summary>
 internal class FileManager {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
   public static FilePickerFileType JSON { get; } = new("json") {
     Patterns = new[] { "*.json" },
     AppleUniformTypeIdentifiers = new[] { "public.json" },
@@ -145,7 +147,7 @@ internal class FileManager {
     if (route == null) return;
 
     var Path = route.FilePath;
-    Debug.WriteLine("Save: " + Path);
+    Logger.Debug("Save: " + Path);
     // Save the current train route
     var Json_options = new JsonSerializerOptions { WriteIndented = true };
     File.WriteAllText(Path, JsonSerializer.Serialize(route, Json_options));
@@ -166,13 +168,13 @@ internal class FileManager {
       if (!Directory.Exists(DefaultRouteFolderPath)) Directory.CreateDirectory(DefaultRouteFolderPath);
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
 
     try {
       foreach (var Path in SavedPaths) {
-        Debug.WriteLine(Path);
+        Logger.Debug(Path);
         if (Directory.Exists(Path)) {
           var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
 
@@ -195,7 +197,7 @@ internal class FileManager {
       }
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
 
@@ -258,7 +260,7 @@ internal class FileManager {
       if (!Directory.Exists(DefaultSimulationsFolderPath)) Directory.CreateDirectory(DefaultSimulationsFolderPath);
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
     // Save the simulation
@@ -281,7 +283,7 @@ internal class FileManager {
 
     try {
       foreach (var Path in SavedPaths) {
-        Debug.WriteLine(Path);
+        Logger.Debug(Path);
         if (Directory.Exists(Path)) {
           var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
 
@@ -303,7 +305,7 @@ internal class FileManager {
       }
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
     return Trains;
@@ -322,7 +324,7 @@ internal class FileManager {
       if (!Directory.Exists(TrainsDirectory)) Directory.CreateDirectory(TrainsDirectory);
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
     // Open the file to read from
@@ -352,7 +354,7 @@ internal class FileManager {
       if (!Directory.Exists(TrainsDirectory)) Directory.CreateDirectory(TrainsDirectory);
     }
     catch (Exception Ex) {
-      Debug.WriteLine(Ex.Message);
+      Logger.Debug(Ex.Message);
     }
 
     // Save the train
@@ -407,7 +409,7 @@ internal class FileManager {
     }
 
     {
-      Debug.WriteLine("No guide");
+      Logger.Debug("No guide");
     }
   }
 

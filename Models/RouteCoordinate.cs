@@ -7,13 +7,13 @@ using System.Text.Json.Serialization;
 namespace SmartTrainApplication.Models;
 
 /// <summary>
-/// The singular coordinate points that make up TrainRoutes
-/// <list type="bullet">
-/// <item>(string) Longitude</item>
-/// <item>(string) Longitude</item>
-/// <item>(string) Type</item>
-/// <item>(string) StopName</item>
-/// </list>
+///   The singular coordinate points that make up TrainRoutes
+///   <list type="bullet">
+///     <item>(string) Longitude</item>
+///     <item>(string) Longitude</item>
+///     <item>(string) Type</item>
+///     <item>(string) StopName</item>
+///   </list>
 /// </summary>
 public class RouteCoordinate {
   [JsonIgnore] public string Id { get; set; } // This only for the simulation editor
@@ -42,7 +42,7 @@ public class RouteCoordinate {
   }
 
   /// <summary>
-  /// Changes the Type of the RouteCoordinate object to a given Type
+  ///   Changes the Type of the RouteCoordinate object to a given Type
   /// </summary>
   /// <param name="Type">(string) Type to set</param>
   public void SetType(string Type) {
@@ -51,5 +51,9 @@ public class RouteCoordinate {
 
   public void SetName(string Name) {
     StopName = Name;
+  }
+
+  public override string ToString() {
+    return $"Id: {Id}, Longitude: {Longitude}, Latitude: {Latitude}, Type: {Type}, StopName: {StopName}";
   }
 }

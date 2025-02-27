@@ -149,8 +149,8 @@ internal class Simulation {
       tickData.trackTimeSecs += interval;
 
       if (tickData.distanceMeters > routeLengthMeters)
-        //Debug.WriteLine(tickData.distanceMeters);
-        //Debug.WriteLine(routeLengthMeters);
+        //Logger.Debug(tickData.distanceMeters);
+        //Logger.Debug(routeLengthMeters);
         break;
 
       // Data to be saved in Ticks:
@@ -212,7 +212,7 @@ internal class Simulation {
                   }
               }
           }
-        //  Debug.WriteLine(tickData.speedKmh);
+        //  Logger.Debug(tickData.speedKmh);
 
       }*/
       if (IsRunning) {

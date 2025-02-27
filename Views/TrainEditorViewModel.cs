@@ -2,10 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 
@@ -14,6 +14,7 @@ using SmartTrainApplication.Models;
 namespace SmartTrainApplication.Views;
 
 public class TrainEditorViewModel : ViewModelBase {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
   public string Title { get; set; }
   public string Description { get; set; }
   public string Speed { get; set; }
@@ -48,7 +49,7 @@ public class TrainEditorViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Train";
-    Debug.WriteLine(FileManager.CurrentView);
+    Logger.Debug(FileManager.CurrentView);
   }
 
   public void UpdateTrainButton() {

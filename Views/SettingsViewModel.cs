@@ -1,9 +1,9 @@
 ﻿#region
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using NLog;
 using SmartTrainApplication.Data;
 
 #endregion
@@ -11,6 +11,7 @@ using SmartTrainApplication.Data;
 namespace SmartTrainApplication.Views;
 
 internal class SettingsViewModel : ViewModelBase {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
   public string Longitude { get; set; }
   public string Latitude { get; set; }
   public string VersionNumber { get; set; }
@@ -25,7 +26,7 @@ internal class SettingsViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Settings";
-    Debug.WriteLine(FileManager.CurrentView);
+    Logger.Debug($"Current view: {FileManager.CurrentView}");
   }
 
   public void ResetButton() {

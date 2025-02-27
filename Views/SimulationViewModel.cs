@@ -1,8 +1,8 @@
 ﻿#region
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
 using static SmartTrainApplication.Views.TrainEditorViewModel;
@@ -12,11 +12,13 @@ using static SmartTrainApplication.Views.TrainEditorViewModel;
 namespace SmartTrainApplication.Views;
 
 public class SimulationViewModel : ViewModelBase {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
   public List<TrainRoute> Routes { get; set; }
   public List<ListedTrain> Trains { get; set; }
   public string Interval { get; set; }
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
-  public List<bool> StopsBooleans { get; set; }
+  public List<bool> StopsBooleans { get; set; } 
   public List<RouteCoordinate> Stops { get; set; }
 
   public SimulationViewModel() {
@@ -43,7 +45,7 @@ public class SimulationViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Simulation";
-    Debug.WriteLine(FileManager.CurrentView);
+    Logger.Debug($"Current view: {FileManager.CurrentView}");
   }
 
   public void RunSimulationButton() {

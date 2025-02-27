@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Views;
 
@@ -12,6 +13,7 @@ using SmartTrainApplication.Views;
 namespace SmartTrainApplication;
 
 public partial class SimulationView : UserControl {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
   public SimulationView() {
     InitializeComponent();
   }
@@ -27,7 +29,7 @@ public partial class SimulationView : UserControl {
         DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
         LayerManager.SwitchRoute();
         viewModel.SetStopsToUI();
-        Debug.WriteLine("Current route " + DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
+        Logger.Debug("Current route " + DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
       }
     }
   }
@@ -39,37 +41,37 @@ public partial class SimulationView : UserControl {
         return;
 
       DataManager.CurrentTrain = comboBox.SelectedIndex;
-      Debug.WriteLine("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
+      Logger.Debug("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
     }
   }
 
   private void ClickStop(object? sender, PointerPressedEventArgs e) {
     var textBlock = sender as TextBlock;
-    Debug.WriteLine("Clicked! " + textBlock.Text.ToString());
+    Logger.Debug("Clicked! " + textBlock.Text.ToString());
   }
 
   private void EnterHoverStop(object? sender, PointerEventArgs e) {
     var textBlock = sender as TextBlock;
     if (DataContext is SimulationViewModel viewModel) viewModel.DrawFocusedStop(textBlock.Name);
-    Debug.WriteLine("Hover over: " + textBlock.Name);
+    Logger.Debug("Hover over: " + textBlock.Name);
   }
 
   private void ExitHoverStop(object? sender, PointerEventArgs e) {
     var textBlock = sender as TextBlock;
     LayerManager.RemoveFocusStop();
-    Debug.WriteLine("Lost focus: " + textBlock.Name);
+    Logger.Debug("Lost focus: " + textBlock.Name);
   }
 
   private void CheckStop(object? sender, RoutedEventArgs e) {
     var checkBox = sender as CheckBox;
-    Debug.WriteLine("Checked! " + checkBox.Name);
+    Logger.Debug("Checked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, true);
   }
 
   private void UncheckStop(object? sender, RoutedEventArgs e) {
     var checkBox = sender as CheckBox;
-    Debug.WriteLine("Unchecked! " + checkBox.Name);
+    Logger.Debug("Unchecked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, false);
   }

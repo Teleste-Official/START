@@ -1,7 +1,6 @@
 #region
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
@@ -14,14 +13,30 @@ public class TrackEditorViewModel : ViewModelBase {
   public string TrackName { get; set; }
   public List<TrainRoute> Routes { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
-  private string CurrentAction { get; set; }
-  public bool AddingNew { get; set; } // This is for switching the combobox on a newly created route
+
+  private string _currentAction;
+
+  public string CurrentAction {
+    get => _currentAction;
+    set {
+      if (_currentAction != value) {
+        _currentAction = value;
+        RaisePropertyChanged(nameof(CurrentAction));
+      }
+    }
+  }
+
+  public bool AddingNew { get; set; }
 
   public TrackEditorViewModel() {
     if (DataManager.TrainRoutes.Count == 0)
       LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+
     Routes = DataManager.TrainRoutes.ToList();
-    TrackName = "Track Name...";
+
+    //TrackName = DataManager.GetCurrentRouteName().Name;
+    //SetValuesToUI();
+    TrackName = "";
     CurrentAction = "None";
     AddingNew = false;
 
@@ -29,7 +44,6 @@ public class TrackEditorViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Route";
-    Debug.WriteLine(FileManager.CurrentView);
   }
 
   public void AddLineButton() {
