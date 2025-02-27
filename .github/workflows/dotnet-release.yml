@@ -43,7 +43,7 @@ jobs:
 
       - name: Build and Publish for Windows Installer
         run: |
-          dotnet publish -c Release -r win-x64 --self-contained true -o ./publish/installer
+          dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -o ./publish/installer
           powershell -Command "Compress-Archive -Path publish/installer/* -DestinationPath 'START_${{ github.ref_name }}_Windows_Installer.zip'"
 
       - name: Build and Publish for Windows Portable
