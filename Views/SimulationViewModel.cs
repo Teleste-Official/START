@@ -1,85 +1,77 @@
-﻿using SmartTrainApplication.Data;
-using SmartTrainApplication.Models;
+﻿#region
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 using static SmartTrainApplication.Views.TrainEditorViewModel;
 
-namespace SmartTrainApplication.Views
-{
-    public class SimulationViewModel : ViewModelBase
-    {
+#endregion
 
-        public List<TrainRoute> Routes { get; set; }
-        public List<ListedTrain> Trains { get; set; }
-        public string Interval { get; set; }
-        public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
-        public List<bool> StopsBooleans { get; set; }
-        public List<RouteCoordinate> Stops { get; set; }
+namespace SmartTrainApplication.Views;
 
-        public SimulationViewModel()
-        {
-            // Get routes
-            if (DataManager.TrainRoutes.Count == 0)
-                LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
-            Routes = DataManager.TrainRoutes.ToList();
+public class SimulationViewModel : ViewModelBase {
+  public List<TrainRoute> Routes { get; set; }
+  public List<ListedTrain> Trains { get; set; }
+  public string Interval { get; set; }
+  public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
+  public List<bool> StopsBooleans { get; set; }
+  public List<RouteCoordinate> Stops { get; set; }
 
-            // Get trains
-            if (DataManager.Trains.Count == 0)
-                DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
+  public SimulationViewModel() {
+    // Get routes
+    if (DataManager.TrainRoutes.Count == 0)
+      LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+    Routes = DataManager.TrainRoutes.ToList();
 
-            if (Icons == null)
-                SetIcons();
+    // Get trains
+    if (DataManager.Trains.Count == 0)
+      DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
 
-            Trains = new List<ListedTrain>();
-            SetTrainsToUI();
+    if (Icons == null)
+      SetIcons();
 
-            Interval = Simulation.intervalTime.ToString();
+    Trains = new List<ListedTrain>();
+    SetTrainsToUI();
 
-            Stops = DataManager.GetStops();
-            StopsDictionary = Stops.ToDictionary(x => x, x => false);
-            StopsBooleans = new List<bool>();
+    Interval = Simulation.intervalTime.ToString();
 
-            // Switch view in file manager
-            FileManager.CurrentView = "Simulation";
-            Debug.WriteLine(FileManager.CurrentView);
-        }
+    Stops = DataManager.GetStops();
+    StopsDictionary = Stops.ToDictionary(x => x, x => false);
+    StopsBooleans = new List<bool>();
 
-        public void RunSimulationButton()
-        {
-            Simulation.intervalTime = (int)float.Parse(Interval);
-            if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any())
-                Simulation.PreprocessRoute(StopsDictionary);
-        }
+    // Switch view in file manager
+    FileManager.CurrentView = "Simulation";
+    Debug.WriteLine(FileManager.CurrentView);
+  }
 
-        public void SetTrainsToUI()
-        {
-            Trains.Clear();
-            foreach (var Train in DataManager.Trains)
-            {
-                Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
-            }
-            Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
-        }
+  public void RunSimulationButton() {
+    Simulation.intervalTime = (int)float.Parse(Interval);
+    if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any())
+      Simulation.PreprocessRoute(StopsDictionary);
+  }
 
-        public void SetStopsToUI()
-        {
-            Stops = DataManager.GetStops();
-            StopsDictionary = Stops.ToDictionary(x => x, x => false);
-            StopsBooleans = new List<bool>();
-            RaisePropertyChanged(nameof(Stops));
-        }
+  public void SetTrainsToUI() {
+    Trains.Clear();
+    foreach (var Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+    Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
+  }
 
-        public void SetBool(string _Id, bool value)
-        {
-            RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
-            StopsDictionary[selectedStop] = value;
-        }
+  public void SetStopsToUI() {
+    Stops = DataManager.GetStops();
+    StopsDictionary = Stops.ToDictionary(x => x, x => false);
+    StopsBooleans = new List<bool>();
+    RaisePropertyChanged(nameof(Stops));
+  }
 
-        public void DrawFocusedStop(string _Id)
-        {
-            RouteCoordinate selectedStop = Stops.First(item => item.Id == _Id);
-            LayerManager.AddFocusStop(selectedStop);
-        }
-    }
+  public void SetBool(string _Id, bool value) {
+    var selectedStop = Stops.First(item => item.Id == _Id);
+    StopsDictionary[selectedStop] = value;
+  }
+
+  public void DrawFocusedStop(string _Id) {
+    var selectedStop = Stops.First(item => item.Id == _Id);
+    LayerManager.AddFocusStop(selectedStop);
+  }
 }

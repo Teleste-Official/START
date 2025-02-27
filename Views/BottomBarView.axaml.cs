@@ -1,13 +1,13 @@
-using Avalonia;
+#region
+
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+
+#endregion
 
 namespace SmartTrainApplication;
 
-public partial class BottomBarView : UserControl
-{
-    public BottomBarView()
-    {
-        InitializeComponent();
-    }
+public partial class BottomBarView : UserControl {
+  public BottomBarView() {
+    InitializeComponent();
+  }
 }

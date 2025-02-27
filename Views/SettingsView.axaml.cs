@@ -1,13 +1,13 @@
-using Avalonia;
+#region
+
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+
+#endregion
 
 namespace SmartTrainApplication;
 
-public partial class SettingsView : UserControl
-{
-    public SettingsView()
-    {
-        InitializeComponent();
-    }
+public partial class SettingsView : UserControl {
+  public SettingsView() {
+    InitializeComponent();
+  }
 }

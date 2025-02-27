@@ -1,3 +1,5 @@
+#region
+
 using System.Linq;
 using Mapsui;
 using Mapsui.Extensions;
@@ -8,49 +10,48 @@ using Mapsui.Projections;
 using Mapsui.UI;
 using SmartTrainApplication.Data;
 
+#endregion
+
 namespace SmartTrainApplication.Views;
 
-public partial class MapViewControl
-{
-    /// <summary>
-    /// Creates a new map, applies the map projection and starting coordinates, and initializes the edit mode 
-    /// </summary>
-    /// <param name="mapControl">(IMapControl) Mapsui map control</param>
-    /// <param name="editMode">(EditMode) The edit mode</param>
-    /// <returns>(EditManager) Mapsui edit manager</returns>
-    public static EditManager InitEditMode(IMapControl mapControl, EditMode editMode)
-    {
-        // Get the settings
-        FileManager.LoadSettings();
+public partial class MapViewControl {
+  /// <summary>
+  /// Creates a new map, applies the map projection and starting coordinates, and initializes the edit mode 
+  /// </summary>
+  /// <param name="mapControl">(IMapControl) Mapsui map control</param>
+  /// <param name="editMode">(EditMode) The edit mode</param>
+  /// <returns>(EditManager) Mapsui edit manager</returns>
+  public static EditManager InitEditMode(IMapControl mapControl, EditMode editMode) {
+    // Get the settings
+    FileManager.LoadSettings();
 
-        var map = CreateMap();
+    var map = CreateMap();
 
-        var editManager = new EditManager
-        {
-            Layer = (WritableLayer)map.Layers.First(l => l.Name == "EditLayer")
-        };
-        var targetLayer = (WritableLayer)map.Layers.First(l => l.Name == "Layer 3");
+    var editManager = new EditManager {
+      Layer = (WritableLayer)map.Layers.First(l => l.Name == "EditLayer")
+    };
+    var targetLayer = (WritableLayer)map.Layers.First(l => l.Name == "Layer 3");
 
-        // Load the polygon layer on startup so you can start modifying right away
-        editManager.Layer.AddRange(targetLayer.GetFeatures().Copy());
-        targetLayer.Clear();
+    // Load the polygon layer on startup so you can start modifying right away
+    editManager.Layer.AddRange(targetLayer.GetFeatures().Copy());
+    targetLayer.Clear();
 
-        editManager.EditMode = editMode;
+    editManager.EditMode = editMode;
 
-        var editManipulation = new EditManipulation();
+    var editManipulation = new EditManipulation();
 
-        map.CRS = "EPSG:3857";
-        var centerOfTampere =
-            new MPoint(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
+    map.CRS = "EPSG:3857";
+    var centerOfTampere =
+      new MPoint(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
 
-        // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
-        var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();
-        // Set the center of the viewport to the coordinate. The UI will refresh automatically
-        // Additionally you might want to set the resolution, this could depend on your specific purpose
-        map.Home = n => n.CenterOnAndZoomTo(sphericalMercatorCoordinate, n.Resolutions[14]);
+    // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
+    var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();
+    // Set the center of the viewport to the coordinate. The UI will refresh automatically
+    // Additionally you might want to set the resolution, this could depend on your specific purpose
+    map.Home = n => n.CenterOnAndZoomTo(sphericalMercatorCoordinate, n.Resolutions[14]);
 
-        map.Widgets.Add(new EditingWidget(mapControl, editManager, editManipulation));
-        mapControl.Map = map;
-        return editManager;
-    }
+    map.Widgets.Add(new EditingWidget(mapControl, editManager, editManipulation));
+    mapControl.Map = map;
+    return editManager;
+  }
 }

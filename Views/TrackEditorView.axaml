@@ -4,107 +4,109 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="260" d:DesignHeight="450"
              x:Class="SmartTrainApplication.TrackEditorView"
-						 xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
-						 x:DataType="local:TrackEditorViewModel">
+             xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
+             x:DataType="local:TrackEditorViewModel">
 
   <UserControl.Styles>
-		<Style Selector="Button">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0 4"/>
-			<Setter Property="Background" Value="#0F6CBD"/>
-			<Setter Property="Foreground" Value="#FFFFFF"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-		</Style>
+    <Style Selector="Button">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0 4" />
+      <Setter Property="Background" Value="#0F6CBD" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+    </Style>
 
-		<Style Selector="ComboBox">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="SelectedIndex" Value="0"/>
-			<Setter Property="MaxDropDownHeight" Value="200"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0 5 0 5"/>
-		</Style>
-		<Style Selector="TextBox">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0 4"/>
-		</Style>
-	</UserControl.Styles>
+    <Style Selector="ComboBox">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="SelectedIndex" Value="0" />
+      <Setter Property="MaxDropDownHeight" Value="200" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0 5 0 5" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0 4" />
+    </Style>
+  </UserControl.Styles>
 
   <ScrollViewer DockPanel.Dock="Left"
                 AllowAutoHide="False"
                 Width="270">
-		<Border DockPanel.Dock="Left"
-			Width="250"
-			Background="#D9FCFCFC"
-			BorderBrush="#11000000"
-			BorderThickness="1"
-			BoxShadow="0 8 16 0 #22000000"
-			Margin="0,0,10,0"
-			Padding="4,0">
+    <Border DockPanel.Dock="Left"
+            Width="250"
+            Background="#D9FCFCFC"
+            BorderBrush="#11000000"
+            BorderThickness="1"
+            BoxShadow="0 8 16 0 #22000000"
+            Margin="0,0,10,0"
+            Padding="4,0">
 
 
-			<DockPanel LastChildFill="False">
+      <DockPanel LastChildFill="False">
 
-				<ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}" SelectionChanged="TrackComboBox_SelectionChanged">
-					<ComboBox.ItemTemplate>
-						<DataTemplate>
-							<Panel>
-								<Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png"/>
-								<TextBlock Margin="40 10 0 5" Text="{Binding Name}"></TextBlock>
-							</Panel>
-						</DataTemplate>
-					</ComboBox.ItemTemplate>
-				</ComboBox>
+        <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
+                  SelectionChanged="TrackComboBox_SelectionChanged">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <Panel>
+                <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png" />
+                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
+              </Panel>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
 
-				<TextBox Watermark="Track Name..." Text="{Binding TrackName}"/>
+        <TextBox Watermark="Track Name..." Text="{Binding TrackName}" />
 
-				<Button Command="{Binding AddLineButton}">
-					Add Line
-				</Button>
-				<Button Command="{Binding AddTunnelButton}">
-					Add Tunnel
-				</Button>
-				<Button Command="{Binding AddStopButton}">
-					Add Stop
-				</Button>
-				<!--<Button>
+        <Button Command="{Binding AddLineButton}">
+          Add Line
+        </Button>
+        <Button Command="{Binding AddTunnelButton}">
+          Add Tunnel
+        </Button>
+        <Button Command="{Binding AddStopButton}">
+          Add Stop
+        </Button>
+        <!--<Button>
 					Add Other Zone
 				</Button>-->
-				<Button Command="{Binding ModifyButton}">
-					Edit Track
-				</Button>
+        <Button Command="{Binding ModifyButton}">
+          Edit Track
+        </Button>
 
-				<Button Command="{Binding ConfirmButton}">
-					Confirm
-				</Button>
-				<Button Command="{Binding CancelButton}">
-					Cancel
-				</Button>
+        <Button Command="{Binding ConfirmButton}">
+          Confirm
+        </Button>
+        <Button Command="{Binding CancelButton}">
+          Cancel
+        </Button>
 
-				<TextBlock Margin="0 10 0 5">Stops:</TextBlock>
+        <TextBlock Margin="0 10 0 5">Stops:</TextBlock>
 
-				<Panel VerticalAlignment="Top" Margin="0 30 0 5">
-					<ScrollViewer>
-						<ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<StackPanel Orientation="Vertical" Width="240"/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Grid RowDefinitions="*,*" ColumnDefinitions="0,*">
-										<TextBox Width="150" Grid.Row="0" Grid.Column="1" GotFocus="StopGotFocus" LostFocus="StopLostFocus" Name="{Binding Id}" Text="{Binding StopName}"></TextBox>
-									</Grid>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</ScrollViewer>
-				</Panel>
+        <Panel VerticalAlignment="Top" Margin="0 30 0 5">
+          <ScrollViewer>
+            <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Vertical" Width="240" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid RowDefinitions="*,*" ColumnDefinitions="0,*">
+                    <TextBox Width="150" Grid.Row="0" Grid.Column="1" GotFocus="StopGotFocus" LostFocus="StopLostFocus"
+                             Name="{Binding Id}" Text="{Binding StopName}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Panel>
 
-			</DockPanel>
-      
-	</Border>
- </ScrollViewer>
+      </DockPanel>
+
+    </Border>
+  </ScrollViewer>
 </UserControl>

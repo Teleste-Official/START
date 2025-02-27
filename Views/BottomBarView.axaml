@@ -3,44 +3,44 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
-             x:Class="SmartTrainApplication.BottomBarView"             
-						 xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
-						 x:DataType="local:BottomBarViewModel">
+             x:Class="SmartTrainApplication.BottomBarView"
+             xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
+             x:DataType="local:BottomBarViewModel">
 
-    <UserControl.Styles>
-        <Style Selector="Button">
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Width" Value="100"/>
-            <Style Selector="^.primary">
-                <Setter Property="Background" Value="#0F6CBD"/>
-                <Setter Property="Foreground" Value="#FFFFFF"/>
-            </Style>
-        </Style>
-        <Style Selector="TextBlock">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="DockPanel.Dock" Value="Left"/>
-        </Style>
-    </UserControl.Styles>
+  <UserControl.Styles>
+    <Style Selector="Button">
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="4,0" />
+      <Setter Property="Width" Value="100" />
+      <Style Selector="^.primary">
+        <Setter Property="Background" Value="#0F6CBD" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+      </Style>
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="FontSize" Value="20" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="4,0" />
+      <Setter Property="DockPanel.Dock" Value="Left" />
+    </Style>
+  </UserControl.Styles>
 
-    <Border Height="50"
-            Background="#D9FCFCFC"
-            BorderBrush="#11000000"
-            BorderThickness="1"
-            Margin="1"
-            Padding="0,4">
+  <Border Height="50"
+          Background="#D9FCFCFC"
+          BorderBrush="#11000000"
+          BorderThickness="1"
+          Margin="1"
+          Padding="0,4">
 
-        <DockPanel LastChildFill="False">
-            <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Import</Button>-->
-            <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Export</Button>-->
-            <!-- <Button DockPanel.Dock="Right" Foreground="Black"  >Cancel</Button>-->
-            <Button DockPanel.Dock="Right" Classes="primary" Command="{Binding SaveAsButton}" >Export</Button>
-            <Button DockPanel.Dock="Right" Classes="primary" Command="{Binding SaveButton}" >Save all</Button>
-            <TextBlock DockPanel.Dock="Right" Foreground="Black">Confirm current changes</TextBlock>
-        </DockPanel>
-    </Border>
+    <DockPanel LastChildFill="False">
+      <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Import</Button>-->
+      <!-- <Button DockPanel.Dock="Left" Foreground="Black"  >Export</Button>-->
+      <!-- <Button DockPanel.Dock="Right" Foreground="Black"  >Cancel</Button>-->
+      <Button DockPanel.Dock="Right" Classes="primary" Command="{Binding SaveAsButton}">Export</Button>
+      <Button DockPanel.Dock="Right" Classes="primary" Command="{Binding SaveButton}">Save all</Button>
+      <TextBlock DockPanel.Dock="Right" Foreground="Black">Confirm current changes</TextBlock>
+    </DockPanel>
+  </Border>
 </UserControl>

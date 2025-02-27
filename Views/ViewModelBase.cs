@@ -1,14 +1,15 @@
-﻿namespace SmartTrainApplication.Views;
+﻿#region
 
 using System.ComponentModel;
 
+#endregion
 
-public class ViewModelBase : INotifyPropertyChanged
-{
-    public event PropertyChangedEventHandler? PropertyChanged;
+namespace SmartTrainApplication.Views;
 
-    protected virtual void RaisePropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+public class ViewModelBase : INotifyPropertyChanged {
+  public event PropertyChangedEventHandler? PropertyChanged;
+
+  protected virtual void RaisePropertyChanged(string propertyName) {
+    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+  }
 }

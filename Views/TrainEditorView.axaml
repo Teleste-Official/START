@@ -7,61 +7,62 @@
              xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
              x:DataType="local:TrainEditorViewModel">
 
-	<UserControl.Styles>
-		<Style Selector="Button">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="Margin" Value="0,4"/>
-			<Setter Property="Background" Value="#0F6CBD"/>
-			<Setter Property="Foreground" Value="#FFFFFF"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-		</Style>
-		<Style Selector="ComboBox">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="SelectedIndex" Value="0"/>
-			<Setter Property="MaxDropDownHeight" Value="200"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,4"/>
-		</Style>
-		<Style Selector="NumericUpDown">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,0,0,4"/>
-			<Setter Property="Minimum" Value="0"/>
-		</Style>
-		<Style Selector="TextBox">
-			<Setter Property="HorizontalAlignment" Value="Stretch"/>
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0,4"/>
-		</Style>
-		<Style Selector="TextBlock">
-			<Setter Property="DockPanel.Dock" Value="Top"/>
-			<Setter Property="Margin" Value="0"/>
-		</Style>
-	</UserControl.Styles>
+  <UserControl.Styles>
+    <Style Selector="Button">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,4" />
+      <Setter Property="Background" Value="#0F6CBD" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="SelectedIndex" Value="0" />
+      <Setter Property="MaxDropDownHeight" Value="200" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0,4" />
+    </Style>
+    <Style Selector="NumericUpDown">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+      <Setter Property="Minimum" Value="0" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0,4" />
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="DockPanel.Dock" Value="Top" />
+      <Setter Property="Margin" Value="0" />
+    </Style>
+  </UserControl.Styles>
 
   <ScrollViewer DockPanel.Dock="Left"
                 AllowAutoHide="False"
                 Width="270">
     <Border DockPanel.Dock="Left"
-			Width="250"
-			Background="#D9FCFCFC"
-			BorderBrush="#11000000"
-			BorderThickness="1"
-			BoxShadow="0 8 16 0 #22000000"
-			Margin="0,0,10,0"
-			Padding="4,0">
+            Width="250"
+            Background="#D9FCFCFC"
+            BorderBrush="#11000000"
+            BorderThickness="1"
+            BoxShadow="0 8 16 0 #22000000"
+            Margin="0,0,10,0"
+            Padding="4,0">
 
       <DockPanel LastChildFill="False">
 
         <TextBlock Margin="5 5 0 5">Select train:</TextBlock>
 
-        <ComboBox x:Name="TrainComboBox" ItemsSource="{Binding Trains}" SelectionChanged="TrainComboBox_SelectionChanged">
+        <ComboBox x:Name="TrainComboBox" ItemsSource="{Binding Trains}"
+                  SelectionChanged="TrainComboBox_SelectionChanged">
           <ComboBox.ItemTemplate>
             <DataTemplate>
               <Panel>
-                <Image Margin="5 0 175 0" Height="25" Width="25" Source="{Binding Image}"/>
-                <TextBlock Margin="40 10 0 5" Text="{Binding Name}"/>
+                <Image Margin="5 0 175 0" Height="25" Width="25" Source="{Binding Image}" />
+                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
               </Panel>
             </DataTemplate>
           </ComboBox.ItemTemplate>
@@ -70,14 +71,14 @@
         <TextBlock Margin="5 10 0 5">Name:</TextBlock>
         <TextBox Watermark="Train Name..."
                  Text="{Binding Title}"
-                 Margin="0 0 0 0"/>
+                 Margin="0 0 0 0" />
 
         <TextBlock Margin="0 15 0 5">Description:</TextBlock>
         <TextBox Height="80"
                  Text="{Binding Description}"
                  AcceptsReturn="True"
                  Watermark="Train description..."
-                 TextWrapping="Wrap"/>
+                 TextWrapping="Wrap" />
 
         <!--<TextBlock Margin="5 10 0 5">Odometer:</TextBlock>-->
         <!--<NumericUpDown Watermark="Odometer..."/>-->
@@ -85,32 +86,32 @@
         <TextBlock Margin="5 10 0 5">Maximum speed:</TextBlock>
         <NumericUpDown Value="{Binding Speed}"
                        Minimum="0"
-               Maximum="220"
-                 Increment="5"
-                       Watermark="Speed..."/>
+                       Maximum="220"
+                       Increment="5"
+                       Watermark="Speed..." />
 
         <TextBlock Margin="5 10 0 5">Acceleration:</TextBlock>
         <NumericUpDown Value="{Binding Acceleration}"
                        Minimum="0"
-                 Maximum="3"
-                 Increment="0.1"
-                       Watermark="Acceleration..."/>
+                       Maximum="3"
+                       Increment="0.1"
+                       Watermark="Acceleration..." />
 
         <TextBlock Margin="5 10 0 5">Icon:</TextBlock>
         <ComboBox Width="100" SelectedIndex="{Binding IconIndex}">
           <ComboBoxItem>
             <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train2.png"/>
+              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train2.png" />
             </Panel>
           </ComboBoxItem>
           <ComboBoxItem>
             <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train1.png"/>
+              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train1.png" />
             </Panel>
           </ComboBoxItem>
           <ComboBoxItem>
             <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_tram.png"/>
+              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_tram.png" />
             </Panel>
           </ComboBoxItem>
         </ComboBox>
@@ -121,12 +122,12 @@
           Update current
         </Button>
         <Button Command="{Binding SaveTrainButton}"
-          Height="30"
-          Margin="5 10 5 0">
+                Height="30"
+                Margin="5 10 5 0">
           Create new
         </Button>
 
       </DockPanel>
     </Border>
-  </ScrollViewer> 
+  </ScrollViewer>
 </UserControl>
