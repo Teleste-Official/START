@@ -207,7 +207,7 @@ internal class FileManager {
     for (var i = 0; i < Files.Count; i++) {
       var ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(Files[i], Json_options);
       ImportedTrainRoute.FilePath = Paths[i];
-      ImportedTrainRoute.Id = DataManager.CreateID();
+      ImportedTrainRoute.Id = DataManager.CreateId();
       DataManager.TrainRoutes.Add(ImportedTrainRoute);
       ImportedTrainRoutes.Add(ImportedTrainRoute);
     }
@@ -297,7 +297,7 @@ internal class FileManager {
             if (FileAsString.Contains("MaxSpeed")) {
               var LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
               LoadedTrain.FilePath = file;
-              LoadedTrain.Id = DataManager.CreateID();
+              LoadedTrain.Id = DataManager.CreateId();
               Trains.Add(LoadedTrain);
             }
           }

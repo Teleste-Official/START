@@ -37,7 +37,7 @@ public class SimulationViewModel : ViewModelBase {
     Trains = new List<ListedTrain>();
     SetTrainsToUI();
 
-    Interval = Simulation.intervalTime.ToString();
+    Interval = Simulation.IntervalTime.ToString();
 
     Stops = DataManager.GetStops();
     StopsDictionary = Stops.ToDictionary(x => x, x => false);
@@ -49,7 +49,7 @@ public class SimulationViewModel : ViewModelBase {
   }
 
   public void RunSimulationButton() {
-    Simulation.intervalTime = (int)float.Parse(Interval);
+    Simulation.IntervalTime = (int)float.Parse(Interval);
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any())
       Simulation.PreprocessRoute(StopsDictionary);
   }

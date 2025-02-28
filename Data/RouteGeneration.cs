@@ -25,9 +25,9 @@ internal class RouteGeneration {
     List<MPoint> points = new List<MPoint>();
 
     foreach (var coord in route.Coords) {
-      var X = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var Y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var point = SphericalMercator.ToLonLat(new MPoint(X, Y));
+      var x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      var y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      var point = SphericalMercator.ToLonLat(new MPoint(x, y));
       points.Add(point);
     }
 

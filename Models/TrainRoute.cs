@@ -31,7 +31,7 @@ public class TrainRoute {
     Coords = coords;
     
     if (ID == "")
-      Id = DataManager.CreateID();
+      Id = DataManager.CreateId();
     else
       Id = ID;
 

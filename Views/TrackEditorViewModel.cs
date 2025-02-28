@@ -154,8 +154,8 @@ public class TrackEditorViewModel : ViewModelBase {
     RaisePropertyChanged(nameof(Stops));
   }
 
-  public void DrawFocusedStop(string _Id) {
-    var selectedStop = Stops.First(item => item.Id == _Id);
+  public void DrawFocusedStop(string id) {
+    var selectedStop = Stops.First(item => item.Id == id);
     LayerManager.AddFocusStop(selectedStop);
   }
   

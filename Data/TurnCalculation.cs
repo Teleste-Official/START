@@ -34,14 +34,14 @@ public class TurnCalculation {
     var point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
 
     // Calculate vectors v1 and v2
-    var v1x = point2Longitude - point1Longitude;
-    var v1y = point2Latitude - point1Latitude;
+    var v1X = point2Longitude - point1Longitude;
+    var v1Y = point2Latitude - point1Latitude;
 
-    var v2x = point3Longitude - point2Longitude;
-    var v2y = point3Latitude - point2Latitude;
+    var v2X = point3Longitude - point2Longitude;
+    var v2Y = point3Latitude - point2Latitude;
 
     // Calculate the cross product of v1 and v2
-    var crossProduct = v1x * v2y - v2x * v1y;
+    var crossProduct = v1X * v2Y - v2X * v1Y;
 
     // Determine direction based on the cross product
     if (crossProduct > 100000)

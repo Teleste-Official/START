@@ -46,7 +46,7 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
 
       _prevCoords = (Simulation.LatestSimulation.TickData[TickPointIndex].longitudeDD,
         Simulation.LatestSimulation.TickData[TickPointIndex].latitudeDD);
-      TickPointIndex = TickPointIndex + (int)Simulation.intervalTime;
+      TickPointIndex = TickPointIndex + (int)Simulation.IntervalTime;
 
       OnDataChanged();
     }
