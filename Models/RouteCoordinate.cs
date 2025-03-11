@@ -21,6 +21,8 @@ public class RouteCoordinate {
   public string Latitude { get; set; }
 
   public string Type { get; set; } // Ie. "NORMAL", "STOP" etc. -Metso
+  
+  //[JsonIgnore] public Geometry Geometry { get; set; }
 
   // Possible Types:
   // "NORMAL" - Normal route point on the surface
@@ -34,9 +36,9 @@ public class RouteCoordinate {
   public RouteCoordinate() {
   }
 
-  public RouteCoordinate(string X, string Y) {
-    Longitude = X;
-    Latitude = Y;
+  public RouteCoordinate(string x, string y) {
+    Longitude = x;
+    Latitude = y;
     Type = "NORMAL";
     StopName = "";
   }
@@ -44,16 +46,48 @@ public class RouteCoordinate {
   /// <summary>
   ///   Changes the Type of the RouteCoordinate object to a given Type
   /// </summary>
-  /// <param name="Type">(string) Type to set</param>
-  public void SetType(string Type) {
-    this.Type = Type;
+  /// <param name="newType">(string) Type to set</param>
+  public void SetType(string newType) {
+    Type = newType;
   }
 
-  public void SetName(string Name) {
-    StopName = Name;
+  public void SetName(string newName) {
+    StopName = newName;
   }
+
+  public string GetCoordinateString() {
+    return $"POINT ({Longitude} {Latitude})";
+  }
+  
 
   public override string ToString() {
     return $"Id: {Id}, Longitude: {Longitude}, Latitude: {Latitude}, Type: {Type}, StopName: {StopName}";
+  }
+
+  public override bool Equals(object obj) {
+    if (ReferenceEquals(this, obj)) {
+      return true;
+    }
+    if (obj is null || GetType() != obj.GetType()) {
+      return false;
+    }
+
+    RouteCoordinate other = (RouteCoordinate)obj;
+    return string.Equals(Longitude, other.Longitude) &&
+           string.Equals(Latitude, other.Latitude) &&
+           string.Equals(Type, other.Type) &&
+           string.Equals(StopName, other.StopName);
+  }
+
+  public static bool operator ==(RouteCoordinate left, RouteCoordinate right) {
+    if (ReferenceEquals(left, null)) {
+      return ReferenceEquals(right, null);
+    }
+      
+    return left.Equals(right);
+  }
+
+  public static bool operator !=(RouteCoordinate left, RouteCoordinate right) {
+    return !(left == right);
   }
 }

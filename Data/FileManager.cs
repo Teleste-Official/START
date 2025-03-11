@@ -158,78 +158,56 @@ internal class FileManager {
   /// </summary>
   /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
   /// <returns>Returns available routes a list of strings</returns>
-  public static List<string> StartupFolderImport(List<string> SavedPaths) {
-    List<string> Files = new List<string>();
-    var Paths = new List<string>();
-    var routesAsStrings = new List<string>();
+    public static List<TrainRoute> ReadRoutesFromFolder(List<string> savedPaths) {
+    List<string> files = new List<string>();
+    var paths = new List<string>();
 
     //Create default folder if it doesn't exist
     try {
       if (!Directory.Exists(DefaultRouteFolderPath)) Directory.CreateDirectory(DefaultRouteFolderPath);
-    }
-    catch (Exception Ex) {
-      Logger.Debug(Ex.Message);
+    } catch (Exception ex) {
+      Logger.Debug(ex.Message);
     }
 
 
     try {
-      foreach (var Path in SavedPaths) {
-        Logger.Debug(Path);
-        if (Directory.Exists(Path)) {
-          var FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
+      foreach (var path in savedPaths) {
+        Logger.Debug(path);
+        if (Directory.Exists(path)) {
+          var filesInFolder = Directory.EnumerateFiles(path, "*.json");
 
-          foreach (var file in FilesInFolder) {
-            var FileAsString = "";
+          foreach (var file in filesInFolder) {
+            var fileAsString = "";
             using (var sr = File.OpenText(file)) {
-              string S;
-              while ((S = sr.ReadLine()) != null) FileAsString += S;
+              string s;
+              while ((s = sr.ReadLine()) != null) fileAsString += s;
             }
 
-            if (FileAsString.Contains("Coords")) {
-              Files.Add(FileAsString);
-              Paths.Add(file);
+            if (fileAsString.Contains("Coords")) {
+              files.Add(fileAsString);
+              paths.Add(file);
             }
           }
         }
-        else {
-          //Do nothing, because folder doesn't exist
-        }
       }
-    }
-    catch (Exception Ex) {
-      Logger.Debug(Ex.Message);
-    }
-
-
-    // Deserialise the JSON strings into objects and add to list
-    var Json_options = new JsonSerializerOptions { IncludeFields = true };
-    var ImportedTrainRoutes = new List<TrainRoute>();
-    for (var i = 0; i < Files.Count; i++) {
-      var ImportedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(Files[i], Json_options);
-      ImportedTrainRoute.FilePath = Paths[i];
-      ImportedTrainRoute.Id = DataManager.CreateId();
-      DataManager.TrainRoutes.Add(ImportedTrainRoute);
-      ImportedTrainRoutes.Add(ImportedTrainRoute);
+    } catch (Exception ex) {
+      Logger.Debug(ex.Message);
     }
 
-    // Set the first imported train route as the currently selected one
-    if (ImportedTrainRoutes.Any()) DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = ImportedTrainRoutes[0];
 
-    // Turn the coordinates back to geometry strings
-
-    var GeometryString = "LINESTRING (";
-    foreach (var route in ImportedTrainRoutes) {
-      foreach (var coord in route.Coords) GeometryString += coord.Longitude + " " + coord.Latitude + ",";
-      GeometryString = GeometryString.Remove(GeometryString.Length - 1) + ")";
-      routesAsStrings.Add(GeometryString);
+    // Deserialize the JSON strings into objects and add to list
+    var jsonOptions = new JsonSerializerOptions { IncludeFields = true };
+    
+    var trainRoutes = new List<TrainRoute>();
+    for (var i = 0; i < files.Count; i++) {
+      var importedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(files[i], jsonOptions);
+      importedTrainRoute.FilePath = paths[i];
+      importedTrainRoute.Id = DataManager.CreateId();
+      trainRoutes.Add(importedTrainRoute);
     }
 
-    //Update lists
-    ImportedRoutesAsStrings = routesAsStrings;
-    DataManager.TrainRoutes = ImportedTrainRoutes;
-
-    return routesAsStrings;
-  }
+    return trainRoutes;
+    }
 
   /// <summary>
   /// Changes currently active train route

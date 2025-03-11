@@ -45,51 +45,73 @@
 
 
       <StackPanel Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <!-- New horizontal container for button and ComboBox -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="5">
+          <!-- Small square Add Line button -->
+          <Button Command="{Binding AddLineButton}"
+                  IsVisible="{Binding AddLineButtonEnabled}"
+                  Width="35" Height="35"
+                  Content="+"
+                  FontSize="18"
+                  FontWeight="500"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
+    
+          <!-- ComboBox for Routes -->
+          <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
+                    SelectionChanged="TrackComboBox_SelectionChanged"
+                    IsVisible="{Binding RouteComboBoxEnabled}"
+                    Width="180">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <Image Height="25" Width="25" Source="/Assets/start_ui_icon_route.png" />
+                  <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+  
+        <!-- TextBox below the horizontal container -->
+        <TextBox Margin="0,10,0,5"
+                 Watermark="Track Name..." 
+                 Text="{Binding TrackName}"
+                 IsVisible="{Binding TrackNameFieldEnabled}" />
 
-
-        <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
-                  SelectionChanged="TrackComboBox_SelectionChanged">
-          <ComboBox.ItemTemplate>
-            <DataTemplate>
-              <Panel>
-                <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png" />
-                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
-              </Panel>
-            </DataTemplate>
-          </ComboBox.ItemTemplate>
-        </ComboBox>
-
-        <TextBox Watermark="Track Name..." Text="{Binding TrackName}" />
-
-        <Button Command="{Binding AddLineButton}">
-          Add Line
+        <Button Command="{Binding ModifyButton}"
+                IsVisible="{Binding ModifyTrackButtonEnabled}">
+          Modify Track
         </Button>
-        <Button Command="{Binding AddTunnelButton}">
+        <Button Command="{Binding AddTunnelButton}"
+                IsVisible="{Binding AddTunnelButtonEnabled}">
           Add Tunnel
         </Button>
-        <Button Command="{Binding AddStopButton}">
+        <Button Command="{Binding AddStopButton}"
+                IsVisible="{Binding AddStopButtonEnabled}">
           Add Stop
         </Button>
-        <!--<Button>
-					Add Other Zone
-				</Button>-->
-        <Button Command="{Binding ModifyButton}">
-          Edit Track
-        </Button>
-
-        <Button Command="{Binding ConfirmButton}">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5" >
+          
+          <Button Command="{Binding ConfirmButton}"
+                  Width="107">
           Confirm
-        </Button>
-        <Button Command="{Binding CancelButton}">
+          </Button>
+        
+          <Button Command="{Binding CancelButton}"
+                  Width="107">
           Cancel
-        </Button>
+          </Button>
+        </StackPanel>
 
         <TextBlock>Action: </TextBlock>
         <TextBlock FontWeight="Bold" FontSize="20" Text="{Binding CurrentAction}" />
 
-        <TextBlock Margin="0 10 0 0">Stops:</TextBlock>
+        <TextBlock Margin="0 10 0 0"
+                   IsVisible="{Binding StopListEnabled}">Stops:</TextBlock>
 
-        <Panel VerticalAlignment="Top" Margin="0 0 0 5">
+        <Panel VerticalAlignment="Top" Margin="0 0 0 5"
+               IsVisible="{Binding StopListEnabled}">
           <ScrollViewer>
             <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
               <ItemsControl.ItemsPanel>

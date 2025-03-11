@@ -14,18 +14,29 @@ namespace SmartTrainApplication;
 
 public partial class TrackEditorView : UserControl {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+  
+  private static bool _firstSelectionChange = true;
 
   public TrackEditorView() {
+    _firstSelectionChange = true;
     InitializeComponent();
-    RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
+    //RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
   }
 
   public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+    // Could be better I know
+    if (_firstSelectionChange) {
+      RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
+      _firstSelectionChange = false;
+      return;  
+    }
+    
     // Handle the selection changed event here
     if (sender is ComboBox comboBox && comboBox.SelectedItem != null) {
+      Logger.Debug($"Selected Track: {((TrainRoute)comboBox.SelectedItem).Name}");
       if (DataManager.TrainRoutes.Count == 0)
         return;
-
+        
       if (DataContext is TrackEditorViewModel viewModel) {
         // If we are adding a new line, switch the combobox to it
         if (viewModel.AddingNew) comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
@@ -37,6 +48,7 @@ public partial class TrackEditorView : UserControl {
         LayerManager.SwitchRoute();
         viewModel.SetStopsToUI();
       }
+      RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
     }
   }
 

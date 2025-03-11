@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using SmartTrainApplication.Data;
 
@@ -53,4 +54,88 @@ public class TrainRoute {
     }
     return stopsCoordinates;
   }
+
+  public string GetGeometry() {
+    var coordStrings = Coords.Select(coord => $"{coord.Longitude} {coord.Latitude}");
+    string geometryString = "LINESTRING (" + string.Join(", ", coordStrings) + ")";
+    return geometryString;
+  }
+
+  public override string ToString() {
+    var sb = new System.Text.StringBuilder();
+    sb.AppendLine("{");
+    sb.AppendLine($"  \"Id\": \"{Id}\",");
+    sb.AppendLine($"  \"FilePath\": \"{FilePath}\",");
+    sb.AppendLine($"  \"Edited\": {Edited.ToString().ToLower()},");
+    sb.AppendLine($"  \"Name\": \"{Name}\",");
+    sb.AppendLine($"  \"Specifier\": \"{Specifier}\",");
+    sb.AppendLine("  \"Coords\": [");
+
+    for (int i = 0; i < Coords.Count; i++) {
+      RouteCoordinate coord = Coords[i];
+      sb.Append("    { ");
+      sb.Append($"\"Latitude\": {coord.Latitude}, \"Longitude\": {coord.Longitude}, \"Type\": \"{coord.Type}\", \"StopName\": \"{coord.StopName}\" ");
+      sb.Append("}");
+      if (i < Coords.Count - 1)
+        sb.AppendLine(",");
+      else
+        sb.AppendLine();
+    }
+
+    sb.AppendLine("  ]");
+    sb.Append("}");
+    return sb.ToString();
+  }
+  
+  public override bool Equals(object obj) {
+    if (ReferenceEquals(this, obj)) {
+      return true;
+    }
+    if (obj is null || GetType() != obj.GetType()) {
+      return false;
+    }
+
+    TrainRoute other = (TrainRoute)obj;
+        
+    // Compare Name first.
+    if (!string.Equals(Name, other.Name)) {
+      return false;
+    }
+
+    // Both Coords null or both non-null with same count.
+    if (Coords == null && other.Coords == null) {
+      return true;
+    }
+    if (Coords == null || other.Coords == null || Coords.Count != other.Coords.Count) {
+      return false;
+    }
+
+    // Compare each coordinate in sequence (assuming RouteCoordinate.Equals is overridden)
+    return Coords.SequenceEqual(other.Coords);
+  }
+
+  public override int GetHashCode() {
+    unchecked { // Overflow is fine
+      int hash = 17;
+      hash = hash * 23 + (Name != null ? Name.GetHashCode() : 0);
+      if (Coords != null) {
+        foreach (var coord in Coords) {
+          hash = hash * 23 + (coord != null ? coord.GetHashCode() : 0);
+        }
+      }
+      return hash;
+    }
+  }
+
+  public static bool operator ==(TrainRoute left, TrainRoute right) {
+    if (ReferenceEquals(left, null)) {
+      return ReferenceEquals(right, null);
+    }
+    return left.Equals(right);
+  }
+
+  public static bool operator !=(TrainRoute left, TrainRoute right) {
+    return !(left == right);
+  }
+  
 }

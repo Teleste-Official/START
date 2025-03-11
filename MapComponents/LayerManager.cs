@@ -11,6 +11,7 @@ using Mapsui.Layers.AnimatedLayers;
 using Mapsui.Nts;
 using Mapsui.Nts.Editing;
 using Mapsui.Styles;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NLog;
 using SmartTrainApplication.Data;
@@ -46,6 +47,7 @@ internal class LayerManager {
   /// </summary>
   public static void ClearFeatures() {
     if (_targetLayer != null && MapViewControl._tempFeatures != null) {
+      Logger.Debug("Clearing features...");
       _targetLayer.Clear();
       _targetLayer.AddRange(MapViewControl._tempFeatures.Copy());
       MapViewControl._mapControl?.RefreshGraphics();
@@ -83,25 +85,17 @@ internal class LayerManager {
   }
 
   /// <summary>
-  ///   Exports the Route as a JSON using <c>FileManager.Export()</c>
-  /// </summary>
-  /// <param name="_editManager">(EditManager) Edit manager</param>
-  /// <param name="topLevel">(TopLevel) Top level</param>
-  [Obsolete]
-  public static void ExportNewRoute(TopLevel topLevel, string Name = "", string Id = "") {
-    FileManager.ExportRoute(topLevel);
-  }
-
-  /// <summary>
   ///   Adds new Routes from imports to an import layer and redraws the map
   /// </summary>
   /// <param name="SavedPaths">Saved Paths</param>
   public static void ImportNewRoute(List<string> SavedPaths) {
-    var importedRoutes = FileManager.StartupFolderImport(SavedPaths); // After this, DataManager.trainroutes contains latest routes as actual objects.
+    //var importedRoutes = FileManager.StartupFolderImport(SavedPaths); // After this, DataManager.trainroutes contains latest routes as actual objects.
+    List<TrainRoute> trainRoutes = FileManager.ReadRoutesFromFolder(SavedPaths);
+    DataManager.TrainRoutes = trainRoutes;
+    
     try {
-      var geometryData = importedRoutes[0];
-
-      var importLayer = CreateImportLayer();
+      //string geometryData = trainRoutes[0].GetGeometry();
+      
       List<string> tunnelStrings = DataManager.GetTunnelStrings();
       List<string> stopsStrings = DataManager.GetStopStrings();
 
@@ -120,7 +114,10 @@ internal class LayerManager {
       }
       */
       
-      TurnImportToFeature(geometryData, importLayer);
+      var importLayer = CreateImportLayer();
+      SetTrainRouteToImportLayer(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], importLayer);
+      //TurnImportToFeature(geometryData, importLayer);
+      
       RedrawTunnelsToMap(tunnelStrings);
       
       
@@ -135,11 +132,11 @@ internal class LayerManager {
     }
   }
 
-  public static void ChangeCurrentRoute(int RouteIndex) {
-    var geometryData = FileManager.ChangeCurrentRoute(RouteIndex);
+  public static void ChangeCurrentRoute(int routeIndex) {
+    string geometryData = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetGeometry();//FileManager.ChangeCurrentRoute(RouteIndex);
 
-    var importLayer = CreateImportLayer();
-    var tunnelStrings = DataManager.GetTunnelStrings();
+    WritableLayer importLayer = CreateImportLayer();
+    List<string> tunnelStrings = DataManager.GetTunnelStrings();
     //List<string> stopsStrings = DataManager.GetStopStrings();
 
     TurnImportToFeature(geometryData, importLayer);
@@ -153,18 +150,18 @@ internal class LayerManager {
   /// </summary>
   public static void ConfirmNewRoute(string name = "Route", string id = "", string filePath = "") {
     Logger.Debug($"ConfirmNewRoute() name={name}, id={id}, filePath={filePath}");
-    var routeString = GetRouteAsString();
+    string routeString = GetRouteAsString();
 
     if (routeString == "")
       return;
 
-    var newRoute = DataManager.CreateNewRoute(routeString, name, id, filePath);
+    TrainRoute newRoute = DataManager.CreateNewRoute(routeString, name, id, filePath);
     DataManager.AddToRoutes(newRoute);
 
-    var importLayer = CreateImportLayer();
+    WritableLayer importLayer = CreateImportLayer();
     TurnImportToFeature(routeString, importLayer);
 
-    var tunnelStrings = DataManager.GetTunnelStrings();
+    List<string> tunnelStrings = DataManager.GetTunnelStrings();
     RedrawTunnelsToMap(tunnelStrings);
 
     //List<string> stopStrings = DataManager.GetStopStrings();
@@ -283,14 +280,122 @@ internal class LayerManager {
   /// <summary>
   ///   Applies the edits to the TrainRoute and clears the edit layer
   /// </summary>
-  public static void ApplyEditing(string Name = "Route", string ID = "", string FilePath = "") {
-    Logger.Debug($"ApplyEditing() name={Name}, ID={ID}");
-    ConfirmNewRoute(Name, ID, FilePath);
+  public static void AddNewTrack(string name = "Route", string id = "", string filePath = "") {
+    Logger.Debug($"AddNewTrack() name={name}, id={id}");
+    ConfirmNewRoute(name, id, filePath);
 
     MapViewControl._editManager.Layer.Clear();
     MapViewControl._editManager.EditMode = EditMode.None;
     MapViewControl._mapControl?.RefreshGraphics();
   }
+  
+  public static void ApplyEditing(string name, string id, string filePath) {
+    string editLayerRouteString = GetEditLayerRouteAsString();
+    
+    if (editLayerRouteString == "") {
+      Logger.Debug("EditLayerRouteString() is empty, returning");
+      return;
+    }
+
+    
+    
+    TrainRoute editLayerTrainRoute = GetEditLayerTrainRoute(); // This contains old data.
+    TrainRoute currentTrainRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+
+    List<RouteCoordinate> newCoords = DataManager.ParseGeometryString(editLayerRouteString);
+    
+    // TODO use or remove
+    bool rename = name != string.Empty && DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name != name;
+    bool edited = editLayerRouteString != editLayerTrainRoute.GetGeometry();
+    
+    Logger.Debug($"\nEdit: {editLayerTrainRoute.Coords[1].Latitude} {editLayerTrainRoute.Coords[1].Longitude}" +
+                 $"\nCurr: {currentTrainRoute.Coords[1].Latitude} {currentTrainRoute.Coords[1].Longitude}" +
+                 $"\nEquals:{editLayerTrainRoute==currentTrainRoute}" +
+                 $"\nEdited: {edited}" +
+                 $"\nNumber of coords: {editLayerTrainRoute.Coords.Count} -> {currentTrainRoute.Coords.Count}");
+
+    TrainRoute editedRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+    
+    if (rename) {
+      editedRoute.Name = name;
+    }
+    
+    
+    
+    editedRoute.Coords = newCoords; // TODO figure out how to include stop information here
+    
+    WritableLayer stopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
+    List<string> stopsPoints = new List<string>();
+
+    IEnumerable<IFeature> features = stopsLayer?.GetFeatures().Copy();
+    foreach (var feature in features) {
+      GeometryFeature testFeature = feature as GeometryFeature;
+      string point = testFeature.Geometry.ToString();
+      stopsPoints.Add(point);
+      Logger.Debug($"J: {testFeature["StopName"]}");
+    }
+    
+    DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = editedRoute;
+    
+    var importLayer = CreateImportLayer();
+    SetTrainRouteToImportLayer(editedRoute, importLayer);
+    
+    var stopsStrings = DataManager.AddStops(stopsPoints);
+    //var newRoute = DataManager.CreateNewRoute(editLayerRouteString, name, id, filePath);
+    //DataManager.AddToRoutes(newRoute);
+    //TurnImportToFeature(editLayerRouteString, importLayer);
+    //SetTrainRouteToImportLayer(newRoute, importLayer);
+    var tunnelStrings = DataManager.GetTunnelStrings();
+    RedrawTunnelsToMap(tunnelStrings);
+    //List<string> stopStrings = DataManager.GetStopStrings();
+    //RedrawStopsToMap(stopStrings);
+    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
+    //ConfirmNewRoute2(name, id, filePath);
+    MapViewControl._editManager.Layer.Clear();
+    MapViewControl._editManager.EditMode = EditMode.None;
+    MapViewControl._mapControl?.RefreshGraphics();
+  }
+  
+  private static List<RouteCoordinate> getEditLayerRouteCoordinates() {
+    List<RouteCoordinate> routeCoordinates = new List<RouteCoordinate>();
+    
+    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
+    if (!selectedFeatures.Any()) return routeCoordinates;
+    
+    foreach (IFeature selectedFeature in selectedFeatures) {
+      GeometryFeature? testFeature = selectedFeature as GeometryFeature;
+
+    }
+
+
+    return routeCoordinates;
+  }
+  
+  private static TrainRoute GetEditLayerTrainRoute() {
+    TrainRoute trainRouteDataFromFeature = null;
+    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
+    if (selectedFeatures.Any()) {
+      foreach (IFeature selectedFeature in selectedFeatures) {
+        trainRouteDataFromFeature = selectedFeature["Route"] as TrainRoute;
+      }
+    }
+
+    return trainRouteDataFromFeature;
+  }
+  
+  private static string GetEditLayerRouteAsString() {
+    string routeString = "";
+    
+    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
+    if (selectedFeatures.Any())
+      foreach (IFeature selectedFeature in selectedFeatures) {
+        GeometryFeature? testFeature = selectedFeature as GeometryFeature;
+        TrainRoute route = (TrainRoute)testFeature["Route"];
+        routeString = testFeature.Geometry.ToString();
+      }
+    return routeString;
+  }
+
 
   /// <summary>
   ///   Makes a new GeometryFeature from the given GeometryData and adds it to the given importLayer
@@ -298,9 +403,18 @@ internal class LayerManager {
   /// <param name="GeometryData">(string) Imported GeometryData</param>
   /// <param name="importLayer">(WritableLayer) The importLayer on which to add the import</param>
   public static void TurnImportToFeature(string GeometryData, WritableLayer importLayer) {
-    var lineString = new WKTReader().Read(GeometryData);
+    Geometry? lineString = new WKTReader().Read(GeometryData);
     IFeature feature = new GeometryFeature { Geometry = lineString };
     // TODO ? feature["RouteName"] = "ASDF";
+    feature["Route"] = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+    importLayer.Add(feature);
+  }
+
+  private static void SetTrainRouteToImportLayer(TrainRoute trainRoute, WritableLayer importLayer) {
+    // TODO could be straight up geometry
+    Geometry? lineString = new WKTReader().Read(trainRoute.GetGeometry());
+    IFeature feature = new GeometryFeature { Geometry = lineString };
+    feature["Route"] = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
     importLayer.Add(feature);
   }
 
@@ -452,10 +566,7 @@ internal class LayerManager {
   /// </summary>
   public static void AddFocusStop(RouteCoordinate focusedStop) {
     var focusedStopsLayer = CreateFocusStopsLayer();
-
-    var focusStopString = "POINT (" + focusedStop.Longitude + " " + focusedStop.Latitude + ")";
-
-    var pointString = new WKTReader().Read(focusStopString);
+    var pointString = new WKTReader().Read(focusedStop.GetCoordinateString());
     IFeature feature = new GeometryFeature { Geometry = pointString };
     focusedStopsLayer.Add(feature);
 
@@ -474,8 +585,8 @@ internal class LayerManager {
 
   public static void SwitchRoute() {
     ClearAllLayers();
-    var geometryString = DataManager.GetCurrentLinestring();
-    var importLayer = CreateImportLayer();
+    string geometryString = DataManager.GetCurrentLinestring();
+    WritableLayer importLayer = CreateImportLayer();
     TurnImportToFeature(geometryString, importLayer);
 
     var tunnelStrings = DataManager.GetTunnelStrings();
@@ -510,15 +621,12 @@ internal class LayerManager {
     
     if (coords.Count <= 0) return;
     foreach (RouteCoordinate stopCoordinate in coords) {
-      var pointString = new WKTReader().Read(getCoordinateString(stopCoordinate));
+      Geometry? pointString = new WKTReader().Read(stopCoordinate.GetCoordinateString());
       IFeature feature = new GeometryFeature { Geometry = pointString };
       feature["StopName"] = stopCoordinate.StopName;
+      //Logger.Debug($"Setting name to {stopCoordinate.StopName}");
       stopsLayer.Add(feature);
     }
 
-  }
-
-  private static string getCoordinateString(RouteCoordinate coord) {
-    return "POINT (" + coord.Longitude + " " + coord.Latitude + ")";
   }
 }

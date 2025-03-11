@@ -1,16 +1,22 @@
 ﻿#region
 
+using NLog;
 using SmartTrainApplication.Data;
+using SmartTrainApplication.Models;
 
 #endregion
 
 namespace SmartTrainApplication.Views;
 
 public class BottomBarViewModel : ViewModelBase {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
   public BottomBarViewModel() {
   }
 
   public void SaveButton() {
+    Logger.Debug("SaveButton pressed");
+    // TODO maybe change this to save in every case, "Edited" seems reduntant
+    
     for (var i = 0; i < DataManager.TrainRoutes.Count; i++)
       if (DataManager.TrainRoutes[i].Edited) {
         FileManager.SaveSpecific(DataManager.TrainRoutes[i]);

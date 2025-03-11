@@ -37,11 +37,13 @@ internal class DataManager {
   public static TrainRoute CreateNewRoute(string geometryString, string name = "Route", string id = "",
     string filePath = "") {
     Logger.Debug($"CreateNewRoute() name={name} id={id}");
-    var geometry = ParseGeometryString(geometryString);
-    var newTrainRoute = new TrainRoute(name, geometry, id, filePath);
+    List<RouteCoordinate> geometry = ParseGeometryString(geometryString);
+    TrainRoute newTrainRoute = new TrainRoute(name, geometry, id, filePath);
 
     return newTrainRoute;
   }
+  
+  //public static TrainRoute CreateTrainRouteFromGeometryString()
 
   /// <summary>
   ///   Adds the given TrainRoute to the list of TrainRoutes
@@ -69,10 +71,10 @@ internal class DataManager {
       CurrentTrainRoute = TrainRoutes.Count - 1;
     }
     else {
-      foreach (var t in oldRoute.Coords)
+      foreach (RouteCoordinate t in oldRoute.Coords)
         if (t.Type == "STOP" || t.Type == "TUNNEL_STOP" ||
             t.Type == "TUNNEL_ENTRANCE_STOP")
-          for (var j = 0; j < TrainRoutes[CurrentTrainRoute].Coords.Count; j++)
+          for (int j = 0; j < TrainRoutes[CurrentTrainRoute].Coords.Count; j++)
             if (TrainRoutes[CurrentTrainRoute].Coords[j].Latitude == t.Latitude &&
                 TrainRoutes[CurrentTrainRoute].Coords[j].Longitude == t.Longitude) {
               TrainRoutes[CurrentTrainRoute].Coords.RemoveAt(j);
@@ -94,16 +96,16 @@ internal class DataManager {
   /// </summary>
   /// <param name="geometryString">(String) TrainRoute's GeometryString to be parsed </param>
   /// <returns>(List of RoudeCoordinate(string X, string Y)) TrainRoute's coordinates</returns>
-  private static List<RouteCoordinate> ParseGeometryString(string geometryString) {
+  public static List<RouteCoordinate> ParseGeometryString(string geometryString) {
     // Parse the line string into individual values
-    var parsedGeometry = geometryString.Split("(");
-    var geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
+    string[] parsedGeometry = geometryString.Split("(");
+    string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
     string[] individualCoords = geometry.Split(",");
 
     // Create a list of coordinate values from the parsed string
     List<RouteCoordinate> coordinates = new List<RouteCoordinate>();
     for (var i = 0; i < individualCoords.Length; i++) {
-      var xy = individualCoords[i].Split(" ");
+      string[] xy = individualCoords[i].Split(" ");
       if (i == 0)
         coordinates.Add(new RouteCoordinate(xy[0], xy[1]));
       else
@@ -311,22 +313,22 @@ internal class DataManager {
   public static List<string> AddStops(List<string> stopsPoints) {
     
     //TODO check if previous stop names are not handled correctly here!!!
-    var stopStrings = new List<string>();
+    List<string> stopStrings = new List<string>();
     if (TrainRoutes[CurrentTrainRoute] == null) return stopStrings;
 
-    foreach (var pointString in stopsPoints) {
+    foreach (string pointString in stopsPoints) {
       // Parse the line string into individual values
-      var parsedGeometry = pointString.Split("(");
-      var geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
-      var xy = geometry.Split(" ");
-      var routePoint = new RoutePoint(xy[0], xy[1]);
+      string[] parsedGeometry = pointString.Split("(");
+      string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
+      string[] xy = geometry.Split(" ");
+      RoutePoint routePoint = new RoutePoint(xy[0], xy[1]);
 
       double closestDiff = 1000000;
-      var pointStatusToBeChanged = -1;
+      int pointStatusToBeChanged = -1;
       //var diffPoints = new List<double>();
 
-      for (var i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++) {
-        var diff = CalculateDistance(
+      for (int i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++) {
+        double diff = CalculateDistance(
           new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude,
             TrainRoutes[CurrentTrainRoute].Coords[i].Latitude), routePoint);
         //diffPoints.Add(diff);
