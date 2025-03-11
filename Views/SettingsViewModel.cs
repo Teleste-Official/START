@@ -46,8 +46,8 @@ internal class SettingsViewModel : ViewModelBase {
 
   public void SaveButton() {
     // TODO: Check that values are in correct format -Metso
-    var x = Convert.ToDouble(Longitude);
-    var y = Convert.ToDouble(Latitude);
+    double x = Convert.ToDouble(Longitude);
+    double y = Convert.ToDouble(Latitude);
 
     SettingsManager.CurrentSettings.Longitude = x;
     SettingsManager.CurrentSettings.Latitude = y;
@@ -62,7 +62,7 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public async void AddRouteButton() {
-    var NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddRouteDirectory(Path.GetFullPath(NewPath));
       SetDirectoriesToUI();
@@ -70,7 +70,7 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public async void AddTrainButton() {
-    var NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddTrainDirectory(Path.GetFullPath(NewPath));
       SetDirectoriesToUI();
@@ -80,8 +80,8 @@ internal class SettingsViewModel : ViewModelBase {
   private void SetDirectoriesToUI() {
     RouteDirectories = "";
     TrainDirectories = "";
-    foreach (var dir in SettingsManager.CurrentSettings.RouteDirectories) RouteDirectories += dir + "\n";
-    foreach (var dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectories += dir + "\n";
+    foreach (string? dir in SettingsManager.CurrentSettings.RouteDirectories) RouteDirectories += dir + "\n";
+    foreach (string? dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectories += dir + "\n";
     RaisePropertyChanged(nameof(RouteDirectories));
     RaisePropertyChanged(nameof(TrainDirectories));
   }

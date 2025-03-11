@@ -56,7 +56,7 @@ public class SimulationViewModel : ViewModelBase {
 
   public void SetTrainsToUI() {
     Trains.Clear();
-    foreach (var Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+    foreach (Train? Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
     Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
   }
 
@@ -68,12 +68,12 @@ public class SimulationViewModel : ViewModelBase {
   }
 
   public void SetBool(string _Id, bool value) {
-    var selectedStop = Stops.First(item => item.Id == _Id);
+    RouteCoordinate? selectedStop = Stops.First(item => item.Id == _Id);
     StopsDictionary[selectedStop] = value;
   }
 
   public void DrawFocusedStop(string _Id) {
-    var selectedStop = Stops.First(item => item.Id == _Id);
+    RouteCoordinate? selectedStop = Stops.First(item => item.Id == _Id);
     LayerManager.AddFocusStop(selectedStop);
   }
 }

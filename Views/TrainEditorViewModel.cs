@@ -56,7 +56,7 @@ public class TrainEditorViewModel : ViewModelBase {
     if (!DataManager.Trains.Any())
       return;
     if (Title == null || Description == null || Speed == null || Acceleration == null) return;
-    var newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex,
+    Train? newTrain = new(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex,
       DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
     DataManager.UpdateTrain(newTrain);
     Trains[DataManager.Trains.FindIndex(a => a.Id.Contains(DataManager.Trains[DataManager.CurrentTrain].Id))].Name =
@@ -68,7 +68,7 @@ public class TrainEditorViewModel : ViewModelBase {
   public void SaveTrainButton() {
     if (Title == null || Description == null || Speed == null || Acceleration == null) return;
 
-    var newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
+    Train? newTrain = new(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
 
     DataManager.Trains.Add(newTrain);
     newTrain.Edited = true;
@@ -116,7 +116,7 @@ public class TrainEditorViewModel : ViewModelBase {
 
   public void SetTrainsToUI() {
     Trains.Clear();
-    foreach (var Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+    foreach (Train? Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
     Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
   }
 

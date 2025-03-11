@@ -15,15 +15,15 @@ internal class SettingsManager {
   /// Generate new default settings -file and set it as the current one.
   /// </summary>
   public static void GenerateNewSettings() {
-    List<string> newRouteDirectories = new List<string>() {
+    List<string> newRouteDirectories = new() {
       Path.Combine(Directory.GetCurrentDirectory(), "Routes")
     };
-    List<string> newTrainDirectories = new List<string>() {
+    List<string> newTrainDirectories = new() {
       Path.Combine(Directory.GetCurrentDirectory(), "Trains")
     };
 
     // Default coordinates point to Tampere
-    var settings = new Settings(23.76227433384882, 61.49741016814548, newRouteDirectories, newTrainDirectories);
+    Settings? settings = new(23.76227433384882, 61.49741016814548, newRouteDirectories, newTrainDirectories);
 
     // Save the settings
     FileManager.SaveSettings(settings);

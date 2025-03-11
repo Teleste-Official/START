@@ -1,6 +1,7 @@
 #region
 
 using Mapsui;
+using Mapsui.Layers;
 using Mapsui.Nts.Editing;
 using Mapsui.Nts.Layers;
 using Mapsui.Tiling;
@@ -34,7 +35,7 @@ public partial class MapViewControl {
     map.Layers.Add(CreatePointLayer());
     map.Layers.Add(CreateLineLayer());
     map.Layers.Add(CreatePolygonLayer());
-    var editLayer = CreateEditLayer();
+    WritableLayer? editLayer = CreateEditLayer();
     map.Layers.Add(editLayer);
     map.Layers.Add(new VertexOnlyLayer(editLayer) { Name = "VertexLayer" });
     return map;

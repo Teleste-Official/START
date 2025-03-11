@@ -21,7 +21,7 @@ public partial class MapViewControl : UserControl {
 
   public MapViewControl() {
     InitializeComponent();
-    var mapControl = new MapControl();
+    MapControl? mapControl = new();
     mapControl.Map?.Layers.Add(OpenStreetMap.CreateTileLayer());
     Setup(mapControl);
     Content = _mapControl;

@@ -46,31 +46,31 @@ public partial class SimulationView : UserControl {
   }
 
   private void ClickStop(object? sender, PointerPressedEventArgs e) {
-    var textBlock = sender as TextBlock;
+    TextBlock? textBlock = sender as TextBlock;
     Logger.Debug("Clicked! " + textBlock.Text.ToString());
   }
 
   private void EnterHoverStop(object? sender, PointerEventArgs e) {
-    var textBlock = sender as TextBlock;
+    TextBlock? textBlock = sender as TextBlock;
     if (DataContext is SimulationViewModel viewModel) viewModel.DrawFocusedStop(textBlock.Name);
     Logger.Debug("Hover over: " + textBlock.Name);
   }
 
   private void ExitHoverStop(object? sender, PointerEventArgs e) {
-    var textBlock = sender as TextBlock;
+    TextBlock? textBlock = sender as TextBlock;
     LayerManager.RemoveFocusStop();
     Logger.Debug("Lost focus: " + textBlock.Name);
   }
 
   private void CheckStop(object? sender, RoutedEventArgs e) {
-    var checkBox = sender as CheckBox;
+    CheckBox? checkBox = sender as CheckBox;
     Logger.Debug("Checked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, true);
   }
 
   private void UncheckStop(object? sender, RoutedEventArgs e) {
-    var checkBox = sender as CheckBox;
+    CheckBox? checkBox = sender as CheckBox;
     Logger.Debug("Unchecked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, false);

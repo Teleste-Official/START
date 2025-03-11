@@ -7,6 +7,7 @@ using System.Globalization;
 using Mapsui;
 using Mapsui.Projections;
 using NLog;
+using SmartTrainApplication.Models;
 
 #endregion
 
@@ -21,13 +22,13 @@ internal class RouteGeneration {
   /// Used in initial testing to calculate route's length, now implemented in <c>Simulation.RunSimulation()</c>. 
   /// </summary>
   public static void GenerateRoute() {
-    var route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-    List<MPoint> points = new List<MPoint>();
+    TrainRoute? route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+    List<MPoint> points = new();
 
-    foreach (var coord in route.Coords) {
-      var x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var point = SphericalMercator.ToLonLat(new MPoint(x, y));
+    foreach (RouteCoordinate? coord in route.Coords) {
+      double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      MPoint? point = SphericalMercator.ToLonLat(new MPoint(x, y));
       points.Add(point);
     }
 
@@ -50,9 +51,9 @@ internal class RouteGeneration {
   /// <returns>(double) Route's length in meters</returns>
   public static double CalculateRouteLength(List<MPoint> points) {
     double length = 0;
-    for (var i = 0; i < points.Count - 1; i++) {
-      var currentPoint = points[i];
-      var nextPoint = points[i + 1];
+    for (int i = 0; i < points.Count - 1; i++) {
+      MPoint? currentPoint = points[i];
+      MPoint? nextPoint = points[i + 1];
 
       length += CalculatePointDistance(currentPoint.X, nextPoint.X, currentPoint.Y, nextPoint.Y);
 
@@ -90,19 +91,19 @@ internal class RouteGeneration {
     const double R = 6371;
 
     // φ is latitude, Δ is longitude, converted to radians
-    var φ1 = ConvertToRadians(lat1);
-    var φ2 = ConvertToRadians(lat2);
-    var Δφ = ConvertToRadians(lat2 - lat1);
-    var Δλ = ConvertToRadians(lon2 - lon1);
+    double φ1 = ConvertToRadians(lat1);
+    double φ2 = ConvertToRadians(lat2);
+    double Δφ = ConvertToRadians(lat2 - lat1);
+    double Δλ = ConvertToRadians(lon2 - lon1);
 
     //Haversine formula
-    var a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
-            Math.Cos(φ1) * Math.Cos(φ2) *
-            Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
-    var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    double a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
+               Math.Cos(φ1) * Math.Cos(φ2) *
+               Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
+    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
     // d is the distance in kilometers
-    var d = R * c;
+    double d = R * c;
     return d * 1000;
   }
 
@@ -134,8 +135,8 @@ internal class RouteGeneration {
   /// <returns>(double, double) Train's new coordinates in degrees</returns>
   public static (double, double) CalculateNewTrainPoint(double currentX, double currentY, double nextX, double nextY,
     double trainMovement, double pointDistance) {
-    var newX = currentX + trainMovement / pointDistance * (nextX - currentX);
-    var newY = currentY + trainMovement / pointDistance * (nextY - currentY);
+    double newX = currentX + trainMovement / pointDistance * (nextX - currentX);
+    double newY = currentY + trainMovement / pointDistance * (nextY - currentY);
 
     return (newX, newY);
   }
@@ -170,7 +171,7 @@ internal class RouteGeneration {
   /// <param name="deceleration">(float) Train's deceleration (negative value) in m/s^2</param>
   /// <returns>(double) The needed slowing distance in meters</returns>
   public static double CalculateStoppingDistance(float currentSpeedKmh, float targetSpeedKmh, float deceleration) {
-    var stoppingTime = (targetSpeedKmh / 3.6f - currentSpeedKmh / 3.6f) / deceleration;
+    float stoppingTime = (targetSpeedKmh / 3.6f - currentSpeedKmh / 3.6f) / deceleration;
 
     return CalculateTrainMovement(currentSpeedKmh, stoppingTime, deceleration);
   }

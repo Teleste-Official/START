@@ -14,7 +14,8 @@ public partial class MapViewControl {
   /// </summary>
   /// <returns>(WritableLayer) The import layer</returns>
   public static WritableLayer CreateImportLayer() {
-    var importLayer = new WritableLayer {
+    WritableLayer importLayer = new()
+    {
       Name = "Import",
       Style = CreateImportStyle()
     };
@@ -153,7 +154,8 @@ public partial class MapViewControl {
   /// </summary>
   /// <returns>(IStyle) Mapsui vector style</returns>
   private static IStyle CreateEditLayerBasicStyle() {
-    var editStyle = new VectorStyle {
+    VectorStyle editStyle = new()
+    {
       Fill = new Brush(EditModeColor),
       Line = new Pen(EditModeColor, 4),
       Outline = new Pen(EditModeColor, 3)
@@ -201,7 +203,8 @@ public partial class MapViewControl {
   /// </summary>
   /// <returns>(WritableLayer) The line layer</returns>
   private static WritableLayer CreateLineLayer() {
-    var lineLayer = new WritableLayer {
+    WritableLayer lineLayer = new()
+    {
       Name = "Layer 2",
       Style = CreateLineStyle()
     };
@@ -214,7 +217,8 @@ public partial class MapViewControl {
   /// </summary>
   /// <returns>(WritableLayer) The polygon layer</returns>
   private static WritableLayer CreatePolygonLayer() {
-    var polygonLayer = new WritableLayer {
+    WritableLayer polygonLayer = new()
+    {
       Name = "Layer 3",
       Style = CreatePolygonStyle()
     };

@@ -283,7 +283,7 @@ public class TrackEditorViewModel : ViewModelBase {
   }
 
   public void DrawFocusedStop(string id) {
-    var selectedStop = Stops.First(item => item.Id == id);
+    RouteCoordinate selectedStop = Stops.First(item => item.Id == id);
     LayerManager.AddFocusStop(selectedStop);
   }
   

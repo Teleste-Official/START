@@ -38,7 +38,7 @@ internal class DataManager {
     string filePath = "") {
     Logger.Debug($"CreateNewRoute() name={name} id={id}");
     List<RouteCoordinate> geometry = ParseGeometryString(geometryString);
-    TrainRoute newTrainRoute = new TrainRoute(name, geometry, id, filePath);
+    TrainRoute newTrainRoute = new(name, geometry, id, filePath);
 
     return newTrainRoute;
   }
@@ -55,7 +55,7 @@ internal class DataManager {
     Logger.Debug($"AddToRoutes() name={newRoute.Name} id={newRoute.Id}");
     TrainRoute? oldRoute = null;
 
-    for (var i = 0; i < TrainRoutes.Count; i++)
+    for (int i = 0; i < TrainRoutes.Count; i++)
       if (TrainRoutes[i].Id == newRoute.Id) {
         Logger.Debug($"Updating route name={newRoute.Name} id={newRoute.Id}");
         oldRoute = TrainRoutes[i];
@@ -83,7 +83,7 @@ internal class DataManager {
             }
     }
 
-    var tunnelPoints = GetTunnelPoints();
+    List<string> tunnelPoints = GetTunnelPoints();
     //List<string> stopPoints = GetStopStrings();
     //LayerManager.RedrawStopsToMap(stopPoints);
     LayerManager.RedrawTunnelsToMap(tunnelPoints);
@@ -103,8 +103,8 @@ internal class DataManager {
     string[] individualCoords = geometry.Split(",");
 
     // Create a list of coordinate values from the parsed string
-    List<RouteCoordinate> coordinates = new List<RouteCoordinate>();
-    for (var i = 0; i < individualCoords.Length; i++) {
+    List<RouteCoordinate> coordinates = new();
+    for (int i = 0; i < individualCoords.Length; i++) {
       string[] xy = individualCoords[i].Split(" ");
       if (i == 0)
         coordinates.Add(new RouteCoordinate(xy[0], xy[1]));
@@ -121,22 +121,22 @@ internal class DataManager {
   /// <param name="tunnelPoints">(List of string) Points that contain Tunnels</param>
   /// <returns>(List of string) List of TunnelPoints with added tunnel data types</returns>
   public static List<string> AddTunnels(List<string> tunnelPoints) {
-    var tunnelStrings = new List<string>();
+    List<string> tunnelStrings = new();
     if (TrainRoutes[CurrentTrainRoute] == null) return tunnelStrings;
 
-    foreach (var pointString in tunnelPoints) {
+    foreach (string pointString in tunnelPoints) {
       // Parse the line string into individual values
-      var parsedGeometry = pointString.Split("(");
-      var geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
-      var xy = geometry.Split(" ");
-      var routePoint = new RoutePoint(xy[0], xy[1]);
+      string[] parsedGeometry = pointString.Split("(");
+      string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
+      string[] xy = geometry.Split(" ");
+      RoutePoint routePoint = new(xy[0], xy[1]);
 
       double closestDiff = 1000000;
-      var pointStatusToBeChanged = -1;
+      int pointStatusToBeChanged = -1;
       //var diffPoints = new List<double>();
 
-      for (var i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++) {
-        var diff = CalculateDistance(
+      for (int i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++) {
+        double diff = CalculateDistance(
           new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude,
             TrainRoutes[CurrentTrainRoute].Coords[i].Latitude), routePoint);
         //diffPoints.Add(diff);
@@ -171,9 +171,9 @@ internal class DataManager {
   /// </summary>
   /// <returns>(List of string) List of Tunnel Entrance Points gotten from CurrentTrainRoute.Coords</returns>
   private static List<string> GetTunnelPoints() {
-    var points = new List<string>();
+    List<string> points = new();
 
-    foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
+    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords)
       if (coord.Type == "TUNNEL_ENTRANCE")
         points.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
 
@@ -185,9 +185,9 @@ internal class DataManager {
   /// </summary>
   /// <returns>string "LINESTRING (...."</returns>
   public static string GetCurrentLinestring() {
-    var geometryString = "LINESTRING (";
+    string geometryString = "LINESTRING (";
 
-    foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
+    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords)
       geometryString += coord.Longitude + " " + coord.Latitude + ",";
     geometryString = geometryString.Remove(geometryString.Length - 1) + ")";
 
@@ -199,11 +199,11 @@ internal class DataManager {
   /// </summary>
   /// <returns>(List of string) List of tunnelStrings (points that contain tunnels) gotten from CurrentTrainRoute.Coords</returns>
   public static List<string> GetTunnelStrings() {
-    var tunnelStrings = new List<string>();
+    List<string> tunnelStrings = new();
 
-    var entranceCount = 0;
-    var geometryString = "LINESTRING (";
-    foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords) {
+    int entranceCount = 0;
+    string geometryString = "LINESTRING (";
+    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords) {
       if (coord.Type == "TUNNEL" || coord.Type == "TUNNEL_ENTRANCE" || coord.Type == "TUNNEL_STOP" ||
           coord.Type == "TUNNEL_ENTRANCE_STOP")
         geometryString += coord.Longitude + " " + coord.Latitude + ",";
@@ -229,9 +229,9 @@ internal class DataManager {
   /// </summary>
   /// <returns>(List of string) List of stopStrings (points that contain stops) gotten from CurrenTrainRoute.Coords</returns>
   public static List<string> GetStopStrings() {
-    var stopStrings = new List<string>();
+    List<string> stopStrings = new();
 
-    foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords)
+    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords)
       if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP")
         stopStrings.Add("POINT (" + coord.Longitude + " " + coord.Latitude + ")");
 
@@ -239,12 +239,12 @@ internal class DataManager {
   }
 
   public static List<RouteCoordinate> GetStops() {
-    var stopsCount = 1;
-    var stops = new List<RouteCoordinate>();
+    int stopsCount = 1;
+    List<RouteCoordinate> stops = new();
     
     if (!TrainRoutes.Any()) return stops;
 
-    foreach (var coord in TrainRoutes[CurrentTrainRoute].Coords) {
+    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords) {
       if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP") {
         if (coord.Id == null) {
           coord.Id = CreateId();
@@ -264,7 +264,7 @@ internal class DataManager {
   }
 
   public static void SetStopsNames(List<RouteCoordinate> stops) {
-    foreach (var stop in stops)
+    foreach (RouteCoordinate stop in stops)
       TrainRoutes[CurrentTrainRoute].Coords.First(item => item.Id == stop.Id).StopName = stop.StopName;
   }
 
@@ -277,10 +277,10 @@ internal class DataManager {
   /// <param name="point2">(RoutePoint) RoutePoint to which to calculate the distance</param>
   /// <returns>(double) Distance between the 2 given RoutePoints</returns>
   public static double CalculateDistance(RoutePoint point1, RoutePoint point2) {
-    var deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
-                 double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-    var deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
-                 double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+    double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
+                    double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+    double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
+                    double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
 
     return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
   }
@@ -289,8 +289,8 @@ internal class DataManager {
   ///   Updates the data types of points in-between Tunnel Entrances to Tunnels in CurrentTrainRoute.Coords
   /// </summary>
   private static void FixTunnelTypes() {
-    var tunnelEntrance = false;
-    foreach (var coords in TrainRoutes[CurrentTrainRoute].Coords)
+    bool tunnelEntrance = false;
+    foreach (RouteCoordinate coords in TrainRoutes[CurrentTrainRoute].Coords)
       if (coords.Type == "TUNNEL_ENTRANCE" || coords.Type == "TUNNEL_ENTRANCE_STOP") {
         if (!tunnelEntrance)
           tunnelEntrance = true;
@@ -313,7 +313,7 @@ internal class DataManager {
   public static List<string> AddStops(List<string> stopsPoints) {
     
     //TODO check if previous stop names are not handled correctly here!!!
-    List<string> stopStrings = new List<string>();
+    List<string> stopStrings = new();
     if (TrainRoutes[CurrentTrainRoute] == null) return stopStrings;
 
     foreach (string pointString in stopsPoints) {
@@ -321,7 +321,7 @@ internal class DataManager {
       string[] parsedGeometry = pointString.Split("(");
       string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
       string[] xy = geometry.Split(" ");
-      RoutePoint routePoint = new RoutePoint(xy[0], xy[1]);
+      RoutePoint routePoint = new(xy[0], xy[1]);
 
       double closestDiff = 1000000;
       int pointStatusToBeChanged = -1;
@@ -366,12 +366,12 @@ internal class DataManager {
   /// </summary>
   /// <returns>string "xxxx-xxxx-xxxx-xxxx"</returns>
   public static string CreateId() {
-    var newId = RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
-                RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
-                RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
-                RandomNumberGenerator.GetInt32(1000, 9999).ToString();
+    string newId = RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
+                   RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
+                   RandomNumberGenerator.GetInt32(1000, 9999).ToString() + "-" +
+                   RandomNumberGenerator.GetInt32(1000, 9999).ToString();
     if (_allIdentities.Count != 0)
-      foreach (var existingId in _allIdentities)
+      foreach (string existingId in _allIdentities)
         if (existingId.Contains(newId))
           newId = CreateId();
 
@@ -386,7 +386,7 @@ internal class DataManager {
   /// <param name="specifier">Route/Train/Simulation</param>
   /// <returns>String, for example "C:/Start/Routes/export1234.json"</returns>
   public static string CreateFilePath(string id, string specifier) {
-    var newPath = "";
+    string newPath = "";
     if (specifier == "Route") {
       // Generate the file path and name the file export with last 4 digits of the id for unique name.
       newPath = Path.Combine(FileManager.DefaultRouteFolderPath, specifier + id[..4] + ".json");
@@ -400,7 +400,7 @@ internal class DataManager {
     }
 
     if (specifier == "Simulation") {
-      var currentTime = DateTime.Now;
+      DateTime currentTime = DateTime.Now;
       newPath = Path.Combine(FileManager.DefaultSimulationsFolderPath,
         currentTime.ToString("ddMMyyyy_HHmmss") + ".json");
       Logger.Debug("created path: " + newPath);
@@ -413,7 +413,7 @@ internal class DataManager {
   ///   Updates the trains values from the UI
   /// </summary>
   public static void UpdateTrain(Train newTrain) {
-    foreach (var oldTrain in Trains)
+    foreach (Train oldTrain in Trains)
       if (oldTrain.Id == newTrain.Id)
         oldTrain.SetValues(newTrain);
   }

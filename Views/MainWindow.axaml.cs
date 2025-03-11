@@ -12,7 +12,7 @@ public partial class MainWindow : Window {
   public MainWindow() {
     InitializeComponent();
     DataContext = new MainWindowViewModel();
-    var topLevel = GetTopLevel(this);
+    TopLevel? topLevel = GetTopLevel(this);
     TopLevel = topLevel;
   }
 }

@@ -44,15 +44,15 @@ internal class Simulation {
       new SimulatedTrainRoute(DataManager.TrainRoutes[DataManager.CurrentTrainRoute]).RouteStops;
 
     foreach (KeyValuePair<RouteCoordinate, bool> kvp in turnPoints)
-      for (var i = 0; i < DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords.Count - 2; i++) {
-        var point1 = new RoutePoint(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Longitude,
+      for (int i = 0; i < DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords.Count - 2; i++) {
+        RoutePoint? point1 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Longitude,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Latitude);
-        var point2 = new RoutePoint(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1].Longitude,
+        RoutePoint? point2 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1].Longitude,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1].Latitude);
-        var point3 = new RoutePoint(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 2].Longitude,
+        RoutePoint? point3 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 2].Longitude,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 2].Latitude);
 
-        var turn = TurnCalculation.CalculateTurn(point1, point2, point3);
+        bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
 
         turnPoints[DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1]] = turn;
       }
@@ -70,7 +70,7 @@ internal class Simulation {
   public static void RunSimulation(Dictionary<RouteCoordinate, bool> turnPoints,
     Dictionary<RouteCoordinate, bool> stopPoints) // See if async would be more preferrable for this -Metso
   {
-    var isRunning = true;
+    bool isRunning = true;
 
     // Const test variables for train & simulation info
     const float acceleration = 2;
@@ -85,30 +85,30 @@ internal class Simulation {
     RoutePoint point1 = new RoutePoint();
     RoutePoint point2 = new RoutePoint();
     RoutePoint point3 = new RoutePoint();*/
-    var turn = false;
-    var stop = false;
+    bool turn = false;
+    bool stop = false;
 
-    List<TickData> allTickData = new List<TickData>();
+    List<TickData> allTickData = new();
 
-    var route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-    List<MPoint> points = new List<MPoint>();
+    TrainRoute? route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+    List<MPoint> points = new();
 
-    foreach (var coord in route.Coords) {
-      var x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      var point = SphericalMercator.ToLonLat(new MPoint(x, y));
+    foreach (RouteCoordinate? coord in route.Coords) {
+      double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      MPoint? point = SphericalMercator.ToLonLat(new MPoint(x, y));
       points.Add(point);
     }
 
-    var routeLengthMeters = RouteGeneration.CalculateRouteLength(points);
-    var tickData = new TickData(points[0].Y, points[0].X, false, 0, false, 0, 0);
-    var pointIndex = 1;
-    var nextLat = points[pointIndex].Y;
-    var nextLon = points[pointIndex].X;
-    var isGpsFix = true;
+    double routeLengthMeters = RouteGeneration.CalculateRouteLength(points);
+    TickData? tickData = new(points[0].Y, points[0].X, false, 0, false, 0, 0);
+    int pointIndex = 1;
+    double nextLat = points[pointIndex].Y;
+    double nextLon = points[pointIndex].X;
+    bool isGpsFix = true;
 
-    var travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
-    var pointDistance =
+    double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+    double pointDistance =
       RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
     while (isRunning) {
@@ -235,7 +235,7 @@ internal class Simulation {
 
             // If within 3 meters from the RoutePoint, stop for 10 seconds.
             if (pointDistance < 3)
-              for (var i = 1; i <= 10; i++) {
+              for (int i = 1; i <= 10; i++) {
                 tickData.trackTimeSecs += interval;
                 allTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0, true,
                   tickData.distanceMeters, tickData.trackTimeSecs));
@@ -250,13 +250,13 @@ internal class Simulation {
         // If the current/"next" RoutePoint is marked as turn
         else if (turn) {
           // Calculate turn speed using turn's radius
-          var point1 = new RoutePoint(turnPoints.Keys.ElementAt(pointIndex - 1).Longitude,
+          RoutePoint? point1 = new(turnPoints.Keys.ElementAt(pointIndex - 1).Longitude,
             turnPoints.Keys.ElementAt(pointIndex - 1).Latitude);
-          var point2 = new RoutePoint(turnPoints.Keys.ElementAt(pointIndex).Longitude,
+          RoutePoint? point2 = new(turnPoints.Keys.ElementAt(pointIndex).Longitude,
             turnPoints.Keys.ElementAt(pointIndex).Latitude);
-          var point3 = new RoutePoint(turnPoints.Keys.ElementAt(pointIndex + 1).Longitude,
+          RoutePoint? point3 = new(turnPoints.Keys.ElementAt(pointIndex + 1).Longitude,
             turnPoints.Keys.ElementAt(pointIndex + 1).Latitude);
-          var turnSpeed = TurnCalculation.CalculateTurnSpeedByRadius(point1, point2, point3, maxSpeed, 180);
+          float turnSpeed = TurnCalculation.CalculateTurnSpeedByRadius(point1, point2, point3, maxSpeed, 180);
 
           // If the distance to next RoutePoint is shorter than
           // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
@@ -290,7 +290,7 @@ internal class Simulation {
     //change last data to have 0 speed and open doors
     allTickData[allTickData.Count - 1].speedKmh = 0f;
     allTickData[allTickData.Count - 1].doorsOpen = true;
-    var newSim = new SimulationData("Test", allTickData);
+    SimulationData? newSim = new("Test", allTickData);
 
     // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
     // SimulationRun file could also host the train and route data for playback in the future -Metso
@@ -312,7 +312,7 @@ internal class Simulation {
     LayerManager.RemoveAnimationLayer();
     LayerManager.CreateAnimationLayer();
     // Read tickdata from simulation data in set intervals and move a bitmap on the map accordingly
-    foreach (var tick in LatestSimulation.TickData) {
+    foreach (TickData? tick in LatestSimulation.TickData) {
     }
 
     return;

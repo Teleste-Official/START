@@ -53,7 +53,7 @@ public partial class TrackEditorView : UserControl {
   }
 
   public void StopGotFocus(object sender, GotFocusEventArgs e) {
-    var textBox = sender as TextBox;
+    TextBox? textBox = sender as TextBox;
     if (DataContext is TrackEditorViewModel viewModel) viewModel.DrawFocusedStop(textBox.Name);
     Logger.Debug("Focused: " + textBox.Name);
   }
@@ -73,7 +73,7 @@ public partial class TrackEditorView : UserControl {
   }*/
 
   public void StopLostFocus(object sender, RoutedEventArgs e) {
-    var textBox = sender as TextBox;
+    TextBox? textBox = sender as TextBox;
     LayerManager.RemoveFocusStop();
     Logger.Debug("Lost focus: " + textBox.Name);
   }

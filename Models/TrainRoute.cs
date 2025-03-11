@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using SmartTrainApplication.Data;
 
@@ -45,7 +46,7 @@ public class TrainRoute {
   }
 
   public List<RouteCoordinate> GetStopCoordinates() {
-    List<RouteCoordinate> stopsCoordinates = new List<RouteCoordinate>();
+    List<RouteCoordinate> stopsCoordinates = new();
     
     foreach (RouteCoordinate coord in Coords) {
       if (coord.Type == "STOP") {
@@ -56,13 +57,13 @@ public class TrainRoute {
   }
 
   public string GetGeometry() {
-    var coordStrings = Coords.Select(coord => $"{coord.Longitude} {coord.Latitude}");
+    IEnumerable<string> coordStrings = Coords.Select(coord => $"{coord.Longitude} {coord.Latitude}");
     string geometryString = "LINESTRING (" + string.Join(", ", coordStrings) + ")";
     return geometryString;
   }
 
   public override string ToString() {
-    var sb = new System.Text.StringBuilder();
+    StringBuilder sb = new();
     sb.AppendLine("{");
     sb.AppendLine($"  \"Id\": \"{Id}\",");
     sb.AppendLine($"  \"FilePath\": \"{FilePath}\",");
@@ -119,7 +120,7 @@ public class TrainRoute {
       int hash = 17;
       hash = hash * 23 + (Name != null ? Name.GetHashCode() : 0);
       if (Coords != null) {
-        foreach (var coord in Coords) {
+        foreach (RouteCoordinate coord in Coords) {
           hash = hash * 23 + (coord != null ? coord.GetHashCode() : 0);
         }
       }

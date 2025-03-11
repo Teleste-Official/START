@@ -24,24 +24,24 @@ public class TurnCalculation {
     bool turn;
 
     // Convert string values to doubles
-    var point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
-    var point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
+    double point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
+    double point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
 
-    var point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
-    var point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
+    double point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
+    double point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
 
-    var point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
-    var point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
+    double point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
+    double point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
 
     // Calculate vectors v1 and v2
-    var v1X = point2Longitude - point1Longitude;
-    var v1Y = point2Latitude - point1Latitude;
+    double v1X = point2Longitude - point1Longitude;
+    double v1Y = point2Latitude - point1Latitude;
 
-    var v2X = point3Longitude - point2Longitude;
-    var v2Y = point3Latitude - point2Latitude;
+    double v2X = point3Longitude - point2Longitude;
+    double v2Y = point3Latitude - point2Latitude;
 
     // Calculate the cross product of v1 and v2
-    var crossProduct = v1X * v2Y - v2X * v1Y;
+    double crossProduct = v1X * v2Y - v2X * v1Y;
 
     // Determine direction based on the cross product
     if (crossProduct > 100000)
@@ -66,25 +66,25 @@ public class TurnCalculation {
   /// <returns>(double) calculated curve radius</returns>
   public static float CalculateRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3) {
     // Convert string values to doubles
-    var point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
-    var point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
+    double point1Longitude = double.Parse(point1.Longitude.Replace(".", ","));
+    double point1Latitude = double.Parse(point1.Latitude.Replace(".", ","));
 
-    var point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
-    var point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
+    double point2Longitude = double.Parse(point2.Longitude.Replace(".", ","));
+    double point2Latitude = double.Parse(point2.Latitude.Replace(".", ","));
 
-    var point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
-    var point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
+    double point3Longitude = double.Parse(point3.Longitude.Replace(".", ","));
+    double point3Latitude = double.Parse(point3.Latitude.Replace(".", ","));
 
     // Calculate the lengths of the sides of the triangle formed by the three points
-    var a = Math.Sqrt(Math.Pow(point2Longitude - point1Longitude, 2) + Math.Pow(point2Latitude - point1Latitude, 2));
-    var b = Math.Sqrt(Math.Pow(point3Longitude - point2Longitude, 2) + Math.Pow(point3Latitude - point2Latitude, 2));
-    var c = Math.Sqrt(Math.Pow(point3Longitude - point1Longitude, 2) + Math.Pow(point3Latitude - point1Latitude, 2));
+    double a = Math.Sqrt(Math.Pow(point2Longitude - point1Longitude, 2) + Math.Pow(point2Latitude - point1Latitude, 2));
+    double b = Math.Sqrt(Math.Pow(point3Longitude - point2Longitude, 2) + Math.Pow(point3Latitude - point2Latitude, 2));
+    double c = Math.Sqrt(Math.Pow(point3Longitude - point1Longitude, 2) + Math.Pow(point3Latitude - point1Latitude, 2));
 
     // Calculate the semi-perimeter of the triangle
-    var s = (a + b + c) / 2;
+    double s = (a + b + c) / 2;
 
     // Calculate the radius
-    var radius = a * b * c / (4 * Math.Sqrt(s * (s - a) * (s - b) * (s - c)));
+    double radius = a * b * c / (4 * Math.Sqrt(s * (s - a) * (s - b) * (s - c)));
 
     return (float)radius;
   }
@@ -100,9 +100,9 @@ public class TurnCalculation {
   /// <returns>(double) new turn speed based on curve radius</returns>
   public static float CalculateTurnSpeedByRadius(RoutePoint point1, RoutePoint point2, RoutePoint point3,
     float maxSpeed, float maxRadius) {
-    var turn = CalculateTurn(point1, point2, point3);
+    bool turn = CalculateTurn(point1, point2, point3);
 
-    var curveRadius = CalculateRadius(point1, point2, point3);
+    float curveRadius = CalculateRadius(point1, point2, point3);
     /*float deceleration = 2;
 
     if (curveRadius > maxRadius)
@@ -121,7 +121,7 @@ public class TurnCalculation {
 
     return newSpeed;*/
 
-    var turnSpeed = maxSpeed;
+    float turnSpeed = maxSpeed;
 
     if (curveRadius > maxRadius)
       // Reduce speed proportionally to the severity of the turn

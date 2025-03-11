@@ -39,7 +39,7 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   private async Task RunTimerAsync() {
     _prevCoords = (Simulation.LatestSimulation.TickData.First<TickData>().longitudeDD,
       Simulation.LatestSimulation.TickData.First<TickData>().latitudeDD);
-    var TickPointIndex = 0;
+    int TickPointIndex = 0;
 
     while (true) {
       await _timer.WaitForNextTickAsync();
@@ -64,7 +64,7 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   }
 
   public override Task<IEnumerable<IFeature>> GetFeaturesAsync(FetchInfo fetchInfo) {
-    var trainFeature = new PointFeature(SphericalMercator.FromLonLat(_prevCoords.Lon, _prevCoords.Lat).ToMPoint());
+    PointFeature? trainFeature = new(SphericalMercator.FromLonLat(_prevCoords.Lon, _prevCoords.Lat).ToMPoint());
     trainFeature["ID"] = "train";
     return Task.FromResult((IEnumerable<IFeature>)new[] { trainFeature });
   }

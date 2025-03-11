@@ -25,12 +25,13 @@ public partial class MapViewControl {
     // Get the settings
     FileManager.LoadSettings();
 
-    var map = CreateMap();
+    Map? map = CreateMap();
 
-    var editManager = new EditManager {
+    EditManager? editManager = new()
+    {
       Layer = (WritableLayer)map.Layers.First(l => l.Name == "EditLayer")
     };
-    var targetLayer = (WritableLayer)map.Layers.First(l => l.Name == "Layer 3");
+    WritableLayer? targetLayer = (WritableLayer)map.Layers.First(l => l.Name == "Layer 3");
 
     // Load the polygon layer on startup so you can start modifying right away
     editManager.Layer.AddRange(targetLayer.GetFeatures().Copy());
@@ -38,14 +39,13 @@ public partial class MapViewControl {
 
     editManager.EditMode = editMode;
 
-    var editManipulation = new EditManipulation();
+    EditManipulation? editManipulation = new();
 
     map.CRS = "EPSG:3857";
-    var centerOfTampere =
-      new MPoint(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
+    MPoint? centerOfTampere = new(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
 
     // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
-    var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();
+    MPoint? sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();
     // Set the center of the viewport to the coordinate. The UI will refresh automatically
     // Additionally you might want to set the resolution, this could depend on your specific purpose
     map.Home = n => n.CenterOnAndZoomTo(sphericalMercatorCoordinate, n.Resolutions[14]);
