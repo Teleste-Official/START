@@ -238,7 +238,10 @@ internal class DataManager {
     return stopStrings;
   }
 
-  public static List<RouteCoordinate> GetStops() {
+  public static List<RouteCoordinate> GetStops()
+  {
+    List <RouteCoordinate> stops = TrainRoutes[CurrentTrainRoute].GetStopCoordinates();
+    /*
     int stopsCount = 1;
     List<RouteCoordinate> stops = new();
     
@@ -259,7 +262,7 @@ internal class DataManager {
       }
     }
 
-
+*/
     return stops;
   }
 
@@ -304,34 +307,24 @@ internal class DataManager {
         coords.SetType("TUNNEL_STOP");
       }
   }
-
+  
   /// <summary>
   ///   Adds stop data types to the given list of StopsPoints
   /// </summary>
-  /// <param name="stopsPoints">(List of string) Points that contain Stops</param>
-  /// <returns>(List of string) List of stopStrings with added stop data types</returns>
-  public static List<string> AddStops(List<string> stopsPoints) {
-    
-    //TODO check if previous stop names are not handled correctly here!!!
-    List<string> stopStrings = new();
-    if (TrainRoutes[CurrentTrainRoute] == null) return stopStrings;
+  /// <param name="routeCoordinates">(List of RouteCoordinates) Points that contain Stops</param>
+  public static void AddStops(List<RouteCoordinate> routeCoordinates) {
+    if (TrainRoutes[CurrentTrainRoute] == null) return;
 
-    foreach (string pointString in stopsPoints) {
-      // Parse the line string into individual values
-      string[] parsedGeometry = pointString.Split("(");
-      string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
-      string[] xy = geometry.Split(" ");
-      RoutePoint routePoint = new(xy[0], xy[1]);
+    foreach (RouteCoordinate coord in routeCoordinates) {
+      RoutePoint routePoint = new(coord.Longitude, coord.Latitude);
 
       double closestDiff = 1000000;
       int pointStatusToBeChanged = -1;
-      //var diffPoints = new List<double>();
 
       for (int i = 0; i < TrainRoutes[CurrentTrainRoute].Coords.Count; i++) {
         double diff = CalculateDistance(
-          new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude,
+          new RoutePoint(TrainRoutes[CurrentTrainRoute].Coords[i].Longitude, 
             TrainRoutes[CurrentTrainRoute].Coords[i].Latitude), routePoint);
-        //diffPoints.Add(diff);
         if (i == 0) {
           closestDiff = diff;
           pointStatusToBeChanged = i;
@@ -345,21 +338,20 @@ internal class DataManager {
       }
 
       if (pointStatusToBeChanged != -1) {
-        if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL")
+        if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL") {
           TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_STOP");
-        else if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL_ENTRANCE")
+        } else if (TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].Type == "TUNNEL_ENTRANCE") {
           TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("TUNNEL_ENTRANCE_STOP");
-        else
+        } else {
           TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetType("STOP");
-        //TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetName("No name");
+          TrainRoutes[CurrentTrainRoute].Coords[pointStatusToBeChanged].SetName(coord.StopName);
+        }
+
       }
     }
 
-
-    stopStrings = GetStopStrings();
-
-    return stopStrings;
   }
+  
 
   /// <summary>
   ///   Creates a unique identifier for trains and routes

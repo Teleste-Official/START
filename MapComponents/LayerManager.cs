@@ -94,10 +94,8 @@ internal class LayerManager {
     DataManager.TrainRoutes = trainRoutes;
     
     try {
-      //string geometryData = trainRoutes[0].GetGeometry();
       
       List<string> tunnelStrings = DataManager.GetTunnelStrings();
-      List<string> stopsStrings = DataManager.GetStopStrings();
 
 
       // TODO remove these
@@ -116,12 +114,7 @@ internal class LayerManager {
       
       WritableLayer importLayer = CreateImportLayer();
       SetTrainRouteToImportLayer(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], importLayer);
-      //TurnImportToFeature(geometryData, importLayer);
-      
       RedrawTunnelsToMap(tunnelStrings);
-      
-      
-      //RedrawStopsToMap(stops);
       RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
       
       
@@ -257,14 +250,6 @@ internal class LayerManager {
   /// <returns>(WritableLayer) Import layer</returns>
   public static WritableLayer TurnImportToEdit() {
     WritableLayer? importLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Import");
-
-    // TODO in the future fix these, so that the stops can be moved as well during edit.
-    // Clear the tunnels and stops out of the way
-    //var tunnelStringLayer = CreateTunnelStringLayer();
-    //tunnelStringLayer.Clear();
-    //var stopsLayer = CreateStopsLayer();
-    //stopsLayer.Clear();
-
     if (importLayer != null) {
       // Throw the imported feature into edit layer for editing
       MapViewControl._editManager.Layer.AddRange(importLayer.GetFeatures().Copy());
@@ -289,111 +274,91 @@ internal class LayerManager {
     MapViewControl._mapControl?.RefreshGraphics();
   }
   
-  public static void ApplyEditing(string name, string id, string filePath) {
-    string editLayerRouteString = GetEditLayerRouteAsString();
+  
+  public static void ApplyEditing() {
     
-    if (editLayerRouteString == "") {
-      Logger.Debug("EditLayerRouteString() is empty, returning");
+    List<RouteCoordinate> newCoords = GetEditLayerRouteCoordinates();
+
+    if (newCoords.Count == 0) {
+      Logger.Debug("EditLayer is empty, returning");
       return;
     }
-
     
-    
-    TrainRoute editLayerTrainRoute = GetEditLayerTrainRoute(); // This contains old data.
-    TrainRoute currentTrainRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-
-    List<RouteCoordinate> newCoords = DataManager.ParseGeometryString(editLayerRouteString);
-    
-    // TODO use or remove
-    bool rename = name != string.Empty && DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name != name;
-    bool edited = editLayerRouteString != editLayerTrainRoute.GetGeometry();
-    
-    Logger.Debug($"\nEdit: {editLayerTrainRoute.Coords[1].Latitude} {editLayerTrainRoute.Coords[1].Longitude}" +
-                 $"\nCurr: {currentTrainRoute.Coords[1].Latitude} {currentTrainRoute.Coords[1].Longitude}" +
-                 $"\nEquals:{editLayerTrainRoute==currentTrainRoute}" +
-                 $"\nEdited: {edited}" +
-                 $"\nNumber of coords: {editLayerTrainRoute.Coords.Count} -> {currentTrainRoute.Coords.Count}");
-
     TrainRoute editedRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-    
-    if (rename) {
-      editedRoute.Name = name;
-    }
-    
-    
-    
-    editedRoute.Coords = newCoords; // TODO figure out how to include stop information here
-    
-    WritableLayer stopsLayer = (WritableLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Stops");
-    List<string> stopsPoints = new();
-
-    IEnumerable<IFeature> features = stopsLayer?.GetFeatures().Copy();
-    foreach (IFeature feature in features) {
-      GeometryFeature testFeature = feature as GeometryFeature;
-      string point = testFeature.Geometry.ToString();
-      stopsPoints.Add(point);
-      Logger.Debug($"J: {testFeature["StopName"]}");
-    }
+    editedRoute.Coords = newCoords;
     
     DataManager.TrainRoutes[DataManager.CurrentTrainRoute] = editedRoute;
+    
+    List<RouteCoordinate> editLayerStopCoordinates = GetStopRouteCoordinates();
+    
+    DataManager.AddStops(editLayerStopCoordinates);
     
     WritableLayer importLayer = CreateImportLayer();
     SetTrainRouteToImportLayer(editedRoute, importLayer);
     
-    List<string> stopsStrings = DataManager.AddStops(stopsPoints);
-    //var newRoute = DataManager.CreateNewRoute(editLayerRouteString, name, id, filePath);
-    //DataManager.AddToRoutes(newRoute);
-    //TurnImportToFeature(editLayerRouteString, importLayer);
-    //SetTrainRouteToImportLayer(newRoute, importLayer);
+    
     List<string> tunnelStrings = DataManager.GetTunnelStrings();
     RedrawTunnelsToMap(tunnelStrings);
-    //List<string> stopStrings = DataManager.GetStopStrings();
-    //RedrawStopsToMap(stopStrings);
     RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
-    //ConfirmNewRoute2(name, id, filePath);
     MapViewControl._editManager.Layer.Clear();
     MapViewControl._editManager.EditMode = EditMode.None;
     MapViewControl._mapControl?.RefreshGraphics();
   }
   
-  private static List<RouteCoordinate> getEditLayerRouteCoordinates() {
+  private static List<RouteCoordinate> GetEditLayerRouteCoordinates() {
     List<RouteCoordinate> routeCoordinates = new();
     
-    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
-    if (!selectedFeatures.Any()) return routeCoordinates;
-    
-    foreach (IFeature selectedFeature in selectedFeatures) {
-      GeometryFeature? testFeature = selectedFeature as GeometryFeature;
+    IEnumerable<IFeature>? features = MapViewControl._editManager.Layer?.GetFeatures();
+    foreach (IFeature feature in features) {
+      if (feature is not GeometryFeature testFeature) {
+        continue;
+      }
+
+      if (testFeature.Geometry is not LineString lineString) {
+        continue;
+      }
+
+      foreach (Coordinate coordinate in lineString.Coordinates) {
+        RouteCoordinate newCoord = new(coordinate.X.ToString(), coordinate.Y.ToString()) {
+          Id = (testFeature["Coord"] as RouteCoordinate)?.Id ?? DataManager.CreateId(),
+          Type = (testFeature["Coord"] as RouteCoordinate)?.Type ?? "NORMAL",
+          StopName = (testFeature["Coord"] as RouteCoordinate)?.StopName ?? ""
+        };
+        
+        routeCoordinates.Add(newCoord);
+      }
 
     }
-
-
     return routeCoordinates;
   }
   
-  private static TrainRoute GetEditLayerTrainRoute() {
-    TrainRoute trainRouteDataFromFeature = null;
-    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
-    if (selectedFeatures.Any()) {
-      foreach (IFeature selectedFeature in selectedFeatures) {
-        trainRouteDataFromFeature = selectedFeature["Route"] as TrainRoute;
-      }
-    }
-
-    return trainRouteDataFromFeature;
-  }
-  
-  private static string GetEditLayerRouteAsString() {
-    string routeString = "";
+  public static List<RouteCoordinate> GetStopRouteCoordinates() {
+    List<RouteCoordinate> stopRouteCoordinates = new();
     
-    IEnumerable<IFeature>? selectedFeatures = MapViewControl._editManager.Layer?.GetFeatures();
-    if (selectedFeatures.Any())
-      foreach (IFeature selectedFeature in selectedFeatures) {
-        GeometryFeature? testFeature = selectedFeature as GeometryFeature;
-        TrainRoute route = (TrainRoute)testFeature["Route"];
-        routeString = testFeature.Geometry.ToString();
+    WritableLayer stopsLayer = CreateStopsLayer();
+    stopsLayer.AddRange(MapViewControl._editManager.Layer.GetFeatures().Copy());
+    
+    IEnumerable<IFeature> features = stopsLayer.GetFeatures().Copy();
+    
+    foreach (IFeature feature in features) {
+      if (feature is not GeometryFeature testFeature) {
+        continue;
       }
-    return routeString;
+
+      if (testFeature.Geometry is not Point point) {
+        continue;
+      }
+      
+      RouteCoordinate newCoord = new(point.X.ToString(), point.Y.ToString()) {
+        Id = (testFeature["Coord"] as RouteCoordinate)?.Id ?? DataManager.CreateId(),
+        Type = "STOP",
+        StopName = (testFeature["Coord"] as RouteCoordinate)?.StopName ?? ""
+      };
+        
+      stopRouteCoordinates.Add(newCoord);
+    }
+    
+    return stopRouteCoordinates;
   }
 
 
@@ -525,39 +490,14 @@ internal class LayerManager {
   ///   Takes the inputted stop points, lists them, adds them to data, (re)draws stops to map and clears the edit layer
   /// </summary>
   public static void ConfirmStops() {
-    WritableLayer stopsLayer = CreateStopsLayer();
-
-    // Take created tunnel points
-    stopsLayer.AddRange(MapViewControl._editManager.Layer.GetFeatures().Copy());
-    // Clear the editlayer
+    List<RouteCoordinate> routeCoordinates = GetStopRouteCoordinates();
     MapViewControl._editManager.Layer?.Clear();
-
-    // List of the tunnel points added
-    List<string> stopsPoints = new();
-
-    IEnumerable<IFeature>? features = stopsLayer?.GetFeatures().Copy();
-
-    foreach (IFeature feature in features) {
-      // TODO iterating over stop features, check id,name,etc here
-      GeometryFeature? testFeature = feature as GeometryFeature;
-
-      string? point = testFeature.Geometry.ToString();
-      stopsPoints.Add(point);
-    }
-
-    if (stopsPoints.Count == 0)
-      return;
-
-    // Add stops to data
-    List<string> stopsStrings = DataManager.AddStops(stopsPoints);
+    
+    DataManager.AddStops(routeCoordinates);
     
     RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
-    //RedrawStopsToMap(stopsStrings);
-
     MapViewControl._mapControl?.RefreshGraphics();
-
     MapViewControl._editManager.EditMode = EditMode.None;
-
     MapViewControl._tempFeatures = null;
   }
 
@@ -594,7 +534,7 @@ internal class LayerManager {
 
     //List<string> stopStrings = DataManager.GetStopStrings();
     //RedrawStopsToMap(stopStrings);
-    LayerManager.RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
+    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
   }
 
   /// <summary>
@@ -623,8 +563,7 @@ internal class LayerManager {
     foreach (RouteCoordinate stopCoordinate in coords) {
       Geometry? pointString = new WKTReader().Read(stopCoordinate.GetCoordinateString());
       IFeature feature = new GeometryFeature { Geometry = pointString };
-      feature["StopName"] = stopCoordinate.StopName;
-      //Logger.Debug($"Setting name to {stopCoordinate.StopName}");
+      feature["Coord"] = stopCoordinate;
       stopsLayer.Add(feature);
     }
 

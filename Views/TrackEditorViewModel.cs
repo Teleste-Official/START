@@ -228,9 +228,7 @@ public class TrackEditorViewModel : ViewModelBase {
         AddingNew = false;
         break;
       case EditorAction.ModifyTrack:
-        string trackId = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id;
-        LayerManager.ApplyEditing(TrackName, trackId,
-          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].FilePath);
+        LayerManager.ApplyEditing();
         SetStopsToUI();
         break;
 
@@ -248,8 +246,6 @@ public class TrackEditorViewModel : ViewModelBase {
         if (TrackName != "" && !DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name.Equals(TrackName)) {
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = TrackName;
         }
- 
-        DataManager.SetStopsNames(Stops); // This CAN produce unhandled exception when: Modify -> confirm -> confirm
         Routes = DataManager.TrainRoutes;
         SetStopsToUI();
         // If commented out, Fixes dropdown box resetting when pressing confirm after adding new line

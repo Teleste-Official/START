@@ -49,7 +49,7 @@ public class TrainRoute {
     List<RouteCoordinate> stopsCoordinates = new();
     
     foreach (RouteCoordinate coord in Coords) {
-      if (coord.Type == "STOP") {
+      if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP") {
         stopsCoordinates.Add(coord);
       }
     }

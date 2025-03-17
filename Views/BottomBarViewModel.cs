@@ -15,19 +15,14 @@ public class BottomBarViewModel : ViewModelBase {
 
   public void SaveButton() {
     Logger.Debug("SaveButton pressed");
-    // TODO maybe change this to save in every case, "Edited" seems reduntant
-    
-    for (int i = 0; i < DataManager.TrainRoutes.Count; i++)
-      if (DataManager.TrainRoutes[i].Edited) {
-        FileManager.SaveSpecific(DataManager.TrainRoutes[i]);
-        DataManager.TrainRoutes[i].Edited = false;
-      }
 
-    for (int i = 0; i < DataManager.Trains.Count; i++)
-      if (DataManager.Trains[i].Edited) {
-        FileManager.SaveTrain(DataManager.Trains[i]);
-        DataManager.Trains[i].Edited = false;
-      }
+    foreach (TrainRoute route in DataManager.TrainRoutes) {
+      FileManager.SaveSpecific(route);
+    }
+
+    foreach (Train train in DataManager.Trains) {
+      FileManager.SaveTrain(train);
+    }
   }
 
   public void SaveAsButton() {
