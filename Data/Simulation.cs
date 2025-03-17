@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mapsui;
 using Mapsui.Projections;
+using NLog;
 using SmartTrainApplication.Models;
 
 #endregion
@@ -17,6 +18,8 @@ namespace SmartTrainApplication.Data;
 /// Functions used for generating and simulating TrainRoutes
 /// </summary>
 internal class Simulation {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+  
   public static SimulationData? LatestSimulation = null;
   public static int IntervalTime = 1;
 
@@ -72,10 +75,12 @@ internal class Simulation {
   {
     bool isRunning = true;
 
-    // Const test variables for train & simulation info
+    // TODO fix these
     const float acceleration = 2;
     const float maxSpeed = 50;
-    const float interval = 1;
+    float interval = (float)IntervalTime;
+
+    Logger.Debug($"Simulation started with acceleration: {acceleration}, maxSpeed: {maxSpeed}, interval: {interval}");
     /*double distance;
     double slowZoneDistance = 100000000;
     double kvpKeyLongitude = 0.0;
