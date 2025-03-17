@@ -32,15 +32,9 @@ public class TrainRoute {
     Name = name;
     Coords = coords;
     
-    if (ID == "")
-      Id = DataManager.CreateId();
-    else
-      Id = ID;
+    Id = ID == "" ? DataManager.CreateId() : ID;
 
-    if (filePath == "")
-      FilePath = DataManager.CreateFilePath(Id, Specifier);
-    else
-      FilePath = filePath;
+    FilePath = filePath == "" ? DataManager.CreateFilePath(Id, Specifier, Name) : filePath;
 
     Edited = false;
   }

@@ -348,27 +348,22 @@ internal class DataManager {
   /// <param name="id">The routes or trains unique ID-number</param>
   /// <param name="specifier">Route/Train/Simulation</param>
   /// <returns>String, for example "C:/Start/Routes/export1234.json"</returns>
-  public static string CreateFilePath(string id, string specifier) {
+  public static string CreateFilePath(string id, string specifier, string name = "") {
     string newPath = "";
+    
     if (specifier == "Route") {
-      // Generate the file path and name the file export with last 4 digits of the id for unique name.
-      newPath = Path.Combine(FileManager.DefaultRouteFolderPath, specifier + id[..4] + ".json");
-      Logger.Debug("created path: " + newPath);
-    }
-
-    if (specifier == "Train") {
-      // Generate the file path and name the file export with last 4 digits of the id for unique name.
-      newPath = Path.Combine(FileManager.DefaultTrainFolderPath, specifier + id[..4] + ".json");
-      Logger.Debug("created path: " + newPath);
-    }
-
-    if (specifier == "Simulation") {
+      newPath = Path.Combine(FileManager.DefaultRouteFolderPath, name == "" ? specifier + id[..4] + ".json" : name + ".json");
+      
+    } else if (specifier == "Train") {
+      newPath = Path.Combine(FileManager.DefaultTrainFolderPath, name == "" ? specifier + id[..4] + ".json" : name + ".json");
+      
+    } else if (specifier == "Simulation") {
       DateTime currentTime = DateTime.Now;
       newPath = Path.Combine(FileManager.DefaultSimulationsFolderPath,
-        currentTime.ToString("ddMMyyyy_HHmmss") + ".json");
-      Logger.Debug("created path: " + newPath);
+        "simulation_" + currentTime.ToString("ddMMyyyy_HHmmss") + ".json");
     }
-
+    
+    Logger.Debug("created path: " + newPath);
     return newPath;
   }
 

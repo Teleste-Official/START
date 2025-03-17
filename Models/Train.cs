@@ -30,31 +30,25 @@ public class Train {
   public Train() {
   }
 
-  public Train(string name, string description, float maxSpeed, float acceleration, int icon, string ID = "",
+  public Train(string name, string description, float maxSpeed, float acceleration, int icon, string id = "",
     string filePath = "") {
     Name = name;
     Description = description;
     MaxSpeed = maxSpeed;
     Acceleration = acceleration;
     Icon = icon;
-    if (ID == "")
-      Id = DataManager.CreateId();
-    else
-      Id = ID;
-    if (filePath == "")
-      FilePath = DataManager.CreateFilePath(Id, Specifier);
-    else
-      FilePath = filePath;
+    Id = id == "" ? DataManager.CreateId() : id;
+    FilePath = filePath == "" ? DataManager.CreateFilePath(Name, Id, Specifier) : filePath;
     Edited = false;
   }
 
-  public void SetValues(Train NewTrain) {
-    Name = NewTrain.Name;
-    Description = NewTrain.Description;
-    MaxSpeed = NewTrain.MaxSpeed;
-    Acceleration = NewTrain.Acceleration;
-    Icon = NewTrain.Icon;
-    FilePath = NewTrain.FilePath;
+  public void SetValues(Train newTrain) {
+    Name = newTrain.Name;
+    Description = newTrain.Description;
+    MaxSpeed = newTrain.MaxSpeed;
+    Acceleration = newTrain.Acceleration;
+    Icon = newTrain.Icon;
+    FilePath = newTrain.FilePath;
     Edited = true;
   }
 }
