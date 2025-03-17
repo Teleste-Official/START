@@ -238,37 +238,8 @@ internal class DataManager {
     return stopStrings;
   }
 
-  public static List<RouteCoordinate> GetStops()
-  {
-    List <RouteCoordinate> stops = TrainRoutes[CurrentTrainRoute].GetStopCoordinates();
-    /*
-    int stopsCount = 1;
-    List<RouteCoordinate> stops = new();
-    
-    if (!TrainRoutes.Any()) return stops;
-
-    foreach (RouteCoordinate coord in TrainRoutes[CurrentTrainRoute].Coords) {
-      if (coord.Type == "STOP" || coord.Type == "TUNNEL_STOP" || coord.Type == "TUNNEL_ENTRANCE_STOP") {
-        if (coord.Id == null) {
-          coord.Id = CreateId();
-        }
-
-        if (coord.StopName == "") {
-          coord.StopName = "Stop " + stopsCount;
-        }
-          
-        stops.Add(coord);
-        stopsCount++;
-      }
-    }
-
-*/
-    return stops;
-  }
-
-  public static void SetStopsNames(List<RouteCoordinate> stops) {
-    foreach (RouteCoordinate stop in stops)
-      TrainRoutes[CurrentTrainRoute].Coords.First(item => item.Id == stop.Id).StopName = stop.StopName;
+  public static List<RouteCoordinate> GetStops() {
+    return TrainRoutes[CurrentTrainRoute].GetStopCoordinates();
   }
 
   /// <summary>

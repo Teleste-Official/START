@@ -41,37 +41,37 @@ public partial class SimulationView : UserControl {
         return;
 
       DataManager.CurrentTrain = comboBox.SelectedIndex;
-      Logger.Debug("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
+      //Logger.Debug("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
     }
   }
 
   private void ClickStop(object? sender, PointerPressedEventArgs e) {
     TextBlock? textBlock = sender as TextBlock;
-    Logger.Debug("Clicked! " + textBlock.Text.ToString());
+    //Logger.Debug("Clicked! " + textBlock.Text.ToString());
   }
 
   private void EnterHoverStop(object? sender, PointerEventArgs e) {
     TextBlock? textBlock = sender as TextBlock;
     if (DataContext is SimulationViewModel viewModel) viewModel.DrawFocusedStop(textBlock.Name);
-    Logger.Debug("Hover over: " + textBlock.Name);
+    //Logger.Debug("Hover over: " + textBlock.Name);
   }
 
   private void ExitHoverStop(object? sender, PointerEventArgs e) {
     TextBlock? textBlock = sender as TextBlock;
     LayerManager.RemoveFocusStop();
-    Logger.Debug("Lost focus: " + textBlock.Name);
+    //.Debug("Lost focus: " + textBlock.Name);
   }
 
   private void CheckStop(object? sender, RoutedEventArgs e) {
     CheckBox? checkBox = sender as CheckBox;
-    Logger.Debug("Checked! " + checkBox.Name);
+    //Logger.Debug("Checked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, true);
   }
 
   private void UncheckStop(object? sender, RoutedEventArgs e) {
     CheckBox? checkBox = sender as CheckBox;
-    Logger.Debug("Unchecked! " + checkBox.Name);
+    //Logger.Debug("Unchecked! " + checkBox.Name);
 
     if (DataContext is SimulationViewModel viewModel) viewModel.SetBool(checkBox.Name, false);
   }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Text.Json.Serialization;
+using SmartTrainApplication.Data;
 
 #endregion
 
@@ -16,7 +17,7 @@ namespace SmartTrainApplication.Models;
 ///   </list>
 /// </summary>
 public class RouteCoordinate {
-  [JsonIgnore] public string Id { get; set; } // This only for the simulation editor
+  [JsonIgnore] public string Id { get; set; }
   public string Longitude { get; set; }
   public string Latitude { get; set; }
 
@@ -34,6 +35,7 @@ public class RouteCoordinate {
   public string StopName { get; set; } // This is only for stops, and can remain empty otherwise
 
   public RouteCoordinate() {
+    Id = DataManager.CreateId();
   }
 
   public RouteCoordinate(string x, string y) {
@@ -41,6 +43,7 @@ public class RouteCoordinate {
     Latitude = y;
     Type = "NORMAL";
     StopName = "";
+    Id = DataManager.CreateId();
   }
 
   /// <summary>
