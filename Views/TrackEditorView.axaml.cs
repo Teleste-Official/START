@@ -24,23 +24,25 @@ public partial class TrackEditorView : UserControl {
   }
 
   public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+    //Logger.Debug($"Sender: {sender.GetType()} args: {e}, selected: {DataManager.CurrentTrainRoute}");
     // Could be better I know
     if (_firstSelectionChange) {
       RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
       _firstSelectionChange = false;
-      return;  
+      return;
     }
     
     // Handle the selection changed event here
     if (sender is ComboBox comboBox && comboBox.SelectedItem != null) {
       Logger.Debug($"Selected Track: {((TrainRoute)comboBox.SelectedItem).Name}");
-      if (DataManager.TrainRoutes.Count == 0)
+      if (DataManager.TrainRoutes.Count == 0) {
         return;
-        
+      }
+      
       if (DataContext is TrackEditorViewModel viewModel) {
         // If we are adding a new line, switch the combobox to it
         if (viewModel.AddingNew) comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
-
+        
 
         viewModel.Routes = DataManager.TrainRoutes;
         DataManager.CurrentTrainRoute = comboBox.SelectedIndex;

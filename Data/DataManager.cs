@@ -20,7 +20,7 @@ namespace SmartTrainApplication.Data;
 internal class DataManager {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
   public static List<TrainRoute> TrainRoutes = new();
-  public static int CurrentTrainRoute;
+  public static int CurrentTrainRoute = -1;
 
   public static List<Train> Trains = new();
   public static int CurrentTrain;
@@ -36,7 +36,7 @@ internal class DataManager {
   /// <returns>(TrainRoute) TrainRoute with name & list of RouteCoordinates</returns>
   public static TrainRoute CreateNewRoute(string geometryString, string name = "Route", string id = "",
     string filePath = "") {
-    Logger.Debug($"CreateNewRoute() name={name} id={id}");
+    Logger.Debug($"CreateNewRoute() geometryString={geometryString} name={name} id={id}");
     List<RouteCoordinate> geometry = ParseGeometryString(geometryString);
     TrainRoute newTrainRoute = new(name, geometry, id, filePath);
 
@@ -97,6 +97,7 @@ internal class DataManager {
   /// <param name="geometryString">(String) TrainRoute's GeometryString to be parsed </param>
   /// <returns>(List of RoudeCoordinate(string X, string Y)) TrainRoute's coordinates</returns>
   public static List<RouteCoordinate> ParseGeometryString(string geometryString) {
+    Logger.Debug($"ParseGeometryString() geometryString={geometryString}");
     // Parse the line string into individual values
     string[] parsedGeometry = geometryString.Split("(");
     string geometry = parsedGeometry[1].Remove(parsedGeometry[1].Length - 1);
@@ -239,9 +240,14 @@ internal class DataManager {
   }
 
   public static List<RouteCoordinate> GetStops() {
-    return TrainRoutes[CurrentTrainRoute].GetStopCoordinates();
+    if (CurrentTrainRoute == -1) {
+      Logger.Debug("No routes");
+      return new List<RouteCoordinate>();
+    } else {
+      return TrainRoutes[CurrentTrainRoute].GetStopCoordinates();
+    }
   }
-
+  
   /// <summary>
   ///   Calculates a distance between 2 given RoutePoints
   ///   <br />
@@ -251,10 +257,11 @@ internal class DataManager {
   /// <param name="point2">(RoutePoint) RoutePoint to which to calculate the distance</param>
   /// <returns>(double) Distance between the 2 given RoutePoints</returns>
   public static double CalculateDistance(RoutePoint point1, RoutePoint point2) {
-    double deltaX = double.Parse(point2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
-                    double.Parse(point1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-    double deltaY = double.Parse(point2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture) -
-                    double.Parse(point1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+    Logger.Debug($"Calculating distance from p1({point1.Longitude};{point1.Latitude}) -> p2({point2.Longitude};{point2.Latitude})");
+    double deltaX = double.Parse(point2.Longitude, NumberStyles.Float) -
+                    double.Parse(point1.Longitude, NumberStyles.Float);
+    double deltaY = double.Parse(point2.Latitude, NumberStyles.Float) -
+                    double.Parse(point1.Latitude, NumberStyles.Float);
 
     return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
   }
@@ -287,6 +294,7 @@ internal class DataManager {
     if (TrainRoutes[CurrentTrainRoute] == null) return;
 
     foreach (RouteCoordinate coord in routeCoordinates) {
+      Logger.Debug($"Adding {coord.GetCoordinateString()}");
       RoutePoint routePoint = new(coord.Longitude, coord.Latitude);
 
       double closestDiff = 1000000;

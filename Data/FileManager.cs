@@ -206,6 +206,10 @@ internal class FileManager {
       trainRoutes.Add(importedTrainRoute);
     }
 
+    if (trainRoutes.Count != 0) {
+      DataManager.CurrentTrainRoute = 0;
+    }
+    
     return trainRoutes;
     }
 

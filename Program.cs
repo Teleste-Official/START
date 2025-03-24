@@ -2,6 +2,7 @@
 
 using System;
 using Avalonia;
+using System.Globalization;
 
 #endregion
 
@@ -13,6 +14,11 @@ internal class Program {
   // yet and stuff might break.
   [STAThread]
   public static void Main(string[] args) {
+    CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+    CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+    
+    //CultureInfo.DefaultThreadCurrentCulture =   new CultureInfo("de-DE");
+    //CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("de-DE");
     BuildAvaloniaApp()
       .StartWithClassicDesktopLifetime(args);
   }
