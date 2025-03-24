@@ -49,7 +49,7 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="5">
           <!-- Small square Add Line button -->
           <Button Command="{Binding AddLineButton}"
-                  IsVisible="{Binding AddLineButtonEnabled}"
+                  IsEnabled="{Binding AddLineButtonEnabled}"
                   Width="35" Height="35"
                   Content="+"
                   FontSize="18"
@@ -60,7 +60,7 @@
           <!-- ComboBox for Routes -->
           <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
                     SelectionChanged="TrackComboBox_SelectionChanged"
-                    IsVisible="{Binding RouteComboBoxEnabled}"
+                    IsEnabled="{Binding RouteComboBoxEnabled}"
                     Width="180">
             <ComboBox.ItemTemplate>
               <DataTemplate>
@@ -74,26 +74,32 @@
         </StackPanel>
   
         <!-- TextBox below the horizontal container -->
+        <TextBlock
+          IsVisible="{Binding TrackNameFieldEnabled}"
+          Text="Click on the map to draw route"
+          FontWeight="Bold"
+          />
         <TextBox Margin="0,10,0,5"
                  Watermark="Track Name..." 
                  Text="{Binding TrackName}"
                  IsVisible="{Binding TrackNameFieldEnabled}" />
 
         <Button Command="{Binding ModifyButton}"
-                IsVisible="{Binding ModifyTrackButtonEnabled}">
+                IsEnabled="{Binding ModifyTrackButtonEnabled}">
           Modify Track
         </Button>
         <Button Command="{Binding AddTunnelButton}"
-                IsVisible="{Binding AddTunnelButtonEnabled}">
+                IsEnabled="{Binding AddTunnelButtonEnabled}">
           Add Tunnel
         </Button>
         <Button Command="{Binding AddStopButton}"
-                IsVisible="{Binding AddStopButtonEnabled}">
-          Add Stop
+                IsEnabled="{Binding AddStopButtonEnabled}">
+          Add Stops
         </Button>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5" >
           
           <Button Command="{Binding ConfirmButton}"
+                  IsEnabled="{Binding ConfirmButtonEnabled}"
                   Width="107">
           Confirm
           </Button>

@@ -41,9 +41,16 @@ public class TrackEditorViewModel : ViewModelBase {
   public string TrackName {
     get => _trackName;
     set {
+      
       if (_trackName != value) {
         _trackName = value;
         RaisePropertyChanged(nameof(TrackName));
+      }
+
+      if (_trackName == "") {
+        ConfirmButtonEnabled = false;
+      } else {
+        ConfirmButtonEnabled = true;
       }
     }
   }
@@ -54,6 +61,7 @@ public class TrackEditorViewModel : ViewModelBase {
   private bool _addStopButtonEnabled;
   private bool _modifyTrackButtonEnabled;
   private bool _stopListEnabled;
+  private bool _confirmButtonEnabled;
   
   public bool RouteComboBoxEnabled {
     get => _routeComboBoxEnabled;
@@ -126,6 +134,16 @@ public class TrackEditorViewModel : ViewModelBase {
     }
   }
   
+  public bool ConfirmButtonEnabled {
+    get => _confirmButtonEnabled;
+    set {
+      if (_confirmButtonEnabled != value) {
+        _confirmButtonEnabled = value;
+        RaisePropertyChanged(nameof(ConfirmButtonEnabled));
+      }
+    }
+  }
+  
 
   public bool AddingNew { get; set; }
 
@@ -157,12 +175,15 @@ public class TrackEditorViewModel : ViewModelBase {
   private void ResetAllButtons() {
     RouteComboBoxEnabled = true;
     TrackNameFieldEnabled = false;
-    
     AddLineButtonEnabled = true;
-    AddTunnelButtonEnabled = true;
-    AddStopButtonEnabled = true;
-    ModifyTrackButtonEnabled = true;
-    StopListEnabled = true;
+    if (DataManager.TrainRoutes.Count != 0) {
+      AddTunnelButtonEnabled = true;
+      AddStopButtonEnabled = true;
+      ModifyTrackButtonEnabled = true;
+      StopListEnabled = true;
+      ConfirmButtonEnabled = false;
+    }
+
   }
 
   public void AddLineButton() {
@@ -172,6 +193,7 @@ public class TrackEditorViewModel : ViewModelBase {
     AddStopButtonEnabled = false;
     AddTunnelButtonEnabled = false;
     ModifyTrackButtonEnabled = false;
+    ConfirmButtonEnabled = true;
     StopListEnabled = false;
     TrackName = string.Empty;
     
@@ -182,14 +204,14 @@ public class TrackEditorViewModel : ViewModelBase {
   }
 
   public void AddTunnelButton() {
-    TrackNameFieldEnabled = false;
+    DisableAllActionButtons();
     LayerManager.ClearFeatures();
     LayerManager.AddTunnel();
     CurrentAction = EditorAction.AddTunnel;
   }
 
   public void AddStopButton() {
-    TrackNameFieldEnabled = false;
+    DisableAllActionButtons();
     LayerManager.ClearFeatures();
     LayerManager.AddTunnel();
     CurrentAction = EditorAction.AddStop;
@@ -197,7 +219,7 @@ public class TrackEditorViewModel : ViewModelBase {
 
   public void ModifyButton() {
     if (CurrentAction != EditorAction.ModifyTrack) {
-      TrackNameFieldEnabled = true;
+      DisableAllActionButtons();
       LayerManager.ClearFeatures();
       LayerManager.TurnImportToEdit();
       CurrentAction = EditorAction.ModifyTrack;
@@ -210,7 +232,18 @@ public class TrackEditorViewModel : ViewModelBase {
     CurrentAction = EditorAction.None;
     LayerManager.ClearFeatures();
     LayerManager.ClearAllLayers();
-    LayerManager.ChangeCurrentRoute(-1); // TODO do something about this...
+    LayerManager.ResetCurrentRoute();
+  }
+
+  private void DisableAllActionButtons() {
+    AddLineButtonEnabled = false;
+    TrackNameFieldEnabled = false;
+    ModifyTrackButtonEnabled = false;
+    AddTunnelButtonEnabled = false;
+    AddStopButtonEnabled = false;
+    ConfirmButtonEnabled = true;
+    RouteComboBoxEnabled = false;
+    StopListEnabled = false;
   }
 
   public void ConfirmButton() {

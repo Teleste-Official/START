@@ -42,6 +42,17 @@ internal class DataManager {
 
     return newTrainRoute;
   }
+
+  public static TrainRoute? GetCurrentRoute() {
+    if (CurrentTrainRoute == -1) {
+      return null;
+    } else if (TrainRoutes.Count - 1 < CurrentTrainRoute) {
+      return null; 
+    } else {
+      return TrainRoutes[CurrentTrainRoute];
+    }
+
+  }
   
   //public static TrainRoute CreateTrainRouteFromGeometryString()
 
@@ -257,7 +268,7 @@ internal class DataManager {
   /// <param name="point2">(RoutePoint) RoutePoint to which to calculate the distance</param>
   /// <returns>(double) Distance between the 2 given RoutePoints</returns>
   public static double CalculateDistance(RoutePoint point1, RoutePoint point2) {
-    Logger.Debug($"Calculating distance from p1({point1.Longitude};{point1.Latitude}) -> p2({point2.Longitude};{point2.Latitude})");
+    //Logger.Debug($"Calculating distance from p1({point1.Longitude};{point1.Latitude}) -> p2({point2.Longitude};{point2.Latitude})");
     double deltaX = double.Parse(point2.Longitude, NumberStyles.Float) -
                     double.Parse(point1.Longitude, NumberStyles.Float);
     double deltaY = double.Parse(point2.Latitude, NumberStyles.Float) -

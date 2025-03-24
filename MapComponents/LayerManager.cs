@@ -125,8 +125,11 @@ internal class LayerManager {
     }
   }
 
-  public static void ChangeCurrentRoute(int routeIndex) {
-    string geometryData = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetGeometry();//FileManager.ChangeCurrentRoute(RouteIndex);
+  public static void ResetCurrentRoute() {
+    TrainRoute? currentRoute = DataManager.GetCurrentRoute();
+    if (currentRoute == null) return;
+    
+    string geometryData = currentRoute.GetGeometry();
 
     WritableLayer importLayer = CreateImportLayer();
     List<string> tunnelStrings = DataManager.GetTunnelStrings();
@@ -135,7 +138,7 @@ internal class LayerManager {
     TurnImportToFeature(geometryData, importLayer);
     RedrawTunnelsToMap(tunnelStrings);
     //RedrawStopsToMap2(DataManager.TrainRoutes[RouteIndex]);
-    RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
+    RedrawStopsToMap(currentRoute.GetStopCoordinates());
   }
 
   /// <summary>

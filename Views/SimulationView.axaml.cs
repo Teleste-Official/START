@@ -29,7 +29,7 @@ public partial class SimulationView : UserControl {
         DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
         LayerManager.SwitchRoute();
         viewModel.SetStopsToUI();
-        Logger.Debug("Current route " + DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Id);
+        Logger.Debug($"Selected {DataManager.GetCurrentRoute()?.Name} for simulation");
       }
     }
   }
