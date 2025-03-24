@@ -368,10 +368,10 @@ internal class DataManager {
     } else if (specifier == "Simulation") {
       DateTime currentTime = DateTime.Now;
       newPath = Path.Combine(FileManager.DefaultSimulationsFolderPath,
-        "simulation_" + currentTime.ToString("ddMMyyyy_HHmmss") + ".json");
+        "simulation_" + currentTime.ToString("dd_MM_yyyy__HH_mm_ss") + ".json");
     }
     
-    Logger.Debug("created path: " + newPath);
+    Logger.Debug($"Created path for created path for id={id}, specifier={specifier}, name={name} -> path: \"{newPath}\"");
     return newPath;
   }
 

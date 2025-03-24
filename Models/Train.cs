@@ -38,7 +38,7 @@ public class Train {
     Acceleration = acceleration;
     Icon = icon;
     Id = id == "" ? DataManager.CreateId() : id;
-    FilePath = filePath == "" ? DataManager.CreateFilePath(Name, Id, Specifier) : filePath;
+    FilePath = filePath == "" ? DataManager.CreateFilePath(Id, Specifier, Name) : filePath;
     Edited = false;
   }
 

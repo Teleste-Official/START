@@ -146,11 +146,13 @@ internal class FileManager {
   public static void SaveSpecific(TrainRoute route) {
     if (route == null) return;
 
-    string Path = route.FilePath;
-    Logger.Debug("Save: " + Path);
+    string filePath = route.FilePath;
+    
     // Save the current train route
-    JsonSerializerOptions Json_options = new() { WriteIndented = true };
-    File.WriteAllText(Path, JsonSerializer.Serialize(route, Json_options));
+    JsonSerializerOptions jsonOptions = new() { WriteIndented = true };
+    File.WriteAllText(filePath, JsonSerializer.Serialize(route, jsonOptions));
+    
+    Logger.Debug($"Route \"{route.Name}\" saved to {filePath}");
   }
 
   /// <summary>
@@ -191,7 +193,7 @@ internal class FileManager {
         }
       }
     } catch (Exception ex) {
-      Logger.Debug(ex.Message);
+      Logger.Error($"ReadRoutesFromFolder() error: {ex}");
     }
 
 
@@ -330,18 +332,20 @@ internal class FileManager {
   /// </summary>
   public static void SaveTrain(Train train) {
     string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-    string Path = System.IO.Path.Combine(train.FilePath);
+    string path = System.IO.Path.Combine(train.FilePath);
 
     try {
       if (!Directory.Exists(TrainsDirectory)) Directory.CreateDirectory(TrainsDirectory);
+      // Save the train
+      JsonSerializerOptions jsonOptions = new() { WriteIndented = true };
+      File.WriteAllText(path, JsonSerializer.Serialize(train, jsonOptions));
+      Logger.Debug($"Train \"{train.Name}\" saved to {path}");
     }
-    catch (Exception Ex) {
-      Logger.Debug(Ex.Message);
+    catch (Exception ex) {
+      Logger.Error($"Trying to save train \"{train.Name}\" to \"{path}\", error: {ex}");
     }
 
-    // Save the train
-    JsonSerializerOptions Json_options = new() { WriteIndented = true };
-    File.WriteAllText(Path, JsonSerializer.Serialize(train, Json_options));
+
   }
 
   public static void SaveSettings(Settings settings) {

@@ -116,7 +116,7 @@ public class TrainEditorViewModel : ViewModelBase {
 
   public void SetTrainsToUI() {
     Trains.Clear();
-    foreach (Train? Train in DataManager.Trains) Trains.Add(new ListedTrain(Train, Icons[Train.Icon]));
+    foreach (Train? train in DataManager.Trains) Trains.Add(new ListedTrain(train, Icons[train.Icon]));
     Trains = Trains.ToList(); // This needs to be here for the UI to update on its own -Metso
   }
 
