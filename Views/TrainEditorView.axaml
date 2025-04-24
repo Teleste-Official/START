@@ -85,37 +85,84 @@
         </ComboBox>
       </StackPanel>
 
-      <TextBox Watermark="Train Name*"
-               Text="{Binding Title}"
-               IsEnabled="{Binding IsEditing}"
-               Margin="0 0 0 10" />
 
-      <TextBox Height="80"
-               Text="{Binding Description}"
-               IsEnabled="{Binding IsEditing}"
-               AcceptsReturn="True"
-               Watermark="Train description (optional)"
-               TextWrapping="Wrap"
-               Margin="0 0 0 10" />
+      <TextBlock FontWeight="Bold"
+                 Text="Name:"
+                 Margin="0 0 0 10" />
 
-      <NumericUpDown Value="{Binding Speed}"
-                     IsEnabled="{Binding IsEditing}"
-                     Minimum="0"
-                     Maximum="220"
-                     Increment="5"
-                     Watermark="Speed*"
-                     Margin="0 0 0 10" />
+      <Grid Height="35">
+        <TextBlock Text="{Binding Title}"
+                   IsVisible="{Binding !IsEditing}" />
+        <TextBox Watermark="Train Name*"
+                 Text="{Binding Title}"
+                 IsVisible="{Binding IsEditing}"
+                 Margin="0 0 0 10" />
+      </Grid>
 
-      <NumericUpDown Value="{Binding Acceleration}"
-                     IsEnabled="{Binding IsEditing}"
-                     Minimum="0"
-                     Maximum="3"
-                     Increment="0.1"
-                     Watermark="Acceleration*"
-                     Margin="0 0 0 10" />
+
+
+      <TextBlock FontWeight="Bold"
+                 Text="Description:"
+                 Margin="0 0 0 10" />
+
+      <Grid Margin="0 0 0 10" Height="80">
+        <TextBlock Text="{Binding Description}"
+                   TextWrapping="Wrap"
+                   Height="80"
+                   IsVisible="{Binding !IsEditing}"
+                   Margin="0 0 0 10"/>
+        <TextBox Height="80"
+                 Text="{Binding Description}"
+                 IsVisible="{Binding IsEditing}"
+                 AcceptsReturn="True"
+                 Watermark="Train description (optional)"
+                 TextWrapping="Wrap" />
+      </Grid>
+
+
+
+      <TextBlock FontWeight="Bold"
+                 Text="Max Speed (1 - 220 km/h):"
+                 Margin="0 0 0 10" />
+
+      <Grid Margin="0 0 0 10" Height="35">
+        <TextBlock Text="{Binding Speed}"
+                   IsVisible="{Binding !IsEditing}" />
+        <NumericUpDown Value="{Binding Speed}"
+                       IsVisible="{Binding IsEditing}"
+                       Minimum="0"
+                       Maximum="220"
+                       Increment="5"
+                       Watermark="Speed*" />
+      </Grid>
+
+
+      <TextBlock FontWeight="Bold"
+                 Text="Acceleration (0.1 - 3.0 m/s²):"
+                 Margin="0 0 0 10" />
+
+      <Grid Margin="0 0 0 10" Height="35">
+        <TextBlock Text="{Binding Acceleration}"
+                   IsVisible="{Binding !IsEditing}" />
+        <NumericUpDown Value="{Binding Acceleration}"
+                       IsVisible="{Binding IsEditing}"
+                       Minimum="0"
+                       Maximum="3"
+                       Increment="0.1"
+                       Watermark="Acceleration*" />
+      </Grid>
+
+
+
+      <TextBlock FontWeight="Bold"
+                 Text="Icon:"
+                 Margin="0 0 0 10"
+                 IsVisible="{Binding IsEditing}"
+                 IsEnabled="{Binding IsEditing}" />
 
       <ComboBox Width="100"
                 SelectedIndex="{Binding IconIndex}"
+                IsVisible="{Binding IsEditing}"
                 IsEnabled="{Binding IsEditing}"
                 Margin="0 0 0 10">
         <ComboBoxItem>
