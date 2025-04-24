@@ -199,6 +199,7 @@ public class TrainEditorViewModel : ViewModelBase {
       AddTrainButton();
     } else {
       ResetAllControls();
+      SetValuesToUI();
     }
   }
 
