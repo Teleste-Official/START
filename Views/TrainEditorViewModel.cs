@@ -15,74 +15,341 @@ namespace SmartTrainApplication.Views;
 
 public class TrainEditorViewModel : ViewModelBase {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-  public string Title { get; set; }
-  public string Description { get; set; }
-  public string Speed { get; set; }
-  public string Acceleration { get; set; }
-  public int IconIndex { get; set; }
 
-  public static List<Bitmap> Icons { get; set; }
+    // State management properties
+    private bool _trainComboBoxEnabled = true;
+    private bool _nameFieldEnabled;
+    private bool _confirmButtonEnabled;
+    private bool _saveButtonEnabled = true;
+    private bool _updateButtonEnabled = true;
+    private EditorAction _currentAction = EditorAction.None;
 
-  public List<ListedTrain> Trains { get; set; }
+    // Data properties
+    private string _title;
+    private string _description;
+    private string _speed;
+    private string _acceleration;
+    private int _iconIndex;
+    private List<ListedTrain> _trains;
 
-  public class ListedTrain : Train {
-    public Bitmap Image { get; set; }
+    public enum EditorAction
+    {
+        None,
+        Adding,
+        Modifying
+    }
 
-    public ListedTrain(Train train, Bitmap image) {
-      Name = train.Name;
-      Description = train.Description;
-      MaxSpeed = train.MaxSpeed;
-      Acceleration = train.Acceleration;
-      Icon = train.Icon;
-      Image = image;
+    public EditorAction CurrentAction
+    {
+        get => _currentAction;
+        set
+        {
+            if (_currentAction != value)
+            {
+                _currentAction = value;
+                RaisePropertyChanged(nameof(CurrentAction));
+            }
+        }
+    }
+
+    private string _buttonText = "Edit";
+    private bool _isEditing;
+
+    public string ButtonText
+    {
+      get => _buttonText;
+      set
+      {
+        if (_buttonText != value)
+        {
+          _buttonText = value;
+          RaisePropertyChanged(nameof(ButtonText));
+        }
+      }
+    }
+
+    public bool IsEditing
+    {
+      get => _isEditing;
+      set
+      {
+        if (_isEditing != value)
+        {
+          _isEditing = value;
+          RaisePropertyChanged(nameof(IsEditing));
+        }
+      }
+    }
+
+
+  public void EditButton()
+  {
+    if (CurrentAction == EditorAction.None && DataManager.Trains.Any())
+    {
+      CurrentAction = EditorAction.Modifying;
+      IsEditing = true;
+      ButtonText = "Confirm";
+      ConfirmButtonEnabled = ValidateForm();
+    }
+    else
+    {
+      ConfirmButton();
     }
   }
 
-  public TrainEditorViewModel() {
-    if (DataManager.Trains.Count == 0)
-      DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
 
-    SetIcons();
+    public bool TrainComboBoxEnabled
+    {
+        get => _trainComboBoxEnabled;
+        set
+        {
+            if (_trainComboBoxEnabled != value)
+            {
+                _trainComboBoxEnabled = value;
+                RaisePropertyChanged(nameof(TrainComboBoxEnabled));
+            }
+        }
+    }
 
-    Trains = new List<ListedTrain>();
-    SetTrainsToUI();
+    public bool NameFieldEnabled
+    {
+        get => _nameFieldEnabled;
+        set
+        {
+            if (_nameFieldEnabled != value)
+            {
+                _nameFieldEnabled = value;
+                RaisePropertyChanged(nameof(NameFieldEnabled));
+            }
+        }
+    }
 
-    // Switch view in file manager
-    FileManager.CurrentView = "Train";
-    Logger.Debug(FileManager.CurrentView);
-  }
+    public bool ConfirmButtonEnabled
+    {
+        get => _confirmButtonEnabled;
+        set
+        {
+            if (_confirmButtonEnabled != value)
+            {
+                _confirmButtonEnabled = value;
+                RaisePropertyChanged(nameof(ConfirmButtonEnabled));
+            }
+        }
+    }
 
-  public void UpdateTrainButton() {
-    if (!DataManager.Trains.Any())
-      return;
-    if (Title == null || Description == null || Speed == null || Acceleration == null) return;
-    Train? newTrain = new(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex,
-      DataManager.Trains[DataManager.CurrentTrain].Id, DataManager.Trains[DataManager.CurrentTrain].FilePath);
-    DataManager.UpdateTrain(newTrain);
-    Trains[DataManager.Trains.FindIndex(a => a.Id.Contains(DataManager.Trains[DataManager.CurrentTrain].Id))].Name =
-      Title;
-    Trains = Trains;
-    RaisePropertyChanged(nameof(Trains));
-  }
+    // Data properties with property change notifications
+    public string Title
+    {
+        get => _title;
+        set
+        {
+            if (_title != value)
+            {
+                _title = value;
+                RaisePropertyChanged(nameof(Title));
+                ValidateForm();
+            }
+        }
+    }
 
-  public void SaveTrainButton() {
-    if (Title == null || Description == null || Speed == null || Acceleration == null) return;
+    public string Description
+    {
+        get => _description;
+        set
+        {
+            if (_description != value)
+            {
+                _description = value;
+                RaisePropertyChanged(nameof(Description));
+                ValidateForm();
+            }
+        }
+    }
 
-    Train? newTrain = new(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
+    public string Speed
+    {
+        get => _speed;
+        set
+        {
+            if (_speed != value)
+            {
+                _speed = value;
+                RaisePropertyChanged(nameof(Speed));
+                ValidateForm();
+            }
+        }
+    }
 
-    DataManager.Trains.Add(newTrain);
-    newTrain.Edited = true;
-    Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+    public string Acceleration
+    {
+        get => _acceleration;
+        set
+        {
+            if (_acceleration != value)
+            {
+                _acceleration = value;
+                RaisePropertyChanged(nameof(Acceleration));
+                ValidateForm();
+            }
+        }
+    }
 
-    if (!DataManager.Trains.Any())
-      DataManager.CurrentTrain = 0;
-    else
-      DataManager.CurrentTrain = DataManager.Trains.Count - 1;
+    public int IconIndex
+    {
+        get => _iconIndex;
+        set
+        {
+            if (_iconIndex != value)
+            {
+                _iconIndex = value;
+                RaisePropertyChanged(nameof(IconIndex));
+            }
+        }
+    }
 
-    Trains = Trains;
-    RaisePropertyChanged(nameof(Trains));
-    SetValuesToUI();
-  }
+    public List<ListedTrain> Trains
+    {
+        get => _trains;
+        set
+        {
+            _trains = value;
+            RaisePropertyChanged(nameof(Trains));
+        }
+    }
+
+    public static List<Bitmap> Icons { get; set; }
+
+    public class ListedTrain : Train
+    {
+      public Bitmap Image { get; set; }
+
+      public ListedTrain(Train train, Bitmap image)
+      {
+        // Copy all properties from base Train
+        Id = train.Id;
+        FilePath = train.FilePath;
+        Edited = train.Edited;
+        Name = train.Name;
+        Description = train.Description;
+        MaxSpeed = train.MaxSpeed;
+        Acceleration = train.Acceleration;
+        Icon = train.Icon;
+        Specifier = train.Specifier;
+        Image = image;
+      }
+    }
+
+    public TrainEditorViewModel()
+    {
+        InitializeData();
+        ResetAllControls();
+    }
+
+    private void InitializeData()
+    {
+        if (DataManager.Trains.Count == 0)
+            DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
+
+        SetIcons();
+        Trains = DataManager.Trains.Select(t => new ListedTrain(t, Icons[t.Icon])).ToList();
+        FileManager.CurrentView = "Train";
+    }
+
+    public void AddTrainButton()
+    {
+        CurrentAction = EditorAction.Adding;
+        TrainComboBoxEnabled = false;
+        NameFieldEnabled = true;
+        ClearValues();
+        IsEditing = true;
+        ConfirmButtonEnabled = false;
+
+    }
+
+    public void ConfirmButton()
+    {
+        switch (CurrentAction)
+        {
+            case EditorAction.Adding:
+                SaveNewTrain();
+                break;
+            case EditorAction.Modifying:
+                UpdateExistingTrain();
+                break;
+        }
+
+        ResetAllControls();
+        CurrentAction = EditorAction.None;
+    }
+
+    private void SaveNewTrain()
+    {
+        if (!ValidateForm()) return;
+
+        var newTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex);
+        DataManager.Trains.Add(newTrain);
+        Trains.Add(new ListedTrain(newTrain, Icons[newTrain.Icon]));
+
+        DataManager.CurrentTrain = DataManager.Trains.Count - 1;
+        Trains = new List<ListedTrain>(Trains); // Refresh list
+    }
+
+    private void UpdateExistingTrain()
+    {
+        if (!ValidateForm() || DataManager.CurrentTrain < 0) return;
+
+        var updatedTrain = new Train(Title, Description, float.Parse(Speed), float.Parse(Acceleration), IconIndex,
+            DataManager.Trains[DataManager.CurrentTrain].Id,
+            DataManager.Trains[DataManager.CurrentTrain].FilePath);
+
+        DataManager.UpdateTrain(updatedTrain);
+        Trains[DataManager.CurrentTrain] = new ListedTrain(updatedTrain, Icons[updatedTrain.Icon]);
+        Trains = new List<ListedTrain>(Trains); // Refresh list
+    }
+
+    public void CancelButton()
+    {
+      if (CurrentAction == EditorAction.Adding)
+      {
+        ClearValues();
+      }
+      else if (CurrentAction == EditorAction.Modifying)
+      {
+        // Load first train's data
+        if (DataManager.Trains.Count > 0)
+        {
+          DataManager.CurrentTrain = 0;
+          SetValuesToUI();
+        }
+      }
+
+      ResetAllControls();
+      CurrentAction = EditorAction.None;
+    }
+
+    private void ResetAllControls()
+    {
+      TrainComboBoxEnabled = true;
+      IsEditing = false;
+      ConfirmButtonEnabled = false;
+      ButtonText = "Edit";
+    }
+
+    private bool ValidateForm()
+    {
+      var isValid = !string.IsNullOrWhiteSpace(Title) &&
+                    !string.IsNullOrWhiteSpace(Speed) &&
+                    !string.IsNullOrWhiteSpace(Acceleration);
+
+      if (CurrentAction == EditorAction.Adding)
+      {
+        isValid = isValid && !DataManager.Trains.Any(t =>
+          t.Name.Equals(Title, StringComparison.OrdinalIgnoreCase));
+      }
+
+      ConfirmButtonEnabled = isValid;
+      return isValid;
+    }
 
   public void SetValuesToUI() {
     Title = DataManager.Trains[DataManager.CurrentTrain].Name;

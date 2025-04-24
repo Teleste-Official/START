@@ -41,93 +41,117 @@
   </UserControl.Styles>
 
   <ScrollViewer DockPanel.Dock="Left"
-                AllowAutoHide="False"
-                Width="270">
-    <Border DockPanel.Dock="Left"
-            Width="250"
-            Background="#D9FCFCFC"
-            BorderBrush="#11000000"
-            BorderThickness="1"
-            BoxShadow="0 8 16 0 #22000000"
-            Margin="0,0,10,0"
-            Padding="4,0">
+              AllowAutoHide="False"
+              Width="270">
+  <Border DockPanel.Dock="Left"
+          Width="250"
+          Background="#D9FCFCFC"
+          BorderBrush="#11000000"
+          BorderThickness="1"
+          BoxShadow="0 8 16 0 #22000000"
+          Margin="0,0,10,0"
+          Padding="4,0">
 
-      <DockPanel LastChildFill="False">
+    <StackPanel Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+      <!-- New horizontal container for button and ComboBox -->
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="5">
+        <!-- Add Train button -->
+        <Button Command="{Binding AddTrainButton}"
+                Width="35" Height="35"
+                Content="+"
+                FontSize="18"
+                FontWeight="500"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsEnabled="{Binding !IsEditing}"
+                />
 
-        <TextBlock Margin="5 5 0 5">Select train:</TextBlock>
+        <!-- ComboBox for Trains -->
+        <ComboBox x:Name="TrainComboBox"
+                  ItemsSource="{Binding Trains}"
+                  SelectionChanged="TrainComboBox_SelectionChanged"
+                  IsEnabled="{Binding !IsEditing}"
+                  Width="180"
 
-        <ComboBox x:Name="TrainComboBox" ItemsSource="{Binding Trains}"
-                  SelectionChanged="TrainComboBox_SelectionChanged">
+                  >
           <ComboBox.ItemTemplate>
             <DataTemplate>
-              <Panel>
-                <Image Margin="5 0 175 0" Height="25" Width="25" Source="{Binding Image}" />
-                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
-              </Panel>
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <Image Height="25" Width="25" Source="{Binding Image}" />
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+              </StackPanel>
             </DataTemplate>
           </ComboBox.ItemTemplate>
         </ComboBox>
+      </StackPanel>
 
-        <TextBlock Margin="5 10 0 5">Name:</TextBlock>
-        <TextBox Watermark="Train Name..."
-                 Text="{Binding Title}"
-                 Margin="0 0 0 0" />
+      <TextBox Watermark="Train Name*"
+               Text="{Binding Title}"
+               IsEnabled="{Binding IsEditing}"
+               Margin="0 0 0 10" />
 
-        <TextBlock Margin="0 15 0 5">Description:</TextBlock>
-        <TextBox Height="80"
-                 Text="{Binding Description}"
-                 AcceptsReturn="True"
-                 Watermark="Train description..."
-                 TextWrapping="Wrap" />
+      <TextBox Height="80"
+               Text="{Binding Description}"
+               IsEnabled="{Binding IsEditing}"
+               AcceptsReturn="True"
+               Watermark="Train description (optional)"
+               TextWrapping="Wrap"
+               Margin="0 0 0 10" />
 
-        <!--<TextBlock Margin="5 10 0 5">Odometer:</TextBlock>-->
-        <!--<NumericUpDown Watermark="Odometer..."/>-->
+      <NumericUpDown Value="{Binding Speed}"
+                     IsEnabled="{Binding IsEditing}"
+                     Minimum="0"
+                     Maximum="220"
+                     Increment="5"
+                     Watermark="Speed*"
+                     Margin="0 0 0 10" />
 
-        <TextBlock Margin="5 10 0 5">Maximum speed:</TextBlock>
-        <NumericUpDown Value="{Binding Speed}"
-                       Minimum="0"
-                       Maximum="220"
-                       Increment="5"
-                       Watermark="Speed..." />
+      <NumericUpDown Value="{Binding Acceleration}"
+                     IsEnabled="{Binding IsEditing}"
+                     Minimum="0"
+                     Maximum="3"
+                     Increment="0.1"
+                     Watermark="Acceleration*"
+                     Margin="0 0 0 10" />
 
-        <TextBlock Margin="5 10 0 5">Acceleration:</TextBlock>
-        <NumericUpDown Value="{Binding Acceleration}"
-                       Minimum="0"
-                       Maximum="3"
-                       Increment="0.1"
-                       Watermark="Acceleration..." />
+      <ComboBox Width="100"
+                SelectedIndex="{Binding IconIndex}"
+                IsEnabled="{Binding IsEditing}"
+                Margin="0 0 0 10">
+        <ComboBoxItem>
+          <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train2.png" />
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train1.png" />
+        </ComboBoxItem>
+        <ComboBoxItem>
+          <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_tram.png" />
+        </ComboBoxItem>
+      </ComboBox>
 
-        <TextBlock Margin="5 10 0 5">Icon:</TextBlock>
-        <ComboBox Width="100" SelectedIndex="{Binding IconIndex}">
-          <ComboBoxItem>
-            <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train2.png" />
-            </Panel>
-          </ComboBoxItem>
-          <ComboBoxItem>
-            <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_train1.png" />
-            </Panel>
-          </ComboBoxItem>
-          <ComboBoxItem>
-            <Panel>
-              <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_tram.png" />
-            </Panel>
-          </ComboBoxItem>
-        </ComboBox>
+      <!-- Horizontal button container -->
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5">
+        <Button Command="{Binding EditButton}"
+                Width="107"
+                Margin="5 10 5 0"
+                Content="{Binding ButtonText}"
+                IsVisible="{Binding !IsEditing}" />
 
-        <Button Command="{Binding UpdateTrainButton}"
-                Height="30"
-                Margin="5 10 5 0">
-          Update current
-        </Button>
-        <Button Command="{Binding SaveTrainButton}"
-                Height="30"
-                Margin="5 10 5 0">
-          Create new
-        </Button>
+        <Button Command="{Binding ConfirmButton}"
+                Width="107"
+                Margin="5 10 5 0"
+                Content="Confirm"
+                IsEnabled="{Binding ConfirmButtonEnabled}"
+                IsVisible="{Binding IsEditing}" />
 
-      </DockPanel>
-    </Border>
-  </ScrollViewer>
+        <Button Command="{Binding CancelButton}"
+                Width="107"
+                Margin="5 10 5 0"
+                Content="Cancel"
+                IsVisible="{Binding IsEditing}" />
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+</ScrollViewer>
 </UserControl>
