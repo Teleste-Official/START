@@ -194,7 +194,12 @@ public class TrainEditorViewModel : ViewModelBase {
 
   public TrainEditorViewModel() {
     InitializeData();
-    ResetAllControls();
+
+    if (Trains.Count == 0) {
+      AddTrainButton();
+    } else {
+      ResetAllControls();
+    }
   }
 
   private void InitializeData() {
