@@ -21,7 +21,9 @@ internal class Simulation {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
   
   public static SimulationData? LatestSimulation = null;
-  public static int IntervalTime = 1;
+
+  // This is used by the animation layer... do something about this.
+  public static float IntervalTime = 1.0f;
 
   /// <summary>
   /// Run Preprocess functions for TrainRoutes before simulating the TrainRoute
@@ -38,68 +40,38 @@ internal class Simulation {
     }
   }
 
-  public static void PreprocessRoute(Dictionary<RouteCoordinate, bool> stopsDictionary) {
-    // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
+  // TODO Make this make some sense
+  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, float acceleration, float maxSpeed, float interval) {
+    // See if async would be more preferrable for this -Metso
 
-    Dictionary<RouteCoordinate, bool> turnPoints =
-      new SimulatedTrainRoute(DataManager.TrainRoutes[DataManager.CurrentTrainRoute]).RouteTurnPoints;
-    Dictionary<RouteCoordinate, bool> stopPoints =
-      new SimulatedTrainRoute(DataManager.TrainRoutes[DataManager.CurrentTrainRoute]).RouteStops;
+    // Hack stuff for now
+    IntervalTime = interval;
+    TrainRoute? selectedRoute = DataManager.GetCurrentRoute();
+
+    // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
+    Dictionary<RouteCoordinate, bool> turnPoints = new SimulatedTrainRoute(selectedRoute).RouteTurnPoints;
+    Dictionary<RouteCoordinate, bool> stopPoints = new SimulatedTrainRoute(selectedRoute).RouteStops;
 
     foreach (KeyValuePair<RouteCoordinate, bool> kvp in turnPoints) {
-      for (int i = 0; i < DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords.Count - 2; i++) {
-        RoutePoint? point1 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Longitude,
-          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Latitude);
-        RoutePoint? point2 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1].Longitude,
-          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1].Latitude);
-        RoutePoint? point3 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 2].Longitude,
-          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 2].Latitude);
+      for (int i = 0; i < selectedRoute.Coords.Count - 2; i++) {
+        RoutePoint? point1 = new(selectedRoute.Coords[i].Longitude, selectedRoute.Coords[i].Latitude);
+        RoutePoint? point2 = new(selectedRoute.Coords[i + 1].Longitude, selectedRoute.Coords[i + 1].Latitude);
+        RoutePoint? point3 = new(selectedRoute.Coords[i + 2].Longitude, selectedRoute.Coords[i + 2].Latitude);
 
-        bool turn = TurnCalculation.CalculateTurn(point1, point2, point3);
-
-        turnPoints[DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1]] = turn;
+        turnPoints[selectedRoute.Coords[i + 1]] = TurnCalculation.CalculateTurn(point1, point2, point3);
       }
     }
 
-    foreach (KeyValuePair<RouteCoordinate, bool> kvp in stopsDictionary) stopPoints[kvp.Key] = kvp.Value;
-    RunSimulation(turnPoints, stopPoints);
-    return;
-  }
-
-  /// <summary>
-  /// Generate the TickData for use in simulation playback and simulation export data
-  /// </summary>
-  /// <param name="turnPoints">(Dictionary<RouteCoordinate, bool>) Dictionary with Turn data</param>
-  /// <param name="stopPoints">(Dictionary<RouteCoordinate, bool>) Dictionary with Stop data</param>
-  public static void RunSimulation(Dictionary<RouteCoordinate, bool> turnPoints,
-    Dictionary<RouteCoordinate, bool> stopPoints) // See if async would be more preferrable for this -Metso
-  {
-    bool isRunning = true;
-
-    // TODO fix these
-    const float acceleration = 2;
-    const float maxSpeed = 50;
-    float interval = (float)IntervalTime;
+    foreach (KeyValuePair<RouteCoordinate, bool> kvp in stopsDictionary) {
+      stopPoints[kvp.Key] = kvp.Value;
+    }
 
     Logger.Debug($"Simulation started with acceleration: {acceleration}, maxSpeed: {maxSpeed}, interval: {interval}");
-    /*double distance;
-    double slowZoneDistance = 100000000;
-    double kvpKeyLongitude = 0.0;
-    double kvpKeyLatitude = 0.0;
-    double point1Longitude = 0.0;
-    double point1Latitude = 0.0;
-    RoutePoint point1 = new RoutePoint();
-    RoutePoint point2 = new RoutePoint();
-    RoutePoint point3 = new RoutePoint();*/
-    bool turn = false;
-    bool stop = false;
 
     List<TickData> allTickData = new();
-
-    TrainRoute? route = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
     List<MPoint> points = new();
 
-    foreach (RouteCoordinate? coord in route.Coords) {
+    foreach (RouteCoordinate? coord in selectedRoute.Coords) {
       double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
       double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
       MPoint? point = SphericalMercator.ToLonLat(new MPoint(x, y));
@@ -114,14 +86,19 @@ internal class Simulation {
     bool isGpsFix = true;
 
     double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
-    double pointDistance =
-      RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+    double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
+
+    bool isRunning = true;
     while (isRunning) {
       // Iterate through the route and save all data
       // In each iteration move the train based on time, velocity and acceleration
       // Thus new calculations for each of these need to be done first in every iteration
       // -Metso
+
+      bool turn = false;
+      bool stop = false;
+
       while (travelDistance > pointDistance) {
         // Stop loop in trying to go past last point
         if (pointIndex == points.Count - 1) {
@@ -135,8 +112,10 @@ internal class Simulation {
         tickData.latitudeDD = nextLat;
         tickData.longitudeDD = nextLon;
 
-        if (route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" ||
-            route.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP") isGpsFix = !isGpsFix;
+        if (selectedRoute.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" ||
+            selectedRoute.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP") {
+          isGpsFix = !isGpsFix;
+        }
 
         turn = false;
         stop = false;
@@ -303,18 +282,25 @@ internal class Simulation {
     FileManager.SaveSimulationData(newSim);
     LatestSimulation = newSim;
 
+  }
+
+  public static void StartAnimationPlayback() {
+    // TODO do something not so horrible here...
     LayerManager.RemoveAnimationLayer();
     LayerManager.CreateAnimationLayer();
+  }
 
-    // Possibly return the simulation data for playback
-    return;
+  public static void StopAnimationPlayback() {
+    // TODO do something not so horrible here...
+    LayerManager.RemoveAnimationLayer();
   }
 
   /// <summary>
   /// Runs the generated TickData / SimulationData in visual playback on the map
   /// </summary>
   /// <returns>Creates an async Task of Simulation animation</returns>
-  public static async Task StartSimulationPlayback() {
+  private static async Task StartSimulationPlayback() {
+    // TODO use this or something like this...
     LayerManager.RemoveAnimationLayer();
     LayerManager.CreateAnimationLayer();
     // Read tickdata from simulation data in set intervals and move a bitmap on the map accordingly

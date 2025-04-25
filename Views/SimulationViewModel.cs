@@ -16,7 +16,7 @@ public class SimulationViewModel : ViewModelBase {
 
   public List<TrainRoute> Routes { get; set; }
   public List<ListedTrain> Trains { get; set; }
-  public string Interval { get; set; }
+  public float Interval { get; set; }
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
   public List<bool> StopsBooleans { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
@@ -60,9 +60,8 @@ public class SimulationViewModel : ViewModelBase {
       SetIcons();
 
     Trains = new List<ListedTrain>();
+    Interval = 1.0f;
     SetTrainsToUI();
-
-    Interval = Simulation.IntervalTime.ToString();
 
     Stops = DataManager.GetStops();
     StopsDictionary = Stops.ToDictionary(x => x, x => false);
@@ -72,23 +71,30 @@ public class SimulationViewModel : ViewModelBase {
     FileManager.CurrentView = "Simulation";
     Logger.Debug($"Current view: {FileManager.CurrentView}");
     LayerManager.ClearFocusedStopsLayer();
-    StartSimulationButtonEnabled = true;
+
+    if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
+      StartSimulationButtonEnabled = true;
+    } else {
+      StartSimulationButtonEnabled = false;
+    }
+
   }
 
   public void StartSimulationButton() {
     StopSimulationButtonEnabled = true;
     StartSimulationButtonEnabled = false;
 
-    Simulation.IntervalTime = (int)float.Parse(Interval);
-
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
-      Simulation.PreprocessRoute(StopsDictionary);
+      Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
+      Simulation.GenerateSimulationData(StopsDictionary, selectedTrain.Acceleration, selectedTrain.MaxSpeed, Interval);
+      Simulation.StartAnimationPlayback();
     }
   }
 
   public void StopSimulationButton() {
     StartSimulationButtonEnabled = true;
     StopSimulationButtonEnabled = false;
+    Simulation.StopAnimationPlayback();
   }
 
   public void SetTrainsToUI() {

@@ -74,7 +74,10 @@
         </ComboBox>
 
         <TextBlock FontWeight="Bold">Interval:</TextBlock>
-        <NumericUpDown Minimum="0" Value="{Binding Interval}" FormatString="0"/>
+        <NumericUpDown Value="{Binding Interval}"
+                       Minimum="1.0"
+                       Maximum="10.0"
+                       Increment="0.1"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
           <Button Command="{Binding StartSimulationButton}"

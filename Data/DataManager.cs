@@ -53,6 +53,16 @@ internal class DataManager {
     }
 
   }
+
+  public static Train? GetCurrentTrain() {
+    if (CurrentTrain == -1) {
+      return null;
+    } else if (Trains.Count - 1 < CurrentTrain) {
+      return null;
+    } else {
+      return Trains[CurrentTrain];
+    }
+  }
   
   //public static TrainRoute CreateTrainRouteFromGeometryString()
 
