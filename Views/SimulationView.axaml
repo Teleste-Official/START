@@ -12,7 +12,7 @@
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="Margin" Value="0 4" />
-      <Setter Property="Background" Value="#FF5F49" />
+      <Setter Property="Background" Value="#0F6CBD" />
       <Setter Property="Foreground" Value="#FFFFFF" />
       <Setter Property="DockPanel.Dock" Value="Top" />
     </Style>
@@ -47,7 +47,7 @@
             Margin="0,0,10,0"
             Padding="4,0">
 
-      <DockPanel LastChildFill="False">
+      <StackPanel Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Stretch">
 
         <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
                   SelectionChanged="TrackComboBox_SelectionChanged">
@@ -73,16 +73,23 @@
           </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <TextBlock>Interval:</TextBlock>
-        <NumericUpDown Minimum="0" Value="{Binding Interval}" FormatString="0"
-                       Watermark="Interval(ms)..." />
+        <TextBlock FontWeight="Bold">Interval:</TextBlock>
+        <NumericUpDown Minimum="0" Value="{Binding Interval}" FormatString="0"/>
 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+          <Button Command="{Binding StartSimulationButton}"
+                  IsEnabled="{Binding StartSimulationButtonEnabled}"
+                  Width="107">
+            Start
+          </Button>
+          <Button Command="{Binding StopSimulationButton}"
+                  Width="107"
+                  IsEnabled="{Binding StopSimulationButtonEnabled}">
+            Stop
+          </Button>
+        </StackPanel>
 
-        <Button Command="{Binding RunSimulationButton}">
-          Run Simulation
-        </Button>
-
-        <TextBlock>Stops:</TextBlock>
+        <TextBlock FontWeight="Bold">Stops:</TextBlock>
 
         <Panel VerticalAlignment="Top">
           <ScrollViewer>
@@ -98,7 +105,7 @@
                     <TextBlock Grid.Row="0" Grid.Column="1" PointerPressed="ClickStop" Name="{Binding Id}" Text="{Binding StopName}">
                       Stop
                     </TextBlock>
-                    <CheckBox Grid.Row="0" Grid.Column="2"  Unchecked="UncheckStop" Checked="CheckStop"
+                    <CheckBox Grid.Row="0" Grid.Column="2" Unchecked="UncheckStop" Checked="CheckStop"
                               Name="{Binding Id}" />
                   </Grid>
                 </DataTemplate>
@@ -108,7 +115,8 @@
         </Panel>
 
 
-      </DockPanel>
+      </StackPanel>
+
     </Border>
   </ScrollViewer>
 </UserControl>

@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Mapsui;
 using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
@@ -19,8 +18,31 @@ public class SimulationViewModel : ViewModelBase {
   public List<ListedTrain> Trains { get; set; }
   public string Interval { get; set; }
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
-  public List<bool> StopsBooleans { get; set; } 
+  public List<bool> StopsBooleans { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
+
+  private bool _startSimulationButtonEnabled;
+  private bool _stopSimulationButtonEnabled;
+
+  public bool StartSimulationButtonEnabled {
+    get => _startSimulationButtonEnabled;
+    set {
+      if (_startSimulationButtonEnabled != value) {
+        _startSimulationButtonEnabled = value;
+        RaisePropertyChanged(nameof(StartSimulationButtonEnabled));
+      }
+    }
+  }
+
+  public bool StopSimulationButtonEnabled {
+    get => _stopSimulationButtonEnabled;
+    set {
+      if (_stopSimulationButtonEnabled != value) {
+        _stopSimulationButtonEnabled = value;
+        RaisePropertyChanged(nameof(StopSimulationButtonEnabled));
+      }
+    }
+  }
 
   public SimulationViewModel() {
     // Get routes
@@ -50,12 +72,23 @@ public class SimulationViewModel : ViewModelBase {
     FileManager.CurrentView = "Simulation";
     Logger.Debug($"Current view: {FileManager.CurrentView}");
     LayerManager.ClearFocusedStopsLayer();
+    StartSimulationButtonEnabled = true;
   }
 
-  public void RunSimulationButton() {
+  public void StartSimulationButton() {
+    StopSimulationButtonEnabled = true;
+    StartSimulationButtonEnabled = false;
+
     Simulation.IntervalTime = (int)float.Parse(Interval);
-    if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any())
+
+    if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Simulation.PreprocessRoute(StopsDictionary);
+    }
+  }
+
+  public void StopSimulationButton() {
+    StartSimulationButtonEnabled = true;
+    StopSimulationButtonEnabled = false;
   }
 
   public void SetTrainsToUI() {

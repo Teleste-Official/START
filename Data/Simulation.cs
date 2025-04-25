@@ -46,7 +46,7 @@ internal class Simulation {
     Dictionary<RouteCoordinate, bool> stopPoints =
       new SimulatedTrainRoute(DataManager.TrainRoutes[DataManager.CurrentTrainRoute]).RouteStops;
 
-    foreach (KeyValuePair<RouteCoordinate, bool> kvp in turnPoints)
+    foreach (KeyValuePair<RouteCoordinate, bool> kvp in turnPoints) {
       for (int i = 0; i < DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords.Count - 2; i++) {
         RoutePoint? point1 = new(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Longitude,
           DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i].Latitude);
@@ -59,6 +59,7 @@ internal class Simulation {
 
         turnPoints[DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Coords[i + 1]] = turn;
       }
+    }
 
     foreach (KeyValuePair<RouteCoordinate, bool> kvp in stopsDictionary) stopPoints[kvp.Key] = kvp.Value;
     RunSimulation(turnPoints, stopPoints);
