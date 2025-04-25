@@ -61,6 +61,6 @@ public partial class TrackEditorView : UserControl {
 
   public void StopLostFocus(object sender, RoutedEventArgs e) {
     TextBox? textBox = sender as TextBox;
-    LayerManager.RemoveFocusStop();
+    LayerManager.RemoveAllFocusedStops();
   }
 }

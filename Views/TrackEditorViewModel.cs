@@ -170,6 +170,7 @@ public class TrackEditorViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Route";
+    LayerManager.ClearFocusedStopsLayer();
   }
 
   private void ResetAllButtons() {

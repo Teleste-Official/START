@@ -95,11 +95,10 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <Grid RowDefinitions="*,*" ColumnDefinitions="50,100,*">
-                    <TextBlock Grid.Row="0" Grid.Column="1" PointerPressed="ClickStop" PointerEntered="EnterHoverStop"
-                               PointerExited="ExitHoverStop" Name="{Binding Id}" Text="{Binding StopName}">
+                    <TextBlock Grid.Row="0" Grid.Column="1" PointerPressed="ClickStop" Name="{Binding Id}" Text="{Binding StopName}">
                       Stop
                     </TextBlock>
-                    <CheckBox Grid.Row="0" Grid.Column="2" Unchecked="UncheckStop" Checked="CheckStop"
+                    <CheckBox Grid.Row="0" Grid.Column="2"  Unchecked="UncheckStop" Checked="CheckStop"
                               Name="{Binding Id}" />
                   </Grid>
                 </DataTemplate>

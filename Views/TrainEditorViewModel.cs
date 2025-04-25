@@ -201,6 +201,7 @@ public class TrainEditorViewModel : ViewModelBase {
       ResetAllControls();
       SetValuesToUI();
     }
+    LayerManager.ClearFocusedStopsLayer();
   }
 
   private void InitializeData() {

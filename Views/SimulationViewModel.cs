@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Mapsui;
 using NLog;
 using SmartTrainApplication.Data;
 using SmartTrainApplication.Models;
@@ -23,8 +24,10 @@ public class SimulationViewModel : ViewModelBase {
 
   public SimulationViewModel() {
     // Get routes
-    if (DataManager.TrainRoutes.Count == 0)
+    if (DataManager.TrainRoutes.Count == 0) {
       LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
+    }
+
     Routes = DataManager.TrainRoutes.ToList();
 
     // Get trains
@@ -46,6 +49,7 @@ public class SimulationViewModel : ViewModelBase {
     // Switch view in file manager
     FileManager.CurrentView = "Simulation";
     Logger.Debug($"Current view: {FileManager.CurrentView}");
+    LayerManager.ClearFocusedStopsLayer();
   }
 
   public void RunSimulationButton() {
@@ -75,5 +79,10 @@ public class SimulationViewModel : ViewModelBase {
   public void DrawFocusedStop(string _Id) {
     RouteCoordinate? selectedStop = Stops.First(item => item.Id == _Id);
     LayerManager.AddFocusStop(selectedStop);
+  }
+
+  public void UnDrawFocusedStop(string _Id) {
+    RouteCoordinate? selectedStop = Stops.First(item => item.Id == _Id);
+    LayerManager.RemoveFocusStop(selectedStop);
   }
 }

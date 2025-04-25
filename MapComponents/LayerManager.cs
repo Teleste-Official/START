@@ -29,6 +29,8 @@ internal class LayerManager {
   private static WritableLayer? _targetLayer =
     MapViewControl.map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
 
+  private static Dictionary<RouteCoordinate, IFeature> _focusedStops = new Dictionary<RouteCoordinate, IFeature>();
+
   /// <summary>
   ///   Prepares the EditMode and features for adding lines/TrainRoutes
   /// </summary>
@@ -75,6 +77,7 @@ internal class LayerManager {
     tunnelStringLayer.Clear();
     stopsLayer.Clear();
     focusedStopsLayer.Clear();
+    _focusedStops.Clear();
     RemoveAnimationLayer();
 
     MapViewControl._mapControl?.RefreshGraphics();
@@ -82,6 +85,13 @@ internal class LayerManager {
     MapViewControl._editManager.EditMode = EditMode.None;
 
     MapViewControl._tempFeatures = null;
+  }
+
+  public static void ClearFocusedStopsLayer() {
+    WritableLayer focusedStopsLayer = CreateFocusStopsLayer();
+    focusedStopsLayer.Clear();
+    _focusedStops.Clear();
+    MapViewControl._mapControl?.RefreshGraphics();
   }
 
   /// <summary>
@@ -507,22 +517,36 @@ internal class LayerManager {
   /// <summary>
   ///   Draws the focused stop to the map
   /// </summary>
-  public static void AddFocusStop(RouteCoordinate focusedStop) {
+  public static void AddFocusStop(RouteCoordinate coords) {
     WritableLayer focusedStopsLayer = CreateFocusStopsLayer();
-    Geometry? pointString = new WKTReader().Read(focusedStop.GetCoordinateString());
+    Geometry? pointString = new WKTReader().Read(coords.GetCoordinateString());
     IFeature feature = new GeometryFeature { Geometry = pointString };
-    focusedStopsLayer.Add(feature);
 
+    _focusedStops.TryAdd(coords, feature);
+    focusedStopsLayer.Add(feature);
     MapViewControl._mapControl?.RefreshGraphics();
+
+  }
+
+  public static void RemoveFocusStop(RouteCoordinate coords) {
+    WritableLayer focusedStopsLayer = CreateFocusStopsLayer();
+    IFeature? focusedStop = _focusedStops[coords];
+
+    if (focusedStop.Equals(null)) return;
+
+    focusedStopsLayer.TryRemove(focusedStop);
+    _focusedStops.Remove(coords);
+    MapViewControl._mapControl?.RefreshGraphics();
+
   }
 
   /// <summary>
   ///   Clears the focused stops layer
   /// </summary>
-  public static void RemoveFocusStop() {
+  public static void RemoveAllFocusedStops() {
     WritableLayer focusedStopsLayer = CreateFocusStopsLayer();
     focusedStopsLayer.Clear();
-
+    _focusedStops.Clear();
     MapViewControl._mapControl?.RefreshGraphics();
   }
 
