@@ -23,6 +23,7 @@ public class SimulationViewModel : ViewModelBase {
 
   private bool _startSimulationButtonEnabled;
   private bool _stopSimulationButtonEnabled;
+  private bool _createSimulationButtonEnabled;
 
   public bool StartSimulationButtonEnabled {
     get => _startSimulationButtonEnabled;
@@ -40,6 +41,16 @@ public class SimulationViewModel : ViewModelBase {
       if (_stopSimulationButtonEnabled != value) {
         _stopSimulationButtonEnabled = value;
         RaisePropertyChanged(nameof(StopSimulationButtonEnabled));
+      }
+    }
+  }
+
+  public bool CreateSimulationButtonEnabled {
+    get => _createSimulationButtonEnabled;
+    set {
+      if (_createSimulationButtonEnabled != value) {
+        _createSimulationButtonEnabled = value;
+        RaisePropertyChanged(nameof(CreateSimulationButtonEnabled));
       }
     }
   }
@@ -72,28 +83,34 @@ public class SimulationViewModel : ViewModelBase {
     Logger.Debug($"Current view: {FileManager.CurrentView}");
     LayerManager.ClearFocusedStopsLayer();
 
-    if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
-      StartSimulationButtonEnabled = true;
-    } else {
-      StartSimulationButtonEnabled = false;
-    }
-
+    CreateSimulationButtonEnabled = true;
+    StartSimulationButtonEnabled = false;
   }
 
   public void StartSimulationButton() {
-    StopSimulationButtonEnabled = true;
-    StartSimulationButtonEnabled = false;
+
+
+    if (Simulation.LatestSimulation != null) {
+      Simulation.StartAnimationPlayback();
+      StopSimulationButtonEnabled = true;
+      StartSimulationButtonEnabled = false;
+      CreateSimulationButtonEnabled = false;
+    }
+  }
+
+  public void CreateSimulationButton() {
 
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
       Simulation.GenerateSimulationData(StopsDictionary, selectedTrain.Acceleration, selectedTrain.MaxSpeed, Interval);
-      Simulation.StartAnimationPlayback();
+      StartSimulationButtonEnabled = true;
     }
   }
 
   public void StopSimulationButton() {
     StartSimulationButtonEnabled = true;
     StopSimulationButtonEnabled = false;
+    CreateSimulationButtonEnabled = true;
     Simulation.StopAnimationPlayback();
   }
 

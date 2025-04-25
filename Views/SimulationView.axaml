@@ -79,6 +79,12 @@
                        Maximum="10.0"
                        Increment="0.1"/>
 
+        <!-- TODO rename to something better -->
+        <Button Command="{Binding CreateSimulationButton}"
+                IsEnabled="{Binding CreateSimulationButtonEnabled}">
+          Create Simulation
+        </Button>
+
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
           <Button Command="{Binding StartSimulationButton}"
                   IsEnabled="{Binding StartSimulationButtonEnabled}"
