@@ -9,6 +9,9 @@ using SmartTrainApplication.Models;
 namespace SmartTrainApplication.Data;
 
 internal class SettingsManager {
+  private static readonly double DEFAULT_LONGITUDE = 23.76227433384882;
+  private static readonly double DEFAULT_LATITUDE = 61.49741016814548;
+
   public static Settings CurrentSettings;
 
   /// <summary>
@@ -23,11 +26,10 @@ internal class SettingsManager {
     };
 
     // Default coordinates point to Tampere
-    Settings? settings = new(23.76227433384882, 61.49741016814548, newRouteDirectories, newTrainDirectories);
+    Settings? settings = new(DEFAULT_LONGITUDE, DEFAULT_LATITUDE, newRouteDirectories, newTrainDirectories);
 
     // Save the settings
     FileManager.SaveSettings(settings);
     CurrentSettings = settings;
-    return;
   }
 }

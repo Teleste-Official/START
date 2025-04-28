@@ -1,8 +1,11 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NLog;
 using SmartTrainApplication.Data;
 
@@ -52,7 +55,8 @@ internal class SettingsViewModel : ViewModelBase {
     SettingsManager.CurrentSettings.Longitude = x;
     SettingsManager.CurrentSettings.Latitude = y;
 
-    // TODO: The directories -Metso
+    SettingsManager.CurrentSettings.RouteDirectories = GetRouteDirectoriesFromUI();
+    SettingsManager.CurrentSettings.TrainDirectories = GetTrainDirectoriesFromUI();
 
     FileManager.SaveSettings(SettingsManager.CurrentSettings);
   }
@@ -61,7 +65,7 @@ internal class SettingsViewModel : ViewModelBase {
     return;
   }
 
-  public async void AddRouteButton() {
+  public async void AddRouteImportDirectoryButton() {
     string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddRouteDirectory(Path.GetFullPath(NewPath));
@@ -69,7 +73,7 @@ internal class SettingsViewModel : ViewModelBase {
     }
   }
 
-  public async void AddTrainButton() {
+  public async void AddTrainImportDirectoryButton() {
     string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddTrainDirectory(Path.GetFullPath(NewPath));
@@ -84,5 +88,27 @@ internal class SettingsViewModel : ViewModelBase {
     foreach (string? dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectories += dir + "\n";
     RaisePropertyChanged(nameof(RouteDirectories));
     RaisePropertyChanged(nameof(TrainDirectories));
+  }
+
+  private List<string> GetRouteDirectoriesFromUI() {
+    if (string.IsNullOrWhiteSpace(RouteDirectories)) {
+      return new List<string>();
+    }
+
+    return Regex.Split(RouteDirectories, @"\r?\n")
+      .Select(line => line.Trim())
+      .Where(line => !string.IsNullOrWhiteSpace(line))
+      .ToList();
+  }
+
+  private List<string> GetTrainDirectoriesFromUI() {
+    if (string.IsNullOrWhiteSpace(TrainDirectories)) {
+      return new List<string>();
+    }
+
+    return Regex.Split(TrainDirectories, @"\r?\n")
+      .Select(line => line.Trim())
+      .Where(line => !string.IsNullOrWhiteSpace(line))
+      .ToList();
   }
 }
