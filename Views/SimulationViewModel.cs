@@ -65,7 +65,7 @@ public class SimulationViewModel : ViewModelBase {
 
     // Get trains
     if (DataManager.Trains.Count == 0)
-      DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
+      DataManager.Trains = FileManager.ReadTrainsFromFolder(SettingsManager.CurrentSettings.TrainDirectories);
 
     if (Icons == null)
       SetIcons();

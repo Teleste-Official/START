@@ -35,28 +35,6 @@ internal class FileManager {
   // Currently active view
   public static string CurrentView = "";
 
-  /// <summary>
-  /// Export route into a file using filepicker.
-  /// </summary>
-  [Obsolete]
-  public static async void ExportRoute(TopLevel topLevel) {
-    IStorageFile? file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
-      Title = "Export JSON",
-      FileTypeChoices = new[] { JSON },
-      SuggestedFileName = "export"
-    });
-
-    if (file == null) return;
-
-    // Create a file and write empty the new route to it
-    JsonSerializerOptions Json_options = new() { WriteIndented = true };
-    string output = JsonSerializer.Serialize(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], Json_options);
-    if (file is not null) {
-      await using Stream stream = await file.OpenWriteAsync();
-      using StreamWriter streamWriter = new(stream);
-      await streamWriter.WriteLineAsync(output);
-    }
-  }
 
   /// <summary>
   /// Export any of the JSON files with filepicker
@@ -68,16 +46,16 @@ internal class FileManager {
 
     switch (type) {
       case "Route":
-        string currentTrainRouteName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+        string? currentTrainRouteName = DataManager.GetCurrentRoute()?.Name;
         nameSuggestion = currentTrainRouteName != ""
-          ? currentTrainRouteName.Replace("_", "-").Replace(" ", "-") + ".json"
+          ? currentTrainRouteName?.Replace("_", "-").Replace(" ", "-") + ".json"
           : "export.json";
         break;
 
       case "Train":
-        string currentTrainName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+        string? currentTrainName = DataManager.GetCurrentTrain()?.Name;
         nameSuggestion = currentTrainName != ""
-          ? currentTrainName.Replace("_", "-").Replace(" ", "-") + ".json"
+          ? currentTrainName?.Replace("_", "-").Replace(" ", "-") + ".json"
           : "export.json";
         break;
 
@@ -86,6 +64,7 @@ internal class FileManager {
         break;
 
       case "Settings":
+        nameSuggestion = "settings.json";
         break;
 
       default:
@@ -314,9 +293,15 @@ internal class FileManager {
   /// </summary>
   /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
   /// <returns>Returns imported trains</returns>
-  public static List<Train> StartupTrainFolderImport(List<string> SavedPaths) {
+  public static List<Train> ReadTrainsFromFolder(List<string> SavedPaths) {
     List<Train> Trains = new();
     List<string> Paths = new();
+
+    try {
+      if (!Directory.Exists(GetTrainDirectory())) Directory.CreateDirectory(GetTrainDirectory());
+    } catch (Exception ex) {
+      Logger.Debug(ex.Message);
+    }
 
     if (SavedPaths == null) return Trains;
 

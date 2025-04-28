@@ -206,7 +206,7 @@ public class TrainEditorViewModel : ViewModelBase {
 
   private void InitializeData() {
     if (DataManager.Trains.Count == 0)
-      DataManager.Trains = FileManager.StartupTrainFolderImport(SettingsManager.CurrentSettings.TrainDirectories);
+      DataManager.Trains = FileManager.ReadTrainsFromFolder(SettingsManager.CurrentSettings.TrainDirectories);
 
     SetIcons();
     Trains = DataManager.Trains.Select(t => new ListedTrain(t, Icons[t.Icon])).ToList();
