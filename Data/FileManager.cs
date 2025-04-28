@@ -64,10 +64,39 @@ internal class FileManager {
   /// <param name="topLevel"></param>
   /// <param name="type">Route, Train & Simulation</param>
   public static async void Export(TopLevel topLevel, string type) {
+    string nameSuggestion = "";
+
+    switch (type) {
+      case "Route":
+        string currentTrainRouteName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+        nameSuggestion = currentTrainRouteName != ""
+          ? currentTrainRouteName.Replace("_", "-").Replace(" ", "-") + ".json"
+          : "export.json";
+        break;
+
+      case "Train":
+        string currentTrainName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+        nameSuggestion = currentTrainName != ""
+          ? currentTrainName.Replace("_", "-").Replace(" ", "-") + ".json"
+          : "export.json";
+        break;
+
+      case "Simulation":
+        nameSuggestion = GetSimulationFileName(Simulation.LatestSimulation);
+        break;
+
+      case "Settings":
+        break;
+
+      default:
+        nameSuggestion = "export.json";
+        break;
+    }
+
     IStorageFile? file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
       Title = "Export JSON",
       FileTypeChoices = new[] { JSON },
-      SuggestedFileName = "export"
+      SuggestedFileName = nameSuggestion
     });
 
     if (file == null) return;
@@ -239,17 +268,45 @@ internal class FileManager {
   /// </summary>
   /// <param name="sim">(SimulationData) Route's simulation data</param>
   public static void SaveSimulationData(SimulationData sim) {
-    string Path = DataManager.CreateFilePath("", "Simulation");
+
+    string fileName = GetSimulationFileName(sim);
+
+    string path = Path.Combine(GetSimulationDirectory(), fileName);
+
+
     try {
       if (!Directory.Exists(GetSimulationDirectory())) Directory.CreateDirectory(GetSimulationDirectory());
     }
     catch (Exception Ex) {
       Logger.Debug(Ex.Message);
+      return;
     }
 
     // Save the simulation
     JsonSerializerOptions Json_options = new() { WriteIndented = true };
-    File.WriteAllText(Path, JsonSerializer.Serialize(sim, Json_options));
+    File.WriteAllText(path, JsonSerializer.Serialize(sim, Json_options));
+  }
+
+  private static string GetSimulationFileName(SimulationData? sim) {
+    if (sim == null) return "";
+
+
+    string timeStamp = DateTime.Now.ToString("dd_MM_yyyy__HH_mm_ss");
+    string simulatedRouteName = sim.TrainRoute.Name;
+    string simulatedTrainName = sim.Train.Name;
+    string fileName = "simulation";
+
+    if (simulatedRouteName != "") {
+      fileName += "_" + simulatedRouteName.Replace("_", "-").Replace(" ", "-");
+    }
+
+    if (simulatedTrainName != "") {
+      fileName += "_" + simulatedTrainName.Replace("_", "-").Replace(" ", "-");
+    }
+
+    fileName += "_" + timeStamp + ".json";
+
+    return fileName;
   }
 
   /// <summary>

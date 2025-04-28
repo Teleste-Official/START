@@ -41,11 +41,14 @@ internal class Simulation {
   }
 
   // TODO Make this make some sense
-  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, float acceleration, float maxSpeed, float interval) {
+  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, Train trainToBeSimulated, TrainRoute routeToBeSimulated, float interval) {
     // See if async would be more preferrable for this -Metso
 
     // Hack stuff for now
     IntervalTime = interval;
+
+    float acceleration = trainToBeSimulated.Acceleration;
+    float maxSpeed = trainToBeSimulated.MaxSpeed;
     TrainRoute? selectedRoute = DataManager.GetCurrentRoute();
 
     // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
@@ -273,9 +276,10 @@ internal class Simulation {
 
     allTickData.RemoveAt(allTickData.Count - 1);
     //change last data to have 0 speed and open doors
+    // TBD does this make sense...
     allTickData[allTickData.Count - 1].speedKmh = 0f;
     allTickData[allTickData.Count - 1].doorsOpen = true;
-    SimulationData? newSim = new("Test", allTickData);
+    SimulationData? newSim = new(allTickData, trainToBeSimulated, routeToBeSimulated);
 
     // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
     // SimulationRun file could also host the train and route data for playback in the future -Metso

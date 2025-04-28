@@ -102,7 +102,8 @@ public class SimulationViewModel : ViewModelBase {
 
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
-      Simulation.GenerateSimulationData(StopsDictionary, selectedTrain.Acceleration, selectedTrain.MaxSpeed, Interval);
+      TrainRoute selectedRoute = DataManager.TrainRoutes[DataManager.CurrentTrain];
+      Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, Interval);
       StartSimulationButtonEnabled = true;
     }
   }

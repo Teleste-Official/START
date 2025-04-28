@@ -24,10 +24,10 @@ public class SimulationData {
   public SimulationData() {
   }
 
-  public SimulationData(string name, List<TickData> tickData) {
+  public SimulationData(List<TickData> tickData, Train simulatedTrain, TrainRoute simulatedTrainRoute) {
     TickData = tickData;
     //Train = DataManager.CurrentTrain;
-    Train = new Train("Test", "Testing Train", 0, 0, 0); // For testing only -Metso
-    TrainRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
+    Train = simulatedTrain;
+    TrainRoute = simulatedTrainRoute;
   }
 }
