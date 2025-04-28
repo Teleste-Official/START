@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +21,15 @@ internal class SettingsViewModel : ViewModelBase {
   public string VersionNumber { get; set; }
   public string RouteDirectories { get; set; }
   public string TrainDirectories { get; set; }
+  
+  public string SimulationDirectories { get; set; }
+
+  // Regex pattern explanation:
+  // ^\d{1,3}    = 1-3 digits at start
+  // \.          = literal decimal point
+  // \d+$        = one or more digits at end
+  private static readonly Regex CoordinateRegex = new(@"^\d{1,3}\.\d+$");
+
 
   public SettingsViewModel() {
     VersionNumber = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -48,17 +58,41 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public void SaveButton() {
-    // TODO: Check that values are in correct format -Metso
-    double x = Convert.ToDouble(Longitude);
-    double y = Convert.ToDouble(Latitude);
+    double x;
+    double y;
+
+    if (ValidateCoordinate(Longitude)) {
+      x = double.Parse(Longitude, CultureInfo.InvariantCulture);
+    } else {
+      x = SettingsManager.CurrentSettings.Longitude;
+      Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
+      RaisePropertyChanged(nameof(Longitude));
+    }
+
+    if (ValidateCoordinate(Latitude)) {
+      y = double.Parse(Latitude, CultureInfo.InvariantCulture);
+    }
+    else {
+      y = SettingsManager.CurrentSettings.Latitude;
+      Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
+      RaisePropertyChanged(nameof(Latitude));
+    }
 
     SettingsManager.CurrentSettings.Longitude = x;
     SettingsManager.CurrentSettings.Latitude = y;
 
     SettingsManager.CurrentSettings.RouteDirectories = GetRouteDirectoriesFromUI();
     SettingsManager.CurrentSettings.TrainDirectories = GetTrainDirectoriesFromUI();
+    SettingsManager.CurrentSettings.SimulationDirectories = GetSimulationDirectoriesFromUI();
 
     FileManager.SaveSettings(SettingsManager.CurrentSettings);
+
+  }
+
+  private bool ValidateCoordinate(string value) {
+    return !string.IsNullOrWhiteSpace(value) &&
+           CoordinateRegex.IsMatch(value) &&
+           double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
   }
 
   public void LogsButton() {
@@ -81,13 +115,24 @@ internal class SettingsViewModel : ViewModelBase {
     }
   }
 
+  public async void AddSimulationDirectoryButton() {
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    if (!string.IsNullOrEmpty(NewPath)) {
+      SettingsManager.CurrentSettings.AddSimulationDirectory(Path.GetFullPath(NewPath));
+      SetDirectoriesToUI();
+    }
+  }
+
   private void SetDirectoriesToUI() {
     RouteDirectories = "";
     TrainDirectories = "";
+    SimulationDirectories = "";
     foreach (string? dir in SettingsManager.CurrentSettings.RouteDirectories) RouteDirectories += dir + "\n";
     foreach (string? dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectories += dir + "\n";
+    foreach (string? dir in SettingsManager.CurrentSettings.SimulationDirectories) SimulationDirectories += dir + "\n";
     RaisePropertyChanged(nameof(RouteDirectories));
     RaisePropertyChanged(nameof(TrainDirectories));
+    RaisePropertyChanged(nameof(SimulationDirectories));
   }
 
   private List<string> GetRouteDirectoriesFromUI() {
@@ -107,6 +152,17 @@ internal class SettingsViewModel : ViewModelBase {
     }
 
     return Regex.Split(TrainDirectories, @"\r?\n")
+      .Select(line => line.Trim())
+      .Where(line => !string.IsNullOrWhiteSpace(line))
+      .ToList();
+  }
+
+  private List<string> GetSimulationDirectoriesFromUI() {
+    if (string.IsNullOrWhiteSpace(SimulationDirectories)) {
+      return new List<string>();
+    }
+
+    return Regex.Split(SimulationDirectories, @"\r?\n")
       .Select(line => line.Trim())
       .Where(line => !string.IsNullOrWhiteSpace(line))
       .ToList();

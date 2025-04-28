@@ -381,14 +381,14 @@ internal class DataManager {
     string newPath = "";
     
     if (specifier == "Route") {
-      newPath = Path.Combine(FileManager.DefaultRouteFolderPath, name == "" ? specifier + id[..4] + ".json" : name + ".json");
+      newPath = Path.Combine(FileManager.GetRouteDirectory(), name == "" ? specifier + id[..4] + ".json" : name + ".json");
       
     } else if (specifier == "Train") {
-      newPath = Path.Combine(FileManager.DefaultTrainFolderPath, name == "" ? specifier + id[..4] + ".json" : name + ".json");
+      newPath = Path.Combine(FileManager.GetTrainDirectory(), name == "" ? specifier + id[..4] + ".json" : name + ".json");
       
     } else if (specifier == "Simulation") {
       DateTime currentTime = DateTime.Now;
-      newPath = Path.Combine(FileManager.DefaultSimulationsFolderPath,
+      newPath = Path.Combine(FileManager.GetSimulationDirectory(),
         "simulation_" + currentTime.ToString("dd_MM_yyyy__HH_mm_ss") + ".json");
     }
     

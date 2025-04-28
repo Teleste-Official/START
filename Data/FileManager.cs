@@ -28,9 +28,9 @@ internal class FileManager {
   };
 
   public static List<string>? ImportedRoutesAsStrings { get; set; }
-  public static string DefaultRouteFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Routes");
-  public static string DefaultTrainFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-  public static string DefaultSimulationsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
+  private static readonly string DEFAULT_ROUTE_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Routes");
+  private static readonly string DEFAULT_TRAIN_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Trains");
+  private static readonly string DEFAULT_SIMULATION_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Simulations");
 
   // Currently active view
   public static string CurrentView = "";
@@ -166,7 +166,7 @@ internal class FileManager {
 
     //Create default folder if it doesn't exist
     try {
-      if (!Directory.Exists(DefaultRouteFolderPath)) Directory.CreateDirectory(DefaultRouteFolderPath);
+      if (!Directory.Exists(GetRouteDirectory())) Directory.CreateDirectory(GetRouteDirectory());
     } catch (Exception ex) {
       Logger.Debug(ex.Message);
     }
@@ -241,7 +241,7 @@ internal class FileManager {
   public static void SaveSimulationData(SimulationData sim) {
     string Path = DataManager.CreateFilePath("", "Simulation");
     try {
-      if (!Directory.Exists(DefaultSimulationsFolderPath)) Directory.CreateDirectory(DefaultSimulationsFolderPath);
+      if (!Directory.Exists(GetSimulationDirectory())) Directory.CreateDirectory(GetSimulationDirectory());
     }
     catch (Exception Ex) {
       Logger.Debug(Ex.Message);
@@ -296,46 +296,13 @@ internal class FileManager {
   }
 
   /// <summary>
-  /// Load saved trains from folder to Datamanager.Trains and Datamanager.CurrentTrain
-  /// </summary>
-  [Obsolete]
-  public static void LoadTrains() {
-    string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
-    string Path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains", "train.json");
-    string FileAsString = "";
-
-    try {
-      if (!Directory.Exists(TrainsDirectory)) Directory.CreateDirectory(TrainsDirectory);
-    }
-    catch (Exception Ex) {
-      Logger.Debug(Ex.Message);
-    }
-
-    // Open the file to read from
-    using (StreamReader Sr = File.OpenText(Path)) {
-      // Read the lines on the file and gather a list from them
-      string S;
-      while ((S = Sr.ReadLine()) != null) FileAsString += S;
-    }
-
-    // Deserialise the JSON string into a object
-    JsonSerializerOptions Json_options = new() { IncludeFields = true };
-    Train? LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
-
-    // Set the imported train as the currently selected one
-    DataManager.Trains.Add(LoadedTrain);
-    DataManager.CurrentTrain = DataManager.Trains.Count - 1;
-  }
-
-  /// <summary>
   /// Saves DataManager.CurrentTrain to folder
   /// </summary>
   public static void SaveTrain(Train train) {
-    string TrainsDirectory = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Trains");
     string path = System.IO.Path.Combine(train.FilePath);
 
     try {
-      if (!Directory.Exists(TrainsDirectory)) Directory.CreateDirectory(TrainsDirectory);
+      if (!Directory.Exists(GetTrainDirectory())) Directory.CreateDirectory(GetTrainDirectory());
       // Save the train
       JsonSerializerOptions jsonOptions = new() { WriteIndented = true };
       File.WriteAllText(path, JsonSerializer.Serialize(train, jsonOptions));
@@ -408,4 +375,30 @@ internal class FileManager {
     if (folder.Count > 0) Path = folder[0].Path.AbsolutePath;
     return Path;
   }
+
+  public static string GetRouteDirectory() {
+    List<string> currentRouteDirectories = SettingsManager.CurrentSettings.RouteDirectories;
+    if (currentRouteDirectories.Count == 0) {
+      return DEFAULT_ROUTE_DIR;
+    }
+    return currentRouteDirectories[0];
+
+  }
+
+  public static string GetTrainDirectory() {
+    List<string> currentTrainDirectories = SettingsManager.CurrentSettings.TrainDirectories;
+    if (currentTrainDirectories.Count == 0) {
+      return DEFAULT_TRAIN_DIR;
+    }
+    return currentTrainDirectories[0];
+  }
+
+  public static string GetSimulationDirectory() {
+    List<string> currentSimulationDirectories = SettingsManager.CurrentSettings.SimulationDirectories;
+    if (currentSimulationDirectories.Count == 0) {
+      return DEFAULT_SIMULATION_DIR;
+    }
+    return currentSimulationDirectories[0];
+  }
+
 }
