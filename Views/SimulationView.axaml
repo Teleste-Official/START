@@ -89,7 +89,7 @@
           <Button Command="{Binding StartSimulationButton}"
                   IsEnabled="{Binding StartSimulationButtonEnabled}"
                   Width="107">
-            Start
+            Play
           </Button>
           <Button Command="{Binding StopSimulationButton}"
                   Width="107"
