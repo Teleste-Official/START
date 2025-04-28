@@ -27,6 +27,7 @@ public partial class SimulationView : UserControl {
   public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
     if (_firstTrackSelectionChange) {
       RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
+      MapViewControl.MoveMapToCoords(DataManager.GetCurrentRoute().Coords[0]);
       _firstTrackSelectionChange = false;
       return;
     }
@@ -39,6 +40,7 @@ public partial class SimulationView : UserControl {
       if (DataContext is SimulationViewModel viewModel) {
         viewModel.Routes = DataManager.TrainRoutes;
         DataManager.CurrentTrainRoute = comboBox.SelectedIndex;
+        MapViewControl.MoveMapToCoords(DataManager.GetCurrentRoute().Coords[0]);
         LayerManager.SwitchRoute();
         viewModel.SetStopsToUI();
         Logger.Debug($"Selected {DataManager.GetCurrentRoute()?.Name} for simulation");

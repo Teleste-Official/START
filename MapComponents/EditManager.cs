@@ -42,16 +42,18 @@ public partial class MapViewControl {
     EditManipulation? editManipulation = new();
 
     map.CRS = "EPSG:3857";
-    MPoint? centerOfTampere = new(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
+
+    MPoint? homePoint = new(SettingsManager.CurrentSettings.Longitude, SettingsManager.CurrentSettings.Latitude);
 
     // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
-    MPoint? sphericalMercatorCoordinate = SphericalMercator.FromLonLat(centerOfTampere.X, centerOfTampere.Y).ToMPoint();
+    MPoint? sphericalMercatorCoordinate = SphericalMercator.FromLonLat(homePoint.X, homePoint.Y).ToMPoint();
     // Set the center of the viewport to the coordinate. The UI will refresh automatically
     // Additionally you might want to set the resolution, this could depend on your specific purpose
     map.Home = n => n.CenterOnAndZoomTo(sphericalMercatorCoordinate, n.Resolutions[14]);
 
     map.Widgets.Add(new EditingWidget(mapControl, editManager, editManipulation));
     mapControl.Map = map;
+
     return editManager;
   }
 }
