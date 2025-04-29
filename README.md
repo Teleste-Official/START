@@ -18,4 +18,4 @@ Full guide on how to use the application can be accessed by the "?" -button in t
 
 ## Preview
 
-![Preview of app](/Assets/Preview.png)
+![Preview of app](/Assets/preview_v.2.1.0.png)
