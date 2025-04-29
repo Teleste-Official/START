@@ -23,7 +23,7 @@ internal class Simulation {
   public static SimulationData? LatestSimulation = null;
 
   // This is used by the animation layer... do something about this.
-  public static float IntervalTime = 1.0f;
+  public static float TickLength = 1.0f;
 
   /// <summary>
   /// Run Preprocess functions for TrainRoutes before simulating the TrainRoute
@@ -41,11 +41,11 @@ internal class Simulation {
   }
 
   // TODO Make this make some sense
-  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, Train trainToBeSimulated, TrainRoute routeToBeSimulated, float interval) {
+  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, Train trainToBeSimulated, TrainRoute routeToBeSimulated, float tickLength) {
     // See if async would be more preferrable for this -Metso
 
     // Hack stuff for now
-    IntervalTime = interval;
+    TickLength = tickLength;
 
     float acceleration = trainToBeSimulated.Acceleration;
     float maxSpeed = trainToBeSimulated.MaxSpeed;
@@ -69,7 +69,7 @@ internal class Simulation {
       stopPoints[kvp.Key] = kvp.Value;
     }
 
-    Logger.Debug($"Simulation started with acceleration: {acceleration}, maxSpeed: {maxSpeed}, interval: {interval}");
+    Logger.Debug($"Simulation started with acceleration: {acceleration}, maxSpeed: {maxSpeed}, tickLength: {tickLength}");
 
     List<TickData> allTickData = new();
     List<MPoint> points = new();
@@ -88,7 +88,7 @@ internal class Simulation {
     double nextLon = points[pointIndex].X;
     bool isGpsFix = true;
 
-    double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+    double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, tickLength, acceleration);
     double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
 
 
@@ -134,7 +134,7 @@ internal class Simulation {
       (tickData.longitudeDD, tickData.latitudeDD) = RouteGeneration.CalculateNewTrainPoint(tickData.longitudeDD,
         tickData.latitudeDD, nextLon, nextLat, travelDistance, pointDistance);
       tickData.distanceMeters += (float)travelDistance;
-      tickData.trackTimeSecs += interval;
+      tickData.trackTimeSecs += tickLength;
 
       if (tickData.distanceMeters > routeLengthMeters)
         //Logger.Debug(tickData.distanceMeters);
@@ -206,7 +206,7 @@ internal class Simulation {
       if (isRunning) {
         pointDistance =
           RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
-        travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
+        travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, tickLength, acceleration);
 
         turn = turnPoints.Values.ElementAt(pointIndex);
         stop = stopPoints.Values.ElementAt(pointIndex);
@@ -218,20 +218,20 @@ internal class Simulation {
           // decelerate to 7.2km/h and coast at that speed until turn's RoutePoint
           if (pointDistance < 1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration)) {
             //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
-            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration),
+            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               7.2f);
 
             // If within 3 meters from the RoutePoint, stop for 10 seconds.
             if (pointDistance < 3)
               for (int i = 1; i <= 10; i++) {
-                tickData.trackTimeSecs += interval;
+                tickData.trackTimeSecs += tickLength;
                 allTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0, true,
                   tickData.distanceMeters, tickData.trackTimeSecs));
               }
           }
           // Else accelerate normally.
           else {
-            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration),
+            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration),
               maxSpeed);
           }
         }
@@ -250,11 +250,11 @@ internal class Simulation {
           // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
           // decelerate to turnSpeed and coast at that speed until turn's RoutePoint
           if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, turnSpeed, -acceleration))
-            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration),
+            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               turnSpeed);
           // Else accelerate normally.
           else
-            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration),
+            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration),
               maxSpeed);
         }
         else {
@@ -262,13 +262,13 @@ internal class Simulation {
           // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
           if (tickData.distanceMeters < routeLengthMeters -
               1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
-            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration),
+            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration),
               maxSpeed);
           // Else start decelerating.
           // With this the train coast at 7.2km/h for a few seconds at the end before stopping
           else
             //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
-            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration),
+            tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               7.2f);
         }
       }

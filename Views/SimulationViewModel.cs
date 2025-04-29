@@ -16,7 +16,7 @@ public class SimulationViewModel : ViewModelBase {
 
   public List<TrainRoute> Routes { get; set; }
   public List<ListedTrain> Trains { get; set; }
-  public float Interval { get; set; }
+  public float TickLength { get; set; }
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
   public List<bool> StopsBooleans { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
@@ -71,7 +71,7 @@ public class SimulationViewModel : ViewModelBase {
       SetIcons();
 
     Trains = new List<ListedTrain>();
-    Interval = 1.0f;
+    TickLength = 1.0f;
     SetTrainsToUI();
 
     Stops = DataManager.GetStops();
@@ -103,7 +103,7 @@ public class SimulationViewModel : ViewModelBase {
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
       TrainRoute selectedRoute = DataManager.TrainRoutes[DataManager.CurrentTrain];
-      Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, Interval);
+      Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength);
       StartSimulationButtonEnabled = true;
     }
   }

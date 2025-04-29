@@ -73,10 +73,10 @@
           </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <TextBlock FontWeight="Bold">Interval:</TextBlock>
-        <NumericUpDown Value="{Binding Interval}"
-                       Minimum="1.0"
-                       Maximum="10.0"
+        <TextBlock FontWeight="Bold">Tick length (0.1 - 100 s):</TextBlock>
+        <NumericUpDown Value="{Binding TickLength}"
+                       Minimum="0.1"
+                       Maximum="100.0"
                        Increment="0.1"/>
 
         <!-- TODO rename to something better -->

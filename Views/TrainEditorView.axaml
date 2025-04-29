@@ -117,7 +117,7 @@
 
 
         <TextBlock FontWeight="Bold"
-                   Text="Max Speed (1 - 220 km/h):"
+                   Text="Max Speed (1 - 1000 km/h):"
                    Margin="0 0 0 10" />
 
         <Grid Margin="0 0 0 10" Height="35">
@@ -125,15 +125,15 @@
                      IsVisible="{Binding !IsEditing}" />
           <NumericUpDown Value="{Binding Speed}"
                          IsVisible="{Binding IsEditing}"
-                         Minimum="0"
-                         Maximum="220"
+                         Minimum="1"
+                         Maximum="1000"
                          Increment="5"
                          Watermark="Speed*" />
         </Grid>
 
 
         <TextBlock FontWeight="Bold"
-                   Text="Acceleration (0.1 - 3.0 m/s²):"
+                   Text="Acceleration (0.1 - 100.0 m/s²):"
                    Margin="0 0 0 10" />
 
         <Grid Margin="0 0 0 10" Height="35">
@@ -141,8 +141,8 @@
                      IsVisible="{Binding !IsEditing}" />
           <NumericUpDown Value="{Binding Acceleration}"
                          IsVisible="{Binding IsEditing}"
-                         Minimum="0"
-                         Maximum="3"
+                         Minimum="0.1"
+                         Maximum="100.0"
                          Increment="0.1"
                          Watermark="Acceleration*" />
         </Grid>
