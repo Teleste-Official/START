@@ -14,7 +14,7 @@ public partial class App : Application {
   public override void Initialize() {
     AvaloniaXamlLoader.Load(this);
     Locator.CurrentMutable.RegisterLazySingleton<MainWindowViewModel>(() => new MainWindowViewModel());
-    Locator.CurrentMutable.RegisterLazySingleton<TrackEditorViewModel>(() => new TrackEditorViewModel());
+    Locator.CurrentMutable.RegisterLazySingleton<RouteEditorViewModel>(() => new RouteEditorViewModel());
     Locator.CurrentMutable.RegisterLazySingleton<TrainEditorViewModel>(() => new TrainEditorViewModel());
     Locator.CurrentMutable.RegisterLazySingleton<SimulationViewModel>(() => new SimulationViewModel());
   }

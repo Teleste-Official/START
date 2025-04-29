@@ -17,7 +17,7 @@
       <Panel DockPanel.Dock="Top">
 
         <Menu DockPanel.Dock="Top" ZIndex="1" Background="#D9FCFCFC" Height="40">
-          <MenuItem Command="{Binding NavigateToTrackEditor}" Header="Track Editor" Foreground="Black" />
+          <MenuItem Command="{Binding NavigateToRouteEditor}" Header="Route Editor" Foreground="Black" />
           <MenuItem Command="{Binding NavigateToTrainEditor}" Header="Train Editor" Foreground="Black" />
           <MenuItem Command="{Binding NavigateToSimulation}" Header="Simulation" Foreground="Black" />
           <MenuItem Command="{Binding NavigateToSettings}" Header="Settings" Foreground="Black" />

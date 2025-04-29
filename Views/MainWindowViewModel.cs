@@ -8,7 +8,7 @@ using SmartTrainApplication.Data;
 namespace SmartTrainApplication.Views;
 
 public class MainWindowViewModel : ViewModelBase {
-  private UserControl _currentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
+  private UserControl _currentView = new RouteEditorView { DataContext = new RouteEditorViewModel() };
   private UserControl _bottomBar = new BottomBarView { DataContext = new BottomBarViewModel() };
 
   public UserControl CurrentView {
@@ -31,8 +31,8 @@ public class MainWindowViewModel : ViewModelBase {
     }
   }
 
-  public void NavigateToTrackEditor() {
-    CurrentView = new TrackEditorView { DataContext = new TrackEditorViewModel() };
+  public void NavigateToRouteEditor() {
+    CurrentView = new RouteEditorView { DataContext = new RouteEditorViewModel() };
   }
 
   public void NavigateToTrainEditor() {

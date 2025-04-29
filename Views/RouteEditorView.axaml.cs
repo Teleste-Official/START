@@ -12,18 +12,18 @@ using SmartTrainApplication.Views;
 
 namespace SmartTrainApplication;
 
-public partial class TrackEditorView : UserControl {
+public partial class RouteEditorView : UserControl {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
   private static bool _firstSelectionChange = true;
 
-  public TrackEditorView() {
+  public RouteEditorView() {
     _firstSelectionChange = true;
     InitializeComponent();
     //RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
   }
 
-  public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+  public void RouteComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
     //Logger.Debug($"Sender: {sender.GetType()} args: {e}, selected: {DataManager.CurrentTrainRoute}");
     // Could be better I know
     if (_firstSelectionChange) {
@@ -35,10 +35,10 @@ public partial class TrackEditorView : UserControl {
 
     // Handle the selection changed event here
     if (sender is ComboBox comboBox && comboBox.SelectedItem != null) {
-      Logger.Debug($"Selected Track: {((TrainRoute)comboBox.SelectedItem).Name}");
+      Logger.Debug($"Selected Route: {((TrainRoute)comboBox.SelectedItem).Name}");
       if (DataManager.TrainRoutes.Count == 0) return;
 
-      if (DataContext is TrackEditorViewModel viewModel) {
+      if (DataContext is RouteEditorViewModel viewModel) {
         // If we are adding a new line, switch the combobox to it
         if (viewModel.AddingNew) comboBox.SelectedIndex = DataManager.TrainRoutes.Count - 1;
 
@@ -57,7 +57,7 @@ public partial class TrackEditorView : UserControl {
 
   public void StopGotFocus(object sender, GotFocusEventArgs e) {
     TextBox? textBox = sender as TextBox;
-    if (DataContext is TrackEditorViewModel viewModel) viewModel.DrawFocusedStop(textBox.Name);
+    if (DataContext is RouteEditorViewModel viewModel) viewModel.DrawFocusedStop(textBox.Name);
   }
 
   public void StopLostFocus(object sender, RoutedEventArgs e) {

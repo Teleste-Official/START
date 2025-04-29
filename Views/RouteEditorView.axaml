@@ -3,9 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="260" d:DesignHeight="450"
-             x:Class="SmartTrainApplication.TrackEditorView"
+             x:Class="SmartTrainApplication.RouteEditorView"
              xmlns:local="clr-namespace:SmartTrainApplication.Views;assembly=SmartTrainApplication"
-             x:DataType="local:TrackEditorViewModel">
+             x:DataType="local:RouteEditorViewModel">
 
   <UserControl.Styles>
     <Style Selector="Button">
@@ -48,18 +48,18 @@
         <!-- New horizontal container for button and ComboBox -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="5">
           <!-- Small square Add Line button -->
-          <Button Command="{Binding AddLineButton}"
-                  IsEnabled="{Binding AddLineButtonEnabled}"
+          <Button Command="{Binding AddRouteButton}"
+                  IsEnabled="{Binding AddRouteButtonEnabled}"
                   Width="35" Height="35"
                   Content="+"
                   FontSize="18"
                   FontWeight="500"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center" />
-    
+
           <!-- ComboBox for Routes -->
           <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
-                    SelectionChanged="TrackComboBox_SelectionChanged"
+                    SelectionChanged="RouteComboBox_SelectionChanged"
                     IsEnabled="{Binding RouteComboBoxEnabled}"
                     Width="180">
             <ComboBox.ItemTemplate>
@@ -72,21 +72,20 @@
             </ComboBox.ItemTemplate>
           </ComboBox>
         </StackPanel>
-  
+
         <!-- TextBox below the horizontal container -->
         <TextBlock
-          IsVisible="{Binding TrackNameFieldEnabled}"
+          IsVisible="{Binding RouteNameFieldEnabled}"
           Text="Click on the map to draw route"
-          FontWeight="Bold"
-          />
+          FontWeight="Bold" />
         <TextBox Margin="0,10,0,5"
-                 Watermark="Track Name..." 
-                 Text="{Binding TrackName}"
-                 IsVisible="{Binding TrackNameFieldEnabled}" />
+                 Watermark="Route Name..."
+                 Text="{Binding RouteName}"
+                 IsVisible="{Binding RouteNameFieldEnabled}" />
 
         <Button Command="{Binding ModifyButton}"
-                IsEnabled="{Binding ModifyTrackButtonEnabled}">
-          Modify Track
+                IsEnabled="{Binding ModifyRouteButtonEnabled}">
+          Modify Route
         </Button>
         <Button Command="{Binding AddTunnelButton}"
                 IsEnabled="{Binding AddTunnelButtonEnabled}">
@@ -96,25 +95,28 @@
                 IsEnabled="{Binding AddStopButtonEnabled}">
           Add Stops
         </Button>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5" >
-          
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5">
+
           <Button Command="{Binding ConfirmButton}"
                   IsEnabled="{Binding ConfirmButtonEnabled}"
                   Width="107">
-          Confirm
+            Confirm
           </Button>
-        
+
           <Button Command="{Binding CancelButton}"
                   Width="107">
-          Cancel
+            Cancel
           </Button>
         </StackPanel>
 
-        <TextBlock>Action: </TextBlock>
+        <TextBlock>Current action: </TextBlock>
         <TextBlock FontWeight="Bold" FontSize="20" Text="{Binding CurrentAction}" />
 
         <TextBlock Margin="0 10 0 0"
-                   IsVisible="{Binding StopListEnabled}">Stops:</TextBlock>
+                   FontWeight="Bold"
+                   IsVisible="{Binding StopListEnabled}">
+          Stops:
+        </TextBlock>
 
         <Panel VerticalAlignment="Top" Margin="0 0 0 5"
                IsVisible="{Binding StopListEnabled}">

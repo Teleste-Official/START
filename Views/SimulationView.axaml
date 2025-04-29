@@ -50,7 +50,7 @@
       <StackPanel Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Stretch">
 
         <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
-                  SelectionChanged="TrackComboBox_SelectionChanged">
+                  SelectionChanged="RouteComboBox_SelectionChanged">
           <ComboBox.ItemTemplate>
             <DataTemplate>
               <Panel>

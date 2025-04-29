@@ -10,18 +10,19 @@ using SmartTrainApplication.Models;
 
 namespace SmartTrainApplication.Views;
 
-public class TrackEditorViewModel : ViewModelBase {
+public class RouteEditorViewModel : ViewModelBase {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-  //public string TrackName { get; set; }
+
+  //public string RouteName { get; set; }
   public List<TrainRoute> Routes { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
 
   public enum EditorAction {
     None,
-    AddLine,
+    AddRoute,
     AddTunnel,
     AddStop,
-    ModifyTrack
+    ModifyRoute
   }
 
   private EditorAction _currentAction;
@@ -35,34 +36,33 @@ public class TrackEditorViewModel : ViewModelBase {
       }
     }
   }
-  
-  private string _trackName;
 
-  public string TrackName {
-    get => _trackName;
+  private string _routeName;
+
+  public string RouteName {
+    get => _routeName;
     set {
-      
-      if (_trackName != value) {
-        _trackName = value;
-        RaisePropertyChanged(nameof(TrackName));
+      if (_routeName != value) {
+        _routeName = value;
+        RaisePropertyChanged(nameof(RouteName));
       }
 
-      if (_trackName == "") {
+      if (_routeName == "")
         ConfirmButtonEnabled = false;
-      } else {
+      else
         ConfirmButtonEnabled = true;
-      }
     }
   }
+
   private bool _routeComboBoxEnabled;
-  private bool _trackNameFieldEnabled;
-  private bool _addLineButtonEnabled;
+  private bool _routeNameFieldEnabled;
+  private bool _addRouteButtonEnabled;
   private bool _addTunnelButtonEnabled;
   private bool _addStopButtonEnabled;
-  private bool _modifyTrackButtonEnabled;
+  private bool _modifyRouteButtonEnabled;
   private bool _stopListEnabled;
   private bool _confirmButtonEnabled;
-  
+
   public bool RouteComboBoxEnabled {
     get => _routeComboBoxEnabled;
     set {
@@ -73,22 +73,22 @@ public class TrackEditorViewModel : ViewModelBase {
     }
   }
 
-  public bool TrackNameFieldEnabled {
-    get => _trackNameFieldEnabled;
+  public bool RouteNameFieldEnabled {
+    get => _routeNameFieldEnabled;
     set {
-      if (_trackNameFieldEnabled != value) {
-        _trackNameFieldEnabled = value;
-        RaisePropertyChanged(nameof(TrackNameFieldEnabled));
+      if (_routeNameFieldEnabled != value) {
+        _routeNameFieldEnabled = value;
+        RaisePropertyChanged(nameof(RouteNameFieldEnabled));
       }
     }
   }
 
-  public bool AddLineButtonEnabled {
-    get => _addLineButtonEnabled;
+  public bool AddRouteButtonEnabled {
+    get => _addRouteButtonEnabled;
     set {
-      if (_addLineButtonEnabled != value) {
-        _addLineButtonEnabled = value;
-        RaisePropertyChanged(nameof(AddLineButtonEnabled));
+      if (_addRouteButtonEnabled != value) {
+        _addRouteButtonEnabled = value;
+        RaisePropertyChanged(nameof(AddRouteButtonEnabled));
       }
     }
   }
@@ -112,14 +112,14 @@ public class TrackEditorViewModel : ViewModelBase {
       }
     }
   }
-  
-  
-  public bool ModifyTrackButtonEnabled {
-    get => _modifyTrackButtonEnabled;
+
+
+  public bool ModifyRouteButtonEnabled {
+    get => _modifyRouteButtonEnabled;
     set {
-      if (_modifyTrackButtonEnabled != value) {
-        _modifyTrackButtonEnabled = value;
-        RaisePropertyChanged(nameof(ModifyTrackButtonEnabled));
+      if (_modifyRouteButtonEnabled != value) {
+        _modifyRouteButtonEnabled = value;
+        RaisePropertyChanged(nameof(ModifyRouteButtonEnabled));
       }
     }
   }
@@ -133,7 +133,7 @@ public class TrackEditorViewModel : ViewModelBase {
       }
     }
   }
-  
+
   public bool ConfirmButtonEnabled {
     get => _confirmButtonEnabled;
     set {
@@ -143,65 +143,57 @@ public class TrackEditorViewModel : ViewModelBase {
       }
     }
   }
-  
+
 
   public bool AddingNew { get; set; }
 
-  public TrackEditorViewModel() {
-    Logger.Debug("TrackEditorViewModel");
-    if (DataManager.TrainRoutes.Count == 0) {
+  public RouteEditorViewModel() {
+    Logger.Debug("RouteEditorViewModel");
+
+    if (DataManager.TrainRoutes.Count == 0)
       LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);
-    }
-      
 
     Routes = DataManager.TrainRoutes;
 
-    //TrackName = DataManager.GetCurrentRouteName().Name;
-    //SetValuesToUI();
-    TrackName = "";
+    RouteName = "";
     CurrentAction = EditorAction.None;
-    
-    ResetAllButtons();
-    
-    AddingNew = false;
 
-    //Stops = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates();
+    ResetAllButtons();
+    AddingNew = false;
     Stops = DataManager.GetStops();
 
-    // Switch view in file manager
     FileManager.CurrentView = "Route";
     LayerManager.ClearFocusedStopsLayer();
   }
 
   private void ResetAllButtons() {
     RouteComboBoxEnabled = true;
-    TrackNameFieldEnabled = false;
-    AddLineButtonEnabled = true;
+    RouteNameFieldEnabled = false;
+    AddRouteButtonEnabled = true;
     if (DataManager.TrainRoutes.Count != 0) {
       AddTunnelButtonEnabled = true;
       AddStopButtonEnabled = true;
-      ModifyTrackButtonEnabled = true;
+      ModifyRouteButtonEnabled = true;
       StopListEnabled = true;
       ConfirmButtonEnabled = false;
     }
-
   }
 
-  public void AddLineButton() {
-    AddLineButtonEnabled = false;
+  public void AddRouteButton() {
+    AddRouteButtonEnabled = false;
     RouteComboBoxEnabled = false;
-    TrackNameFieldEnabled = true;
+    RouteNameFieldEnabled = true;
     AddStopButtonEnabled = false;
     AddTunnelButtonEnabled = false;
-    ModifyTrackButtonEnabled = false;
+    ModifyRouteButtonEnabled = false;
     ConfirmButtonEnabled = true;
     StopListEnabled = false;
-    TrackName = string.Empty;
-    
+    RouteName = string.Empty;
+
     //LayerManager.ClearFeatures();
     LayerManager.ClearAllLayers();
     LayerManager.AddLine();
-    CurrentAction = EditorAction.AddLine;
+    CurrentAction = EditorAction.AddRoute;
   }
 
   public void AddTunnelButton() {
@@ -219,15 +211,14 @@ public class TrackEditorViewModel : ViewModelBase {
   }
 
   public void ModifyButton() {
-    if (CurrentAction != EditorAction.ModifyTrack) {
+    if (CurrentAction != EditorAction.ModifyRoute) {
       DisableAllActionButtons();
       LayerManager.ClearFeatures();
       LayerManager.TurnImportToEdit();
-      CurrentAction = EditorAction.ModifyTrack;
+      CurrentAction = EditorAction.ModifyRoute;
     }
-    
   }
-  
+
   public void CancelButton() {
     ResetAllButtons();
     CurrentAction = EditorAction.None;
@@ -237,9 +228,9 @@ public class TrackEditorViewModel : ViewModelBase {
   }
 
   private void DisableAllActionButtons() {
-    AddLineButtonEnabled = false;
-    TrackNameFieldEnabled = false;
-    ModifyTrackButtonEnabled = false;
+    AddRouteButtonEnabled = false;
+    RouteNameFieldEnabled = false;
+    ModifyRouteButtonEnabled = false;
     AddTunnelButtonEnabled = false;
     AddStopButtonEnabled = false;
     ConfirmButtonEnabled = true;
@@ -249,24 +240,23 @@ public class TrackEditorViewModel : ViewModelBase {
 
   public void ConfirmButton() {
     switch (CurrentAction) {
-      
-      case EditorAction.AddLine:
+      case EditorAction.AddRoute:
         AddingNew = true;
         LayerManager.ClearAllLayers();
         //LayerManager.ApplyEditing("Route " + (DataManager.TrainRoutes.Count + 1));
-        LayerManager.AddNewTrack(TrackName);
-        
+        LayerManager.AddNewRoute(RouteName);
+
         Routes = DataManager.TrainRoutes.ToList();
         RaisePropertyChanged(nameof(DataManager.CurrentTrainRoute));
         RaisePropertyChanged(nameof(Routes));
         AddingNew = false;
         break;
-      case EditorAction.ModifyTrack:
+      case EditorAction.ModifyRoute:
         LayerManager.ApplyEditing();
         SetStopsToUI();
         break;
 
-      
+
       case EditorAction.AddStop:
         LayerManager.ConfirmStops();
         SetStopsToUI();
@@ -275,40 +265,39 @@ public class TrackEditorViewModel : ViewModelBase {
       case EditorAction.AddTunnel:
         LayerManager.ConfirmTunnel();
         break;
-      
-      case EditorAction.None: 
-        if (TrackName != "" && !DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name.Equals(TrackName)) {
-          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = TrackName;
-        }
+
+      case EditorAction.None:
+        if (RouteName != "" && !DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name.Equals(RouteName))
+          DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name = RouteName;
         Routes = DataManager.TrainRoutes;
         SetStopsToUI();
         // If commented out, Fixes dropdown box resetting when pressing confirm after adding new line
-        RaisePropertyChanged(nameof(Routes)); 
+        RaisePropertyChanged(nameof(Routes));
         return;
     }
+
     ResetAllButtons();
     CurrentAction = EditorAction.None;
   }
 
 
-
   public void SetValuesToUI() {
-    TrackName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+    RouteName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
 
     // Notify the UI about the property changes
-    RaisePropertyChanged(nameof(TrackName));
+    RaisePropertyChanged(nameof(RouteName));
   }
 
   public void UpdateRoutesToUI() {
-    TrackName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
+    RouteName = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].Name;
 
     // Notify the UI about the property changes
-    RaisePropertyChanged(nameof(TrackName));
+    RaisePropertyChanged(nameof(RouteName));
     RaisePropertyChanged(nameof(Routes));
   }
 
   public void SetStopsToUI() {
-    Stops = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates();//DataManager.GetStops();
+    Stops = DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates(); //DataManager.GetStops();
     RaisePropertyChanged(nameof(Stops));
   }
 
@@ -316,18 +305,5 @@ public class TrackEditorViewModel : ViewModelBase {
     RouteCoordinate selectedStop = Stops.First(item => item.Id == id);
     LayerManager.AddFocusStop(selectedStop);
   }
-  
-  /*
-  public void DrawFocusedStop(RouteCoordinate selectedStop) {
-    foreach (RouteCoordinate c in Stops) {
-      // Could be better I know...
-      if (c.Latitude == selectedStop.Latitude && c.Longitude == selectedStop.Longitude) {
-        LayerManager.AddFocusStop(c);
-        break;
-      }
-    }
-    
-    //var selectedStop = Stops.First(item => item.Id == _Id);
-    //LayerManager.AddFocusStop(selectedStop);
-  }*/
+
 }

@@ -15,20 +15,20 @@ namespace SmartTrainApplication;
 public partial class SimulationView : UserControl {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-  private static bool _firstTrackSelectionChange = true;
+  private static bool _firstRouteSelectionChange = true;
   private static bool _firstTrainSelectionChange = true;
 
   public SimulationView() {
-    _firstTrackSelectionChange = true;
+    _firstRouteSelectionChange = true;
     _firstTrainSelectionChange = true;
     InitializeComponent();
   }
 
-  public void TrackComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-    if (_firstTrackSelectionChange) {
+  public void RouteComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+    if (_firstRouteSelectionChange) {
       RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
       MapViewControl.MoveMapToCoords(DataManager.GetCurrentRoute().Coords[0]);
-      _firstTrackSelectionChange = false;
+      _firstRouteSelectionChange = false;
       return;
     }
 

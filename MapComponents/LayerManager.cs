@@ -104,31 +104,11 @@ internal class LayerManager {
     DataManager.TrainRoutes = trainRoutes;
     
     try {
-      
       List<string> tunnelStrings = DataManager.GetTunnelStrings();
-
-
-      // TODO remove these
-      /*
-      TrainRoute currentRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-      List<String> stopNames = currentRoute.Coords.Select(c => c.StopName).ToList();
-      
-      List<RouteCoordinate> stops = new List<RouteCoordinate>();
-      foreach (RouteCoordinate coord in currentRoute.Coords) {
-        if (coord.Type == "STOP") {
-          stops.Add(coord);
-          Logger.Debug("found stop " + coord.StopName);
-        }
-      }
-      */
-      
       WritableLayer importLayer = CreateImportLayer();
       SetTrainRouteToImportLayer(DataManager.TrainRoutes[DataManager.CurrentTrainRoute], importLayer);
       RedrawTunnelsToMap(tunnelStrings);
       RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
-      
-      
-
     }
     catch (Exception Ex) {
       Logger.Debug(Ex);
@@ -143,11 +123,9 @@ internal class LayerManager {
 
     WritableLayer importLayer = CreateImportLayer();
     List<string> tunnelStrings = DataManager.GetTunnelStrings();
-    //List<string> stopsStrings = DataManager.GetStopStrings();
 
     TurnImportToFeature(geometryData, importLayer);
     RedrawTunnelsToMap(tunnelStrings);
-    //RedrawStopsToMap2(DataManager.TrainRoutes[RouteIndex]);
     RedrawStopsToMap(currentRoute.GetStopCoordinates());
   }
 
@@ -170,9 +148,6 @@ internal class LayerManager {
     List<string> tunnelStrings = DataManager.GetTunnelStrings();
     RedrawTunnelsToMap(tunnelStrings);
 
-    //List<string> stopStrings = DataManager.GetStopStrings();
-    //RedrawStopsToMap(stopStrings);
-    
     RedrawStopsToMap(DataManager.TrainRoutes[DataManager.CurrentTrainRoute].GetStopCoordinates());
   }
 
@@ -278,8 +253,8 @@ internal class LayerManager {
   /// <summary>
   ///   Applies the edits to the TrainRoute and clears the edit layer
   /// </summary>
-  public static void AddNewTrack(string name = "Route", string id = "", string filePath = "") {
-    Logger.Debug($"AddNewTrack() name={name}, id={id}");
+  public static void AddNewRoute(string name = "Route", string id = "", string filePath = "") {
+    Logger.Debug($"AddNewRoute() name={name}, id={id}");
     ConfirmNewRoute(name, id, filePath);
 
     MapViewControl._editManager.Layer.Clear();

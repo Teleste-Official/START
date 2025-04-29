@@ -59,8 +59,8 @@
     <Compile Update="Views\TrainEditorView.axaml.cs">
       <DependentUpon>TrainEditorView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\TrackEditorView.axaml.cs">
-      <DependentUpon>TrackEditorView.axaml</DependentUpon>
+    <Compile Update="Views\RouteEditorView.axaml.cs">
+      <DependentUpon>RouteEditorView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
