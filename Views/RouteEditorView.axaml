@@ -16,13 +16,12 @@
       <Setter Property="Foreground" Value="#FFFFFF" />
       <Setter Property="DockPanel.Dock" Value="Top" />
     </Style>
-
     <Style Selector="ComboBox">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="SelectedIndex" Value="0" />
       <Setter Property="MaxDropDownHeight" Value="200" />
       <Setter Property="DockPanel.Dock" Value="Top" />
-      <Setter Property="Margin" Value="0 5 0 5" />
+      <Setter Property="Margin" Value="0 4" />
     </Style>
     <Style Selector="TextBox">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -118,20 +117,27 @@
           Stops:
         </TextBlock>
 
-        <Panel VerticalAlignment="Top" Margin="0 0 0 5"
+        <Panel VerticalAlignment="Top" HorizontalAlignment="Stretch"
                IsVisible="{Binding StopListEnabled}">
           <ScrollViewer>
             <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <StackPanel Orientation="Vertical" Width="240" />
+                  <StackPanel Orientation="Vertical" />
                 </ItemsPanelTemplate>
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Grid RowDefinitions="*,*" ColumnDefinitions="0,*">
-                    <TextBox Width="150" Grid.Row="0" Grid.Column="1" GotFocus="StopGotFocus" LostFocus="StopLostFocus"
-                             Name="{Binding Id}" Text="{Binding StopName}" />
+                  <Grid RowDefinitions="*,*" ColumnDefinitions="0,*" Margin="0 2">
+                    <TextBox
+                      Grid.Row="0"
+                      Grid.Column="1"
+                      GotFocus="StopGotFocus"
+                      LostFocus="StopLostFocus"
+                      Name="{Binding Id}"
+                      Text="{Binding StopName}"
+                      VerticalAlignment="Center"
+                      Margin="0 2 0 2" />
                   </Grid>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>

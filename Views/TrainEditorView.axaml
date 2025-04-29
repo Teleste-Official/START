@@ -21,12 +21,12 @@
       <Setter Property="SelectedIndex" Value="0" />
       <Setter Property="MaxDropDownHeight" Value="200" />
       <Setter Property="DockPanel.Dock" Value="Top" />
-      <Setter Property="Margin" Value="0,4" />
+      <Setter Property="Margin" Value="0 4" />
     </Style>
     <Style Selector="NumericUpDown">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="DockPanel.Dock" Value="Top" />
-      <Setter Property="Margin" Value="0,0,0,4" />
+      <Setter Property="Margin" Value="0 4" />
       <Setter Property="Minimum" Value="0" />
     </Style>
     <Style Selector="TextBox">
@@ -83,6 +83,27 @@
         </StackPanel>
 
 
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5">
+          <Button Command="{Binding EditButton}"
+                  Width="107"
+
+                  Content="{Binding ButtonText}"
+                  IsVisible="{Binding !IsEditing}" />
+
+          <Button Command="{Binding ConfirmButton}"
+                  Width="107"
+
+                  Content="Confirm"
+                  IsEnabled="{Binding ConfirmButtonEnabled}"
+                  IsVisible="{Binding IsEditing}" />
+
+          <Button Command="{Binding CancelButton}"
+                  Width="107"
+
+                  Content="Cancel"
+                  IsEnabled="{Binding IsEditing}" />
+        </StackPanel>
+
         <TextBlock FontWeight="Bold"
                    Text="Name:"
                    Margin="0 0 0 10" />
@@ -101,18 +122,18 @@
                    Text="Description:"
                    Margin="0 0 0 10" />
 
-        <Grid Margin="0 0 0 10" Height="80">
+        <Grid Height="35">
           <TextBlock Text="{Binding Description}"
                      TextWrapping="Wrap"
-                     Height="80"
                      IsVisible="{Binding !IsEditing}"
                      Margin="0 0 0 10" />
-          <TextBox Height="80"
-                   Text="{Binding Description}"
-                   IsVisible="{Binding IsEditing}"
-                   AcceptsReturn="True"
-                   Watermark="Train description (optional)"
-                   TextWrapping="Wrap" />
+          <TextBox
+            Text="{Binding Description}"
+            IsVisible="{Binding IsEditing}"
+            AcceptsReturn="True"
+            Watermark="Train description (optional)"
+            TextWrapping="Wrap"
+            Margin="0 0 0 10" />
         </Grid>
 
 
@@ -169,28 +190,6 @@
             <Image Margin="0" Height="30" Width="30" Source="/Assets/start_ui_icon_tram.png" />
           </ComboBoxItem>
         </ComboBox>
-
-        <!-- Horizontal button container -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5">
-          <Button Command="{Binding EditButton}"
-                  Width="107"
-                  Margin="5 10 5 0"
-                  Content="{Binding ButtonText}"
-                  IsVisible="{Binding !IsEditing}" />
-
-          <Button Command="{Binding ConfirmButton}"
-                  Width="107"
-                  Margin="5 10 5 0"
-                  Content="Confirm"
-                  IsEnabled="{Binding ConfirmButtonEnabled}"
-                  IsVisible="{Binding IsEditing}" />
-
-          <Button Command="{Binding CancelButton}"
-                  Width="107"
-                  Margin="5 10 5 0"
-                  Content="Cancel"
-                  IsVisible="{Binding IsEditing}" />
-        </StackPanel>
 
       </StackPanel>
     </Border>

@@ -21,7 +21,7 @@
       <Setter Property="SelectedIndex" Value="0" />
       <Setter Property="MaxDropDownHeight" Value="200" />
       <Setter Property="DockPanel.Dock" Value="Top" />
-      <Setter Property="Margin" Value="0 4 0 5" />
+      <Setter Property="Margin" Value="0 4" />
     </Style>
     <Style Selector="NumericUpDown">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -49,37 +49,39 @@
 
       <StackPanel Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Stretch">
 
-        <ComboBox x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
-                  SelectionChanged="RouteComboBox_SelectionChanged">
-          <ComboBox.ItemTemplate>
-            <DataTemplate>
-              <Panel>
-                <Image Margin="5 0 175 0" Height="25" Width="25" Source="/Assets/start_ui_icon_route.png" />
-                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
-              </Panel>
-            </DataTemplate>
-          </ComboBox.ItemTemplate>
-        </ComboBox>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Center">
 
-        <ComboBox x:Name="TrainComboBox" ItemsSource="{Binding Trains}"
-                  SelectionChanged="TrainComboBox_SelectionChanged">
-          <ComboBox.ItemTemplate>
-            <DataTemplate>
-              <Panel>
-                <Image Margin="5 0 175 0" Height="25" Width="25" Source="{Binding Image}" />
-                <TextBlock Margin="40 10 0 5" Text="{Binding Name}" />
-              </Panel>
-            </DataTemplate>
-          </ComboBox.ItemTemplate>
-        </ComboBox>
+          <ComboBox Height="35" x:Name="RouteComboBox" ItemsSource="{Binding Routes}"
+                    SelectionChanged="RouteComboBox_SelectionChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <Image Height="25" Width="25" Source="/Assets/start_ui_icon_route.png" />
+                  <TextBlock Margin="5 5" Text="{Binding Name}" VerticalAlignment="Center" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+
+          <ComboBox Height="35" x:Name="TrainComboBox" ItemsSource="{Binding Trains}"
+                    SelectionChanged="TrainComboBox_SelectionChanged">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <Image Height="25" Width="25" Source="{Binding Image}" />
+                  <TextBlock Margin="5 5" Text="{Binding Name}" VerticalAlignment="Center" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
 
         <TextBlock FontWeight="Bold">Tick length (0.1 - 100 s):</TextBlock>
         <NumericUpDown Value="{Binding TickLength}"
                        Minimum="0.1"
                        Maximum="100.0"
-                       Increment="0.1"/>
+                       Increment="0.1" />
 
-        <!-- TODO rename to something better -->
         <Button Command="{Binding CreateSimulationButton}"
                 IsEnabled="{Binding CreateSimulationButtonEnabled}">
           Create Simulation
@@ -98,24 +100,31 @@
           </Button>
         </StackPanel>
 
-        <TextBlock FontWeight="Bold">Stops:</TextBlock>
+        <TextBlock FontWeight="Bold"
+                   Margin="0 10 5 5">
+          Stops:
+        </TextBlock>
 
-        <Panel VerticalAlignment="Top">
+        <Panel VerticalAlignment="Top" HorizontalAlignment="Left">
           <ScrollViewer>
-            <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}">
+            <ItemsControl x:Name="StopsPanel" ItemsSource="{Binding Stops}" HorizontalAlignment="Left">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <StackPanel Orientation="Vertical" Width="240" />
+                  <StackPanel Orientation="Vertical" HorizontalAlignment="Left" />
                 </ItemsPanelTemplate>
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Grid RowDefinitions="*,*" ColumnDefinitions="50,100,*">
-                    <TextBlock Grid.Row="0" Grid.Column="1" PointerPressed="ClickStop" Name="{Binding Id}" Text="{Binding StopName}">
-                      Stop
-                    </TextBlock>
-                    <CheckBox Grid.Row="0" Grid.Column="2" Unchecked="UncheckStop" Checked="CheckStop"
-                              Name="{Binding Id}" />
+                  <Grid ColumnDefinitions="Auto,*" Margin="1 2 0 2">
+                    <CheckBox Grid.Column="0" Unchecked="UncheckStop" Checked="CheckStop"
+                              Margin="0 0 5 0" Name="{Binding Id}"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="1" PointerPressed="ClickStop"
+                               Text="{Binding StopName}"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               Margin="0 0 0 0" />
                   </Grid>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
