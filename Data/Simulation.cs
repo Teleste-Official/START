@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,28 +41,108 @@ internal class Simulation {
     }
   }
 
+  private static MPoint CreateMPointFromRouteCoordinate(RouteCoordinate coord) {
+    double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+    double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+    MPoint mPoint = SphericalMercator.ToLonLat(new MPoint(x, y));
+    return mPoint;
+  }
+
+  private static List<MPoint> GenerateMPointListFromRouteCoordinates(List<RouteCoordinate> coords) {
+    List<MPoint> mPoints = new List<MPoint>();
+
+    foreach (RouteCoordinate? coord in coords) {
+      //double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      //double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      //MPoint? mPoint = SphericalMercator.ToLonLat(new MPoint(x, y));
+      //Logger.Debug($"Latitude={coord.Latitude}, Longitude={coord.Longitude}, mPoint={mPoint}, x={x}, y={y}");
+      mPoints.Add(CreateMPointFromRouteCoordinate(coord));
+    }
+    return mPoints;
+  }
+
+  public static SimulationData GenerateSimulationData2(Dictionary<RouteCoordinate, bool> stopsDictionary,
+    Train trainToBeSimulated, TrainRoute routeToBeSimulated, float tickLength) {
+
+    List<TickData> generatedSimulationTicks =  new List<TickData>();
+    double routeLengthMeters = 0;
+
+    List<MPoint> mPointsList = GenerateMPointListFromRouteCoordinates(routeToBeSimulated.Coords);
+
+    foreach (MPoint mPoint in mPointsList) {
+      TickData newTick = new TickData();
+
+    }
+
+    SimulationData newSim = new(generatedSimulationTicks, trainToBeSimulated, routeToBeSimulated);
+    newSim.RouteLengthMeters = routeLengthMeters;
+    LatestSimulation = newSim;
+    Logger.Debug($"Simulation had tickData.Count={generatedSimulationTicks.Count}, mPointsList.Count={mPointsList.Count}");
+    return newSim;
+  }
+
+  private static List<(double, bool)> stoppingDistances;
+
+  private static bool ShouldDecelerateAtDistance(double distanceTravelled, float currentSpeed, float acceleration) {
+
+    for (int i=0; i < stoppingDistances.Count; i++) {
+      // Stop has been visited
+      if (stoppingDistances[i].Item2) {
+        continue;
+      }
+
+      double distanceToNextStop = stoppingDistances[i].Item1-distanceTravelled;
+      double stoppingDistance = 1.75 * RouteGeneration.CalculateStoppingDistance(currentSpeed, 0f, acceleration);
+
+      if (distanceToNextStop <= stoppingDistance) {
+        //stoppingDistances[i] = (stoppingDistances[i].Item1, true);
+        Logger.Debug($"should deaccelerate, travelled {distanceTravelled}, distance to next stop {distanceToNextStop}, speed {currentSpeed}");
+        return true;
+      }
+
+      break;
+    }
+    return false;
+  }
+
+  private static double GetDistanceToNextStop(float distanceTravelled) {
+
+    for (int i=0; i < stoppingDistances.Count; i++) {
+      // Stop has been visited
+      if (stoppingDistances[i].Item2) {
+        continue;
+      }
+
+      double distanceToNextStop = stoppingDistances[i].Item1-distanceTravelled;
+      return distanceToNextStop;
+    }
+
+    return 0;
+  }
+
+  // MPoints coming from this are in the actual correct format that will be in the simulator json.
   // TODO Make this make some sense
-  public static void GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, Train trainToBeSimulated, TrainRoute routeToBeSimulated, float tickLength) {
-    // See if async would be more preferrable for this -Metso
+  // TODO start with distance 0
+  public static SimulationData GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary, Train trainToBeSimulated, TrainRoute routeToBeSimulated, float tickLength) {
 
     // Hack stuff for now
     TickLength = tickLength;
 
     float acceleration = trainToBeSimulated.Acceleration;
     float maxSpeed = trainToBeSimulated.MaxSpeed;
-    TrainRoute? selectedRoute = DataManager.GetCurrentRoute();
 
     // Preprocess the route to calculate the distance and add info (turns, speedlimitations) for simulation -Metso
-    Dictionary<RouteCoordinate, bool> turnPoints = new SimulatedTrainRoute(selectedRoute).RouteTurnPoints;
-    Dictionary<RouteCoordinate, bool> stopPoints = new SimulatedTrainRoute(selectedRoute).RouteStops;
+    Dictionary<RouteCoordinate, bool> turnPoints = new SimulatedTrainRoute(routeToBeSimulated).RouteTurnPoints;
+    Dictionary<RouteCoordinate, bool> stopPoints = new SimulatedTrainRoute(routeToBeSimulated).RouteStops;
 
+    int turns = 0;
     foreach (KeyValuePair<RouteCoordinate, bool> kvp in turnPoints) {
-      for (int i = 0; i < selectedRoute.Coords.Count - 2; i++) {
-        RoutePoint? point1 = new(selectedRoute.Coords[i].Longitude, selectedRoute.Coords[i].Latitude);
-        RoutePoint? point2 = new(selectedRoute.Coords[i + 1].Longitude, selectedRoute.Coords[i + 1].Latitude);
-        RoutePoint? point3 = new(selectedRoute.Coords[i + 2].Longitude, selectedRoute.Coords[i + 2].Latitude);
+      for (int i = 0; i < routeToBeSimulated.Coords.Count - 2; i++) {
+        RoutePoint? point1 = new(routeToBeSimulated.Coords[i].Longitude, routeToBeSimulated.Coords[i].Latitude);
+        RoutePoint? point2 = new(routeToBeSimulated.Coords[i + 1].Longitude, routeToBeSimulated.Coords[i + 1].Latitude);
+        RoutePoint? point3 = new(routeToBeSimulated.Coords[i + 2].Longitude, routeToBeSimulated.Coords[i + 2].Latitude);
 
-        turnPoints[selectedRoute.Coords[i + 1]] = TurnCalculation.CalculateTurn(point1, point2, point3);
+        turnPoints[routeToBeSimulated.Coords[i + 1]] = TurnCalculation.CalculateTurn(point1, point2, point3);
       }
     }
 
@@ -69,23 +150,30 @@ internal class Simulation {
       stopPoints[kvp.Key] = kvp.Value;
     }
 
-    Logger.Debug($"Simulation started with acceleration: {acceleration}, maxSpeed: {maxSpeed}, tickLength: {tickLength}");
+    Logger.Debug($"Simulation started with:" +
+                 $"\ntrainToBeSimulated={trainToBeSimulated.Name}" +
+                 $"\nrouteToBeSimulated={routeToBeSimulated.Name}" +
+                 $"\nacceleration={acceleration}" +
+                 $"\nmaxSpeed={maxSpeed}" +
+                 $"\ntickLength={tickLength}");
 
-    List<TickData> allTickData = new();
-    List<MPoint> points = new();
-
-    foreach (RouteCoordinate? coord in selectedRoute.Coords) {
-      double x = double.Parse(coord.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      double y = double.Parse(coord.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
-      MPoint? point = SphericalMercator.ToLonLat(new MPoint(x, y));
-      points.Add(point);
+    Logger.Debug($"stopPoints.Count: {stopPoints.Count}, stopsDictionary.Count: {stopsDictionary.Count}, turnPoints.Count: {turnPoints.Count}, turns:  {turns}");
+    foreach (KeyValuePair<RouteCoordinate,bool> sp in stopsDictionary) {
+      //Logger.Debug($"Stop:  {sp.Key.StopName} -> {sp.Value}");
     }
 
-    double routeLengthMeters = RouteGeneration.CalculateRouteLength(points);
-    TickData? tickData = new(points[0].Y, points[0].X, false, 0, false, 0, 0);
+
+    List<TickData> generatedSimulationTicks = new();
+    // MPonts that correspond to the RouteCoordinates in selected route.
+    List<MPoint> mPointsList = GenerateMPointListFromRouteCoordinates(routeToBeSimulated.Coords);
+
+    double routeLengthMeters = RouteGeneration.CalculateRouteLength(mPointsList);
+
+    TickData? tickData = new(mPointsList[0].Y, mPointsList[0].X, false, 0, false, 0, 0);
+
     int pointIndex = 1;
-    double nextLat = points[pointIndex].Y;
-    double nextLon = points[pointIndex].X;
+    double nextLat = mPointsList[pointIndex].Y;
+    double nextLon = mPointsList[pointIndex].X;
     bool isGpsFix = true;
 
     double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, tickLength, acceleration);
@@ -93,18 +181,70 @@ internal class Simulation {
 
 
     bool isRunning = true;
+
+
+
+    Logger.Debug($"Calculating dist");
+
+    double cumulativeDistance = 0;
+    // key=coord, value distance travelled at that point
+    Dictionary<RouteCoordinate, double> od = new();
+
+    stoppingDistances = new();
+    for (int i = 0; i < routeToBeSimulated.Coords.Count; i++) {
+      if (i + 1 >= routeToBeSimulated.Coords.Count) {
+
+        break;
+      }
+
+      RouteCoordinate coord1 = routeToBeSimulated.Coords[i];
+      RouteCoordinate coord2 = routeToBeSimulated.Coords[i+1];
+
+      if (stopPoints.Values.ElementAt(i)) {
+        od.Add(coord1, cumulativeDistance);
+        stoppingDistances.Add((cumulativeDistance, false));
+      }
+
+      //double lon1 = double.Parse(coord1.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      //double lat1 = double.Parse(coord1.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      //double lon2 = double.Parse(coord2.Longitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+      //double lat2 = double.Parse(coord2.Latitude, NumberStyles.Float, CultureInfo.InvariantCulture);
+
+      MPoint mPoint1 = CreateMPointFromRouteCoordinate(coord1);
+      MPoint mPoint2 = CreateMPointFromRouteCoordinate(coord2);
+
+      double lon1 = mPoint1.X;
+      double lon2 = mPoint2.X;
+      double lat1 = mPoint1.Y;
+      double lat2 = mPoint2.Y;
+
+      cumulativeDistance += RouteGeneration.CalculatePointDistance(lon1, lon2, lat1, lat2);
+
+
+
+      Logger.Debug($"dist: {cumulativeDistance}");
+
+      //Logger.Debug($"lon1={lon1}, lon2={lon2}, lat1={lat1}, lat2={lat2}, pointDistance={RouteGeneration.CalculatePointDistance(lon1, lon2, lat1, lat2)}", lon1, lon2, lat1, lat2 );
+    }
+
+    foreach (KeyValuePair<RouteCoordinate, double> kvp in od) {
+      Logger.Debug($"coord: {kvp.Key}={kvp.Value}");
+    }
+    Logger.Debug("Done Calculating dist");
+
+
     while (isRunning) {
       // Iterate through the route and save all data
       // In each iteration move the train based on time, velocity and acceleration
       // Thus new calculations for each of these need to be done first in every iteration
       // -Metso
 
-      bool turn = false;
-      bool stop = false;
 
+      //Logger.Debug($"travel distance: {travelDistance}, point Distance: {pointDistance}");
+      // Basically this increases the lat+lon and distanceMeters until the point distance equals travel distance.
       while (travelDistance > pointDistance) {
         // Stop loop in trying to go past last point
-        if (pointIndex == points.Count - 1) {
+        if (pointIndex == mPointsList.Count - 1) {
           isRunning = false; // Remove this after functionality is added. -Metso
           travelDistance = pointDistance;
           break;
@@ -115,21 +255,21 @@ internal class Simulation {
         tickData.latitudeDD = nextLat;
         tickData.longitudeDD = nextLon;
 
-        if (selectedRoute.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" ||
-            selectedRoute.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP") {
+        if (routeToBeSimulated.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" ||
+            routeToBeSimulated.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP") {
           isGpsFix = !isGpsFix;
         }
 
-        turn = false;
-        stop = false;
-
         pointIndex++;
-        nextLat = points[pointIndex].Y;
-        nextLon = points[pointIndex].X;
+        nextLat = mPointsList[pointIndex].Y;
+        nextLon = mPointsList[pointIndex].X;
 
         pointDistance =
           RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+        //Logger.Debug($"pointDistance: {pointDistance}");
       }
+
+      //Logger.Debug($"AFTER travel distance: {travelDistance}, point Distance: {pointDistance}");
 
       (tickData.longitudeDD, tickData.latitudeDD) = RouteGeneration.CalculateNewTrainPoint(tickData.longitudeDD,
         tickData.latitudeDD, nextLon, nextLat, travelDistance, pointDistance);
@@ -142,92 +282,65 @@ internal class Simulation {
         break;
 
       // Data to be saved in Ticks:
-      // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs 
-      allTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, tickData.speedKmh, false,
+      // double _latitudeDD, double _longitudeDD, bool _isGpsFix, float _speedKmh, bool _doorsOpen, float _distanceMeters, float _trackTimeSecs
+      generatedSimulationTicks.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, tickData.speedKmh, false,
         tickData.distanceMeters, tickData.trackTimeSecs));
 
-      // Loop trough TurnPoints dictionary to get turn points for slow zone
-      /*foreach (KeyValuePair<RouteCoordinate, bool> kvp in TurnPoints)
-      {
-          for (int i = 0; i < DataManager.CurrentTrainRoute.Coords.Count - 2; i++)
-          {
-              kvpKeyLongitude = double.Parse(kvp.Key.Longitude.Replace(".", ","));
-              kvpKeyLatitude = double.Parse(kvp.Key.Latitude.Replace(".", ","));
-              point1Longitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Longitude.Replace(".", ","));
-              point1Latitude = double.Parse(DataManager.CurrentTrainRoute.Coords[i].Latitude.Replace(".", ","));
-
-              point1 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i].Longitude, DataManager.CurrentTrainRoute.Coords[i].Latitude);
-              point2 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 1].Longitude, DataManager.CurrentTrainRoute.Coords[i + 1].Latitude);
-              point3 = new RoutePoint(DataManager.CurrentTrainRoute.Coords[i + 2].Longitude, DataManager.CurrentTrainRoute.Coords[i + 2].Latitude);
-
-              turn = kvp.Value;
-
-              if (IsRunning)
-              {
-                  pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
-                  travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, interval, acceleration);
-
-                  distance = RouteGeneration.CalculatePointDistance(point1Longitude, kvpKeyLongitude, point1Latitude, kvpKeyLatitude);
-
-                  if (turn)
-                  {
-
-                      slowZoneDistance = distance + 100;
-                      // Calculate slow zone speed with current distance and slow zone distance
-                      tickData.speedKmh = SlowZone.CalculateSlowZone(distance, slowZoneDistance, tickData.speedKmh, acceleration, maxSpeed);
-
-                      float maxRadius = 180;
-
-                      // New speed based on curve radius
-                      tickData.speedKmh = TurnCalculation.CalculateTurnSpeedByRadius(point1, point2, point3, tickData.speedKmh, maxRadius);
-
-                  }
-                  else
-                  {
-                      slowZoneDistance = 100000000;
-                  }
-
-                  // If the train isn't a stopping distance (distance needed to go from maxspeed to 0)
-                  // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
-                  // Else start decelerating.
-                  // With this the train coast at 7.2km/h for a few seconds at the end before stopping
-                  if (tickData.distanceMeters < routeLengthMeters - 1.5 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
-                  {
-                      tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, acceleration), maxSpeed);
-                  } else {
-                      //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
-                      tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, interval, -acceleration), 7.2f);
-                  }
-              }
-          }
-        //  Logger.Debug(tickData.speedKmh);
-
-      }*/
       if (isRunning) {
-        pointDistance =
-          RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
         travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, tickLength, acceleration);
+        double distanceToNextStop = GetDistanceToNextStop(tickData.distanceMeters);
+        //Logger.Debug($"PointDistance: {pointDistance} TravelDistance: {travelDistance} Distance: {tickData.distanceMeters}");
 
-        turn = turnPoints.Values.ElementAt(pointIndex);
-        stop = stopPoints.Values.ElementAt(pointIndex);
-
+        bool turn = turnPoints.Values.ElementAt(pointIndex);
+        bool stop = ShouldDecelerateAtDistance(tickData.distanceMeters, tickData.speedKmh, -acceleration);//stopPoints.Values.ElementAt(pointIndex);
+        //Logger.Debug($"travelDistance: {tickData.distanceMeters}, stopped: {stop}");
         // If the current/"next" RoutePoint is marked as stop
+        // TODO this produces error if there are two stops back to back without any route point in between them.
         if (stop) {
           // If the distance to next RoutePoint is shorter than
           // 1.75 times the stopping distance (distance needed to decelerate from maxSpeed to 0),
           // decelerate to 7.2km/h and coast at that speed until turn's RoutePoint
           if (pointDistance < 1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration)) {
+
+            // TODO decelerate with tickLength=1 here also remember to fix the passed time somewhere else.
             //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
             tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               7.2f);
 
+            // TODO calculate the actual distance to the stop, not point to point distance
             // If within 3 meters from the RoutePoint, stop for 10 seconds.
-            if (pointDistance < 3)
-              for (int i = 1; i <= 10; i++) {
-                tickData.trackTimeSecs += tickLength;
-                allTickData.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0, true,
-                  tickData.distanceMeters, tickData.trackTimeSecs));
+            //if (pointDistance < 3) {
+            if (distanceToNextStop < 3) {
+
+              int idx = 0;
+
+
+              while (idx < stoppingDistances.Count) {
+                if (stoppingDistances[idx].Item2) {
+                  idx++;
+                  continue;
+                }
+
+                double distanceTravelledAtStop = stoppingDistances[idx].Item1;
+
+
+                if (tickData.distanceMeters <= distanceTravelledAtStop) {
+                  stoppingDistances[idx] = (stoppingDistances[idx].Item1, true);
+                  Logger.Debug($"STOP AT: {tickData.distanceMeters}");
+                  for (int i = 1; i <= 10; i++) {
+                    tickData.trackTimeSecs += tickLength;
+                    generatedSimulationTicks.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0,
+                      true,
+                      tickData.distanceMeters, tickData.trackTimeSecs));
+                  }
+                }
+
+                break;
               }
+            }
+
+
           }
           // Else accelerate normally.
           else {
@@ -249,42 +362,46 @@ internal class Simulation {
           // If the distance to next RoutePoint is shorter than
           // double the stopping distance (distance needed to decelerate from maxSpeed to turnSpeed),
           // decelerate to turnSpeed and coast at that speed until turn's RoutePoint
-          if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, turnSpeed, -acceleration))
+          if (pointDistance < 2 * RouteGeneration.CalculateStoppingDistance(maxSpeed, turnSpeed, -acceleration)) {
             tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               turnSpeed);
-          // Else accelerate normally.
-          else
+
+          } else { // Else accelerate normally.
             tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration),
               maxSpeed);
+          }
+
         }
         else {
           // If the train isn't a stopping distance (distance needed to decelerate from maxSpeed to 0)
           // away from the route end (plus some wiggle room), keep accelerating to train's max speed.
           if (tickData.distanceMeters < routeLengthMeters -
-              1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration))
-            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration),
-              maxSpeed);
+              1.75 * RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration)) {
+            tickData.speedKmh = Math.Min(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, acceleration), maxSpeed);
+          }
           // Else start decelerating.
           // With this the train coast at 7.2km/h for a few seconds at the end before stopping
-          else
+          else {
             //7.2km/h is the speed from which the train can come to a stop in one second "tick" with the -2m/s^2 deceleration
             tickData.speedKmh = Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, tickLength, -acceleration),
               7.2f);
+          }
+
         }
       }
     }
 
-    allTickData.RemoveAt(allTickData.Count - 1);
+    generatedSimulationTicks.RemoveAt(generatedSimulationTicks.Count - 1);
     //change last data to have 0 speed and open doors
     // TBD does this make sense...
-    allTickData[allTickData.Count - 1].speedKmh = 0f;
-    allTickData[allTickData.Count - 1].doorsOpen = true;
-    SimulationData? newSim = new(allTickData, trainToBeSimulated, routeToBeSimulated);
+    generatedSimulationTicks[generatedSimulationTicks.Count - 1].speedKmh = 0f;
+    generatedSimulationTicks[generatedSimulationTicks.Count - 1].doorsOpen = true;
 
-    // Save the simulated run into a file. Name could be *TrainName*_*RouteName*_*DateTime*.json
-    // SimulationRun file could also host the train and route data for playback in the future -Metso
-    FileManager.SaveSimulationData(newSim);
+    SimulationData newSim = new(generatedSimulationTicks, trainToBeSimulated, routeToBeSimulated);
+    newSim.RouteLengthMeters = routeLengthMeters;
     LatestSimulation = newSim;
+    Logger.Debug($"Simulation had tickData.Count={generatedSimulationTicks.Count}, mPoints.Count={mPointsList.Count}, route length meters={routeLengthMeters}");
+    return newSim;
 
   }
 
