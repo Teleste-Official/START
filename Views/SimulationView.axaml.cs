@@ -43,7 +43,7 @@ public partial class SimulationView : UserControl {
         MapViewControl.MoveMapToCoords(DataManager.GetCurrentRoute().Coords[0]);
         LayerManager.SwitchRoute();
         viewModel.SetStopsToUI();
-        Logger.Debug($"Selected {DataManager.GetCurrentRoute()?.Name} for simulation");
+        Logger.Debug($"Selected route: {DataManager.GetCurrentRoute()?.Name} for simulation");
       }
       RouteComboBox.SelectedIndex = DataManager.CurrentTrainRoute;
     }
@@ -63,6 +63,7 @@ public partial class SimulationView : UserControl {
       }
 
       DataManager.CurrentTrain = comboBox.SelectedIndex;
+      Logger.Debug($"Selected train: {DataManager.CurrentTrain} for simulation");
       //TrainComboBox.SelectedIndex = DataManager.CurrentTrain;
       //Logger.Debug("Current train " + DataManager.Trains[DataManager.CurrentTrain].Id);
     }
