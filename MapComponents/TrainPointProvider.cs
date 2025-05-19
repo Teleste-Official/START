@@ -38,15 +38,15 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   /// </summary>
   /// <returns>(Task) Async task for the timer</returns>
   private async Task RunTimerAsync() {
-    _prevCoords = (Simulation.LatestSimulation.TickData.First<TickData>().longitudeDD,
-      Simulation.LatestSimulation.TickData.First<TickData>().latitudeDD);
+    _prevCoords = (Simulation.LatestSimulation.TickData.First<TickData>().longitude,
+      Simulation.LatestSimulation.TickData.First<TickData>().latitude);
     int TickPointIndex = 0;
 
     while (true) {
       await _timer.WaitForNextTickAsync();
 
-      _prevCoords = (Simulation.LatestSimulation.TickData[TickPointIndex].longitudeDD,
-        Simulation.LatestSimulation.TickData[TickPointIndex].latitudeDD);
+      _prevCoords = (Simulation.LatestSimulation.TickData[TickPointIndex].longitude,
+        Simulation.LatestSimulation.TickData[TickPointIndex].latitude);
       ++TickPointIndex;// = TickPointIndex + (int)Simulation.TickLength;
 
       OnDataChanged();

@@ -23,8 +23,13 @@ public class SimulationViewModel : ViewModelBase {
 
   // How close is considered "at stop"
   public double StopArrivalThresholdMeters { get; set; }
+
+  public double DoorsOpenThreshold { get; set; }
+
   // How long the train will stop at a given platform/stop.
   public int TimeSpentAtStopSeconds { get; set; }
+
+
 
   // TBD if this should be configurable or calculated internally.
   //public int TickBufferAroundStops { get; set; }
@@ -87,6 +92,7 @@ public class SimulationViewModel : ViewModelBase {
     StopArrivalThresholdMeters = 3;
     SlowZoneLengthMeters = 200;
     StopApproachSpeed = 20;
+    DoorsOpenThreshold = 300;
     TimeSpentAtStopSeconds = 10;
     SetTrainsToUI();
 
@@ -119,7 +125,7 @@ public class SimulationViewModel : ViewModelBase {
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
       TrainRoute selectedRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-      SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength, StopApproachSpeed, SlowZoneLengthMeters, StopArrivalThresholdMeters, TimeSpentAtStopSeconds);
+      SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength, StopApproachSpeed, SlowZoneLengthMeters, StopArrivalThresholdMeters, TimeSpentAtStopSeconds, DoorsOpenThreshold);
 
       FileManager.SaveSimulationData(createdSimulation);
       StartSimulationButtonEnabled = true;

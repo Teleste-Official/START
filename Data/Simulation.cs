@@ -24,7 +24,7 @@ internal class Simulation {
 
 
   // The simulation will be created with this, if tickLength is set to something else in GUI, extra ticks will be removed.
-  private const float DefaultTimeInterval = 1.0f;
+  private const int DefaultTimeInterval = 1;
   // How many ticks will be included with DefaultTimeInterval when TickLength is greater than 1.
   private const int TickBufferAroundStops = 10;
 
@@ -159,7 +159,7 @@ internal class Simulation {
 
   // MPoints coming from this are in the actual correct format that will be in the simulator json.
   public static SimulationData GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary,
-    Train trainToBeSimulated, TrainRoute routeToBeSimulated, int tickLength, float stopApproachSpeed, double slowZoneLengthMeters, double stopArrivalThresholdMeters, double timeSpentAtStopSeconds) {
+    Train trainToBeSimulated, TrainRoute routeToBeSimulated, int tickLength, float stopApproachSpeed, double slowZoneLengthMeters, double stopArrivalThresholdMeters, double timeSpentAtStopSeconds, double doorsOpenThreshold) {
     float acceleration = trainToBeSimulated.Acceleration;
     float maxSpeed = trainToBeSimulated.MaxSpeed;
 
@@ -188,7 +188,7 @@ internal class Simulation {
 
     double routeLengthMeters = RouteGeneration.CalculateRouteLength(mPointsList);
 
-    TickData? tickData = new(mPointsList[0].Y, mPointsList[0].X, false, 0, false, 0, 0);
+    TickData? tickData = new(mPointsList[0].Y, mPointsList[0].X, false, 0, false, 0, 0, false);
 
     int pointIndex = 1;
     double nextLat = mPointsList[pointIndex].Y;
@@ -196,7 +196,7 @@ internal class Simulation {
     bool isGpsFix = true;
 
     double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, DefaultTimeInterval, acceleration);
-    double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+    double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitude, nextLon, tickData.latitude, nextLat);
 
 
     bool isRunning = true;
@@ -217,9 +217,9 @@ internal class Simulation {
         }
 
         travelDistance -= pointDistance;
-        tickData.distanceMeters += (float)pointDistance;
-        tickData.latitudeDD = nextLat;
-        tickData.longitudeDD = nextLon;
+        tickData.distance += (float)pointDistance;
+        tickData.latitude = nextLat;
+        tickData.longitude = nextLon;
 
         if (routeToBeSimulated.Coords[pointIndex].Type == "TUNNEL_ENTRANCE" ||
             routeToBeSimulated.Coords[pointIndex].Type == "TUNNEL_ENTRANCE_STOP") {
@@ -230,38 +230,42 @@ internal class Simulation {
         nextLat = mPointsList[pointIndex].Y;
         nextLon = mPointsList[pointIndex].X;
 
-        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitude, nextLon, tickData.latitude, nextLat);
       }
 
 
-      (tickData.longitudeDD, tickData.latitudeDD) = RouteGeneration.CalculateNewTrainPoint(tickData.longitudeDD,
-        tickData.latitudeDD, nextLon, nextLat, travelDistance, pointDistance);
-      tickData.distanceMeters += (float)travelDistance;
-      tickData.trackTimeSecs += DefaultTimeInterval;
+      (tickData.longitude, tickData.latitude) = RouteGeneration.CalculateNewTrainPoint(tickData.longitude,
+        tickData.latitude, nextLon, nextLat, travelDistance, pointDistance);
+      tickData.distance += (float)travelDistance;
+      tickData.timeSecs += DefaultTimeInterval;
 
-      if (tickData.distanceMeters >= routeLengthMeters) {
+      if (tickData.distance >= routeLengthMeters) {
         break;
       }
 
       generatedSimulationTicks.Add(new TickData(
-        tickData.latitudeDD,
-        tickData.longitudeDD,
+        tickData.latitude,
+        tickData.longitude,
         isGpsFix,
         tickData.speedKmh,
         false,
-        tickData.distanceMeters,
-        tickData.trackTimeSecs));
+        tickData.distance,
+        tickData.timeSecs,
+        tickData.isDoorsOpen));
 
       if (isRunning) {
-        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitudeDD, nextLon, tickData.latitudeDD, nextLat);
+        pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitude, nextLon, tickData.latitude, nextLat);
         // How much the train moves next tick.
         travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, DefaultTimeInterval, acceleration);
 
-        double distanceFromPreviousStop = GetDistanceFromPreviousStop(tickData.distanceMeters);
-        double distanceToNextStopOrEnd = GetDistanceToNextStop(tickData.distanceMeters, (float)routeLengthMeters);
+        double distanceFromPreviousStop = GetDistanceFromPreviousStop(tickData.distance);
+        double distanceToNextStopOrEnd = GetDistanceToNextStop(tickData.distance, (float)routeLengthMeters);
         // TODO maybe add a bit more distance to this.
         double distanceFromSlowToZero = RouteGeneration.CalculateStoppingDistance(stopApproachSpeed, 0f, -acceleration);
         double distanceFromMaxToSlow = RouteGeneration.CalculateStoppingDistance(maxSpeed, stopApproachSpeed, -acceleration);
+
+
+        tickData.isDoorsOpen = distanceToNextStopOrEnd <= doorsOpenThreshold;
 
         /*
         double distanceToRouteEnd = routeLengthMeters - tickData.distanceMeters;
@@ -270,7 +274,6 @@ internal class Simulation {
         double distanceFromMaxToZero = RouteGeneration.CalculateStoppingDistance(maxSpeed, 0f, -acceleration);
         double distanceFromSlowToMax = RouteGeneration.CalculateStoppingDistance(SlowSpeedKmh, maxSpeed, -acceleration);
         */
-
         //bool turn = turnPoints.Values.ElementAt(pointIndex);
         //bool stop = ShouldDecelerateAtDistance(tickData.distanceMeters, tickData.speedKmh, -acceleration);
         float targetSpeed;
@@ -297,10 +300,10 @@ internal class Simulation {
         if (distanceToNextStopOrEnd <= stopArrivalThresholdMeters) {
           VisitNextStop();
           for (int i = 1; i <= timeSpentAtStopSeconds; i++) {
-            tickData.trackTimeSecs += DefaultTimeInterval;
-            generatedSimulationTicks.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0.0f,
+            tickData.timeSecs += DefaultTimeInterval;
+            generatedSimulationTicks.Add(new TickData(tickData.latitude, tickData.longitude, isGpsFix, 0.0f,
               true,
-              tickData.distanceMeters, tickData.trackTimeSecs));
+              tickData.distance, tickData.timeSecs, tickData.isDoorsOpen));
           }
         }
         // TODO implement correctly
@@ -343,10 +346,10 @@ internal class Simulation {
     }
 
 
-    //change last data to have 0 speed and open doors
+    //change last data to have 0 speed and set isAtStop=true
     generatedSimulationTicks.RemoveAt(generatedSimulationTicks.Count - 1);
     generatedSimulationTicks[generatedSimulationTicks.Count - 1].speedKmh = 0.0f;
-    generatedSimulationTicks[generatedSimulationTicks.Count - 1].doorsOpen = true;
+    generatedSimulationTicks[generatedSimulationTicks.Count - 1].isAtStop = true;
 
     List<TickData> res;
     
@@ -370,17 +373,21 @@ internal class Simulation {
   }
 
   private static void LogTick(TickData tick) {
-    // {0,4}   → right‑align timeSecs in 4 chars
-    // {1,10:F3} → right‑align distance in 10 chars with 3 decimal places
-    // {2,8:F3}  → right‑align speed in 8 chars with 3 decimal places
-    const string tpl = "timeSecs={0,4}, distance={1,10:F3}, speed={2,8:F3}, doors={3}";
+    const string tpl = "latitude={0,10:F6} longitude={1,10:F6} " +
+                       "isGpsFix={2} isAtStop={3} isDoorsOpen={4} " +
+                       "speedKmh={5,8:F3} distance={6,10:F3} timeSecs={7,4}";
 
     string line = string.Format(
       tpl,
-      tick.trackTimeSecs,
-      tick.distanceMeters,
-      tick.speedKmh,
-      tick.doorsOpen);
+      tick.latitude,                  // {0} - double with 6 decimal places
+      tick.longitude,                 // {1} - double with 6 decimal places
+      tick.isGpsFix.ToString().ToLower(),  // {2} - lowercase boolean
+      tick.isAtStop.ToString().ToLower(),  // {3} - lowercase boolean
+      tick.isDoorsOpen.ToString().ToLower(), // {4} - lowercase boolean
+      tick.speedKmh,                   // {5} - float with 3 decimals
+      tick.distance,                   // {6} - float with 3 decimals
+      tick.timeSecs);                  // {7} - right-aligned in 4 chars
+
     Logger.Debug(line);
   }
 
@@ -388,11 +395,11 @@ internal class Simulation {
     int n = ticks.Count;
     var intervals = new List<(int Start, int End)>();
 
-    // 1) Find runs of doorsOpen==true and build ±10 windows
+    // 1) Find runs of isAtStop==true and build ±10 windows
     for (int i = 0; i < n; i++) {
-      if (ticks[i].doorsOpen) {
+      if (ticks[i].isAtStop) {
         int runStart = i;
-        while (i + 1 < n && ticks[i + 1].doorsOpen)
+        while (i + 1 < n && ticks[i + 1].isAtStop)
           i++;
         int runEnd = i;
 
