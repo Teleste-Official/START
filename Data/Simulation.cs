@@ -9,6 +9,7 @@ using Mapsui;
 using Mapsui.Projections;
 using NLog;
 using SmartTrainApplication.Models;
+using SmartTrainApplication.Views;
 
 #endregion
 
@@ -21,19 +22,9 @@ namespace SmartTrainApplication.Data;
 internal class Simulation {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+
   // The simulation will be created with this, if tickLength is set to something else in GUI, extra ticks will be removed.
   private const float DefaultTimeInterval = 1.0f;
-  // TODO make configurable
-  private const double SlowZoneMeters = 100;
-  // TODO make configurable
-  private const float SlowSpeedKmh = 20.0f;
-
-  // How close is considered "at stop"
-  private const double StopArrivalThresholdMeters = 3;
-
-  // How long the train will stop at a given platform/stop.
-  private readonly static int StoppingTimeSeconds = 10;
-
   // How many ticks will be included with DefaultTimeInterval when TickLength is greater than 1.
   private const int TickBufferAroundStops = 10;
 
@@ -168,7 +159,7 @@ internal class Simulation {
 
   // MPoints coming from this are in the actual correct format that will be in the simulator json.
   public static SimulationData GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary,
-    Train trainToBeSimulated, TrainRoute routeToBeSimulated, float tickLength) {
+    Train trainToBeSimulated, TrainRoute routeToBeSimulated, int tickLength, float stopApproachSpeed, double slowZoneLengthMeters, double stopArrivalThresholdMeters, double timeSpentAtStopSeconds) {
     float acceleration = trainToBeSimulated.Acceleration;
     float maxSpeed = trainToBeSimulated.MaxSpeed;
 
@@ -269,8 +260,8 @@ internal class Simulation {
         double distanceFromPreviousStop = GetDistanceFromPreviousStop(tickData.distanceMeters);
         double distanceToNextStopOrEnd = GetDistanceToNextStop(tickData.distanceMeters, (float)routeLengthMeters);
         // TODO maybe add a bit more distance to this.
-        double distanceFromSlowToZero = RouteGeneration.CalculateStoppingDistance(SlowSpeedKmh, 0f, -acceleration);
-        double distanceFromMaxToSlow = RouteGeneration.CalculateStoppingDistance(maxSpeed, SlowSpeedKmh, -acceleration);
+        double distanceFromSlowToZero = RouteGeneration.CalculateStoppingDistance(stopApproachSpeed, 0f, -acceleration);
+        double distanceFromMaxToSlow = RouteGeneration.CalculateStoppingDistance(maxSpeed, stopApproachSpeed, -acceleration);
 
         /*
         double distanceToRouteEnd = routeLengthMeters - tickData.distanceMeters;
@@ -289,23 +280,23 @@ internal class Simulation {
           // Need to start decelerating to 0 to stop at the next stop
           targetSpeed = 0.0f;
         }
-        else if (distanceToNextStopOrEnd <= (distanceFromMaxToSlow + SlowZoneMeters)) {
+        else if (distanceToNextStopOrEnd <= (distanceFromMaxToSlow + slowZoneLengthMeters)) {
           // Need to start decelerating to SlowSpeed for approach to next stop
-          targetSpeed = SlowSpeedKmh;
+          targetSpeed = stopApproachSpeed;
 
-        } else if (distanceFromPreviousStop < SlowZoneMeters) {
+        } else if (distanceFromPreviousStop < slowZoneLengthMeters) {
           // Maintain SlowSpeed until we pass the SlowSpeedThreshold from previous stop
-          targetSpeed = SlowSpeedKmh;
+          targetSpeed = stopApproachSpeed;
         } else {
           // Cruise at max speed when clear of all constraints
           targetSpeed = maxSpeed;
         }
 
-        //Logger.Debug($"fromPrevious={distanceFromPreviousStop} toNext={distanceToNextStopOrEnd} travelled={tickData.distanceMeters} ponitDistance={pointDistance} travelDistance={travelDistance} speed={tickData.speedKmh} targetSpeed={targetSpeed} NEEDED:{Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, DefaultTimeInterval, -acceleration), 0.0f)}");
+        //Logger.Debug($"fromPrevious={distanceFromPreviousStop} toNext={distanceToNextStopOrEnd} travelled={tickData.distanceMeters} pointDistance={pointDistance} travelDistance={travelDistance} speed={tickData.speedKmh} targetSpeed={targetSpeed} NEEDED:{Math.Max(RouteGeneration.CalculateNewSpeed(tickData.speedKmh, DefaultTimeInterval, -acceleration), 0.0f)}");
 
-        if (distanceToNextStopOrEnd <= StopArrivalThresholdMeters) {
+        if (distanceToNextStopOrEnd <= stopArrivalThresholdMeters) {
           VisitNextStop();
-          for (int i = 1; i <= StoppingTimeSeconds; i++) {
+          for (int i = 1; i <= timeSpentAtStopSeconds; i++) {
             tickData.trackTimeSecs += DefaultTimeInterval;
             generatedSimulationTicks.Add(new TickData(tickData.latitudeDD, tickData.longitudeDD, isGpsFix, 0.0f,
               true,

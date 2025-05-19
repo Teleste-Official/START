@@ -16,7 +16,19 @@ public class SimulationViewModel : ViewModelBase {
 
   public List<TrainRoute> Routes { get; set; }
   public List<ListedTrain> Trains { get; set; }
-  public float TickLength { get; set; }
+  public int TickLength { get; set; }
+
+  public float StopApproachSpeed { get; set; }
+  public double SlowZoneLengthMeters { get; set; }
+
+  // How close is considered "at stop"
+  public double StopArrivalThresholdMeters { get; set; }
+  // How long the train will stop at a given platform/stop.
+  public int TimeSpentAtStopSeconds { get; set; }
+
+  // TBD if this should be configurable or calculated internally.
+  //public int TickBufferAroundStops { get; set; }
+
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
   public List<bool> StopsBooleans { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
@@ -71,7 +83,11 @@ public class SimulationViewModel : ViewModelBase {
       SetIcons();
 
     Trains = new List<ListedTrain>();
-    TickLength = 1.0f;
+    TickLength = 1;
+    StopArrivalThresholdMeters = 3;
+    SlowZoneLengthMeters = 200;
+    StopApproachSpeed = 20;
+    TimeSpentAtStopSeconds = 10;
     SetTrainsToUI();
 
     Stops = DataManager.GetStops();
@@ -103,7 +119,7 @@ public class SimulationViewModel : ViewModelBase {
     if (DataManager.TrainRoutes.Any() && DataManager.Trains.Any()) {
       Train selectedTrain = DataManager.Trains[DataManager.CurrentTrain];
       TrainRoute selectedRoute = DataManager.TrainRoutes[DataManager.CurrentTrainRoute];
-      SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength);
+      SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength, StopApproachSpeed, SlowZoneLengthMeters, StopArrivalThresholdMeters, TimeSpentAtStopSeconds);
 
       FileManager.SaveSimulationData(createdSimulation);
       StartSimulationButtonEnabled = true;
