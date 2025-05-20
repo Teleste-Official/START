@@ -16,9 +16,8 @@ namespace SmartTrainApplication.Models;
 /// </list>
 /// </summary>
 public class SimulationData {
-  public List<TickData> TickData { get; set; }
-
   public Train Train { get; set; } // The train the simulation was performed with
+  public List<TickData> TickData { get; set; }
   public TrainRoute TrainRoute { get; set; } // The route the simulation was performed with
 
   public SimulationData() {

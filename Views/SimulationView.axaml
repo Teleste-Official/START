@@ -82,7 +82,7 @@
                        Minimum="0"
                        Maximum="10000"
                        Increment="10" />
-        <TextBlock FontWeight="Bold">Slow zone length (m):</TextBlock>
+        <TextBlock FontWeight="Bold">Stop approach threshold (m):</TextBlock>
         <NumericUpDown Value="{Binding SlowZoneLengthMeters}"
                        Minimum="0"
                        Maximum="10000"
@@ -92,12 +92,12 @@
                        Minimum="0"
                        Maximum="10000"
                        Increment="10" />
-        <TextBlock FontWeight="Bold">Doors open threshold (m):</TextBlock>
+        <TextBlock FontWeight="Bold">Door signal threshold (m):</TextBlock>
         <NumericUpDown Value="{Binding DoorsOpenThreshold}"
                        Minimum="0"
                        Maximum="10000"
                        Increment="10" />
-        <TextBlock FontWeight="Bold">Time spent at stop (s):</TextBlock>
+        <TextBlock FontWeight="Bold">Time spent at stops (s):</TextBlock>
         <NumericUpDown Value="{Binding TimeSpentAtStopSeconds}"
                        Minimum="0"
                        Maximum="10000"
