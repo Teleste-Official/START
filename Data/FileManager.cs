@@ -269,19 +269,18 @@ internal class FileManager {
   private static string GetSimulationFileName(SimulationData? sim) {
     if (sim == null) return "";
 
-
-    string timeStamp = DateTime.Now.ToString("dd_MM_yyyy__HH_mm_ss");
+    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
     string simulatedRouteName = sim.TrainRoute.Name;
-    string simulatedTrainName = sim.Train.Name;
-    string fileName = "simulation";
+    //string simulatedTrainName = sim.Train.Name;
+    string fileName = "";
 
     if (simulatedRouteName != "") {
-      fileName += "_" + simulatedRouteName.Replace("_", "-").Replace(" ", "-");
+      fileName += simulatedRouteName.Replace("_", "-").Replace(" ", "-");
     }
 
-    if (simulatedTrainName != "") {
-      fileName += "_" + simulatedTrainName.Replace("_", "-").Replace(" ", "-");
-    }
+    //if (simulatedTrainName != "") {
+    //  fileName += "_" + simulatedTrainName.Replace("_", "-").Replace(" ", "-");
+    //}
 
     fileName += "_" + timeStamp + ".json";
 
