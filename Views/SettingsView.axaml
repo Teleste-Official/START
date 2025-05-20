@@ -54,34 +54,34 @@
                  HorizontalAlignment="Left"
                  Text="{Binding Longitude}" />
 
-        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Route import directories:</TextBlock>
+        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Route directory:</TextBlock>
         <TextBox Margin="0 2 0 0"
                  Watermark="..."
-                 Text="{Binding RouteDirectories}"
-                 AcceptsReturn="True" />
+                 Text="{Binding RouteDirectory}"
+                 AcceptsReturn="False" />
 
         <Button Margin="0 15 0 0" Width="150" Command="{Binding AddRouteImportDirectoryButton}">
-          Add Directory
+          Change Directory
         </Button>
 
-        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Train import directories:</TextBlock>
+        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Train directory:</TextBlock>
         <TextBox Margin="0 2 0 0"
                  Watermark="..."
-                 Text="{Binding TrainDirectories}"
-                 AcceptsReturn="True" />
+                 Text="{Binding TrainDirectory}"
+                 AcceptsReturn="False" />
 
         <Button Margin="0 15 0 0" Width="150" Command="{Binding AddTrainImportDirectoryButton}">
-          Add Directory
+          Change Directory
         </Button>
 
-        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Simulation directories:</TextBlock>
+        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Simulation directory:</TextBlock>
         <TextBox Margin="0 2 0 0"
                  Watermark="..."
-                 Text="{Binding SimulationDirectories}"
-                 AcceptsReturn="True" />
+                 Text="{Binding SimulationDirectory}"
+                 AcceptsReturn="False" />
 
         <Button Margin="0 15 0 0" Width="150" Command="{Binding AddSimulationDirectoryButton}">
-          Add Directory
+          Change Directory
         </Button>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="5" >

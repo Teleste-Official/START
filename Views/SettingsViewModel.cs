@@ -19,10 +19,10 @@ internal class SettingsViewModel : ViewModelBase {
   public string Longitude { get; set; }
   public string Latitude { get; set; }
   public string VersionNumber { get; set; }
-  public string RouteDirectories { get; set; }
-  public string TrainDirectories { get; set; }
+  public string RouteDirectory { get; set; }
+  public string TrainDirectory { get; set; }
   
-  public string SimulationDirectories { get; set; }
+  public string SimulationDirectory { get; set; }
 
   // Regex pattern explanation:
   // ^\d{1,3}    = 1-3 digits at start
@@ -100,7 +100,7 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public async void AddRouteImportDirectoryButton() {
-    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel, "Choose Route Directory");
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddRouteDirectory(Path.GetFullPath(NewPath));
       SetDirectoriesToUI();
@@ -108,7 +108,7 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public async void AddTrainImportDirectoryButton() {
-    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel, "Choose Train Directory");
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddTrainDirectory(Path.GetFullPath(NewPath));
       SetDirectoriesToUI();
@@ -116,7 +116,7 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   public async void AddSimulationDirectoryButton() {
-    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel);
+    string? NewPath = await FileManager.OpenFolder(MainWindow.TopLevel, "Choose Simulation Directory");
     if (!string.IsNullOrEmpty(NewPath)) {
       SettingsManager.CurrentSettings.AddSimulationDirectory(Path.GetFullPath(NewPath));
       SetDirectoriesToUI();
@@ -124,45 +124,45 @@ internal class SettingsViewModel : ViewModelBase {
   }
 
   private void SetDirectoriesToUI() {
-    RouteDirectories = "";
-    TrainDirectories = "";
-    SimulationDirectories = "";
-    foreach (string? dir in SettingsManager.CurrentSettings.RouteDirectories) RouteDirectories += dir + "\n";
-    foreach (string? dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectories += dir + "\n";
-    foreach (string? dir in SettingsManager.CurrentSettings.SimulationDirectories) SimulationDirectories += dir + "\n";
-    RaisePropertyChanged(nameof(RouteDirectories));
-    RaisePropertyChanged(nameof(TrainDirectories));
-    RaisePropertyChanged(nameof(SimulationDirectories));
+    RouteDirectory = "";
+    TrainDirectory = "";
+    SimulationDirectory = "";
+    foreach (string? dir in SettingsManager.CurrentSettings.RouteDirectories) RouteDirectory += dir;
+    foreach (string? dir in SettingsManager.CurrentSettings.TrainDirectories) TrainDirectory += dir;
+    foreach (string? dir in SettingsManager.CurrentSettings.SimulationDirectories) SimulationDirectory += dir;
+    RaisePropertyChanged(nameof(RouteDirectory));
+    RaisePropertyChanged(nameof(TrainDirectory));
+    RaisePropertyChanged(nameof(SimulationDirectory));
   }
 
   private List<string> GetRouteDirectoriesFromUI() {
-    if (string.IsNullOrWhiteSpace(RouteDirectories)) {
+    if (string.IsNullOrWhiteSpace(RouteDirectory)) {
       return new List<string>();
     }
 
-    return Regex.Split(RouteDirectories, @"\r?\n")
+    return Regex.Split(RouteDirectory, @"\r?\n")
       .Select(line => line.Trim())
       .Where(line => !string.IsNullOrWhiteSpace(line))
       .ToList();
   }
 
   private List<string> GetTrainDirectoriesFromUI() {
-    if (string.IsNullOrWhiteSpace(TrainDirectories)) {
+    if (string.IsNullOrWhiteSpace(TrainDirectory)) {
       return new List<string>();
     }
 
-    return Regex.Split(TrainDirectories, @"\r?\n")
+    return Regex.Split(TrainDirectory, @"\r?\n")
       .Select(line => line.Trim())
       .Where(line => !string.IsNullOrWhiteSpace(line))
       .ToList();
   }
 
   private List<string> GetSimulationDirectoriesFromUI() {
-    if (string.IsNullOrWhiteSpace(SimulationDirectories)) {
+    if (string.IsNullOrWhiteSpace(SimulationDirectory)) {
       return new List<string>();
     }
 
-    return Regex.Split(SimulationDirectories, @"\r?\n")
+    return Regex.Split(SimulationDirectory, @"\r?\n")
       .Select(line => line.Trim())
       .Where(line => !string.IsNullOrWhiteSpace(line))
       .ToList();

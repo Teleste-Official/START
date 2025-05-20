@@ -39,14 +39,20 @@ internal class Settings {
   }
 
   public void AddRouteDirectory(string routeDirectory) {
+    //RouteDirectories.Add(routeDirectory);
+    RouteDirectories.Clear();
     RouteDirectories.Add(routeDirectory);
   }
 
   public void AddTrainDirectory(string trainDirectory) {
+    //TrainDirectories.Add(trainDirectory);
+    TrainDirectories.Clear();
     TrainDirectories.Add(trainDirectory);
   }
 
   public void AddSimulationDirectory(string simulationDirectory) {
+    //SimulationDirectories.Add(simulationDirectory);
+    SimulationDirectories.Clear();
     SimulationDirectories.Add(simulationDirectory);
   }
 }

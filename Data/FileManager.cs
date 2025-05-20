@@ -408,10 +408,10 @@ internal class FileManager {
     }
   }
 
-  public static async Task<string> OpenFolder(TopLevel topLevel) {
+  public static async Task<string> OpenFolder(TopLevel topLevel, string title = "Choose folder") {
     string Path = "";
     IReadOnlyList<IStorageFolder> folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions {
-      Title = "Choose folder"
+      Title = title
     });
 
     if (folder.Count > 0) Path = folder[0].Path.AbsolutePath;
