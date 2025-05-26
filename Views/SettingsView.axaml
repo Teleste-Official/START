@@ -54,6 +54,12 @@
                  HorizontalAlignment="Left"
                  Text="{Binding Longitude}" />
 
+        <TextBlock Margin="5 15 0 5" FontWeight="Bold">Simulation REST API Endpoint</TextBlock>
+        <TextBox Margin="0 2 0 0"
+                 Watermark="Enter API URL..."
+                 Width="400"
+                 HorizontalAlignment="Left"
+                 Text="{Binding RestAPIUrl}" />
         <TextBlock Margin="5 15 0 5" FontWeight="Bold">Route directory:</TextBlock>
         <TextBox Margin="0 2 0 0"
                  Watermark="..."

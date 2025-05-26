@@ -34,7 +34,7 @@ internal class SettingsManager {
       Path.Combine(DATA_DIR, "Simulations")
     };
 
-    Settings? settings = new(DEFAULT_LONGITUDE, DEFAULT_LATITUDE, newRouteDirectories, newTrainDirectories, newSimulationDirectories);
+    Settings? settings = new(DEFAULT_LONGITUDE, DEFAULT_LATITUDE, "", newRouteDirectories, newTrainDirectories, newSimulationDirectories);
 
     // Save the settings
     FileManager.SaveSettings(settings);

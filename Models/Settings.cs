@@ -20,18 +20,22 @@ namespace SmartTrainApplication.Models;
 internal class Settings {
   public double Longitude { get; set; }
   public double Latitude { get; set; }
+
+  public string RestAPIUrl { get; set; }
   public List<string> RouteDirectories { get; set; }
   public List<string> TrainDirectories { get; set; }
 
   public List<string> SimulationDirectories { get; set; }
   public string VersionNumber { get; set; }
 
+
   public Settings() {
   }
 
-  public Settings(double longitude, double latitude, List<string> routeDirectories, List<string> trainDirectories, List<string> simulationDirectories) {
+  public Settings(double longitude, double latitude, string restApiUrl, List<string> routeDirectories, List<string> trainDirectories, List<string> simulationDirectories) {
     Longitude = longitude;
     Latitude = latitude;
+    RestAPIUrl = restApiUrl;
     RouteDirectories = routeDirectories;
     TrainDirectories = trainDirectories;
     SimulationDirectories = simulationDirectories;

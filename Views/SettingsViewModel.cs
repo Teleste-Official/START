@@ -22,6 +22,10 @@ internal class SettingsViewModel : ViewModelBase {
   public string RouteDirectory { get; set; }
   public string TrainDirectory { get; set; }
   
+  public string RestAPIUrl { get; set; }
+  
+
+  
   public string SimulationDirectory { get; set; }
 
   // Regex pattern explanation:
@@ -35,9 +39,12 @@ internal class SettingsViewModel : ViewModelBase {
     VersionNumber = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
     Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
     Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
+    RestAPIUrl = SettingsManager.CurrentSettings.RestAPIUrl;
     SetDirectoriesToUI();
 
+
     // Switch view in file manager
+    // TODO make this better...
     FileManager.CurrentView = "Settings";
     Logger.Debug($"Current view: {FileManager.CurrentView}");
   }
@@ -48,13 +55,14 @@ internal class SettingsViewModel : ViewModelBase {
     VersionNumber = "Version " + Assembly.GetEntryAssembly().GetName().Version.ToString();
     Longitude = SettingsManager.CurrentSettings.Longitude.ToString();
     Latitude = SettingsManager.CurrentSettings.Latitude.ToString();
-
+    RestAPIUrl = SettingsManager.CurrentSettings.RestAPIUrl;
     SetDirectoriesToUI();
 
     // Notify the UI about the property changes
     RaisePropertyChanged(nameof(VersionNumber));
     RaisePropertyChanged(nameof(Longitude));
     RaisePropertyChanged(nameof(Latitude));
+    RaisePropertyChanged(nameof(RestAPIUrl));
   }
 
   public void SaveButton() {
@@ -84,6 +92,8 @@ internal class SettingsViewModel : ViewModelBase {
     SettingsManager.CurrentSettings.RouteDirectories = GetRouteDirectoriesFromUI();
     SettingsManager.CurrentSettings.TrainDirectories = GetTrainDirectoriesFromUI();
     SettingsManager.CurrentSettings.SimulationDirectories = GetSimulationDirectoriesFromUI();
+    
+    SettingsManager.CurrentSettings.RestAPIUrl = RestAPIUrl;
 
     FileManager.SaveSettings(SettingsManager.CurrentSettings);
 

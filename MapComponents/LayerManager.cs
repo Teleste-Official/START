@@ -26,6 +26,7 @@ namespace SmartTrainApplication;
 internal class LayerManager {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+  private static TrainPointProvider? trainPointProvider = new TrainPointProvider();
   private static WritableLayer? _targetLayer =
     MapViewControl.map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
 
@@ -207,9 +208,13 @@ internal class LayerManager {
   /// <returns>(AnimatedPointLayer) Animation layer</returns>
   public static AnimatedPointLayer CreateAnimationLayer() {
     AnimatedPointLayer? animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
+    if (trainPointProvider == null) {
+      trainPointProvider = new TrainPointProvider();
+    }
+
     if (animationLayer == null) {
       // Animation layer doesnt exist yet, create the import layer
-      MapViewControl.map.Layers.Add(new AnimatedPointLayer(new TrainPointProvider()) {
+      MapViewControl.map.Layers.Add(new AnimatedPointLayer(trainPointProvider) {
         Name = "Playback",
         Style = new VectorStyle {
           Fill = new Brush(Color.WhiteSmoke),
@@ -219,7 +224,7 @@ internal class LayerManager {
       });
       animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
     }
-
+    trainPointProvider?.StartSimulation();
     return animationLayer;
   }
 
@@ -230,6 +235,8 @@ internal class LayerManager {
     AnimatedPointLayer? animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
     if (animationLayer != null)
       MapViewControl.map.Layers.Remove(animationLayer);
+    trainPointProvider?.StopSimulation();
+    trainPointProvider = null;
   }
 
   /// <summary>
