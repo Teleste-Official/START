@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Mapsui;
+using Mapsui.Extensions;
 using Mapsui.Projections;
 using NLog;
 using SmartTrainApplication.Models;
@@ -20,11 +21,8 @@ namespace SmartTrainApplication.Data;
 internal class Simulation {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-
   // The simulation will be created with this, if tickLength is set to something else in GUI, extra ticks will be removed.
   private const int DefaultTimeInterval = 1;
-  // How many ticks will be included with DefaultTimeInterval when TickLength is greater than 1.
-  private const int TickBufferAroundStops = 10;
 
   // key = distance traveled (meters) at a stop that the train will stop at.
   // value = given stop has already been visited.
@@ -163,7 +161,7 @@ internal class Simulation {
 
   // MPoints coming from this are in the actual correct format that will be in the simulator json.
   public static SimulationData GenerateSimulationData(Dictionary<RouteCoordinate, bool> stopsDictionary,
-    Train trainToBeSimulated, TrainRoute routeToBeSimulated, int tickLength, float stopApproachSpeed, double slowZoneLengthMeters, double stopArrivalThresholdMeters, double timeSpentAtStopSeconds, double doorsOpenThreshold) {
+    Train trainToBeSimulated, TrainRoute routeToBeSimulated, int tickLength, float stopApproachSpeed, double slowZoneLengthMeters, double stopArrivalThresholdMeters, int timeSpentAtStopSeconds, double doorsOpenThreshold) {
     float acceleration = trainToBeSimulated.Acceleration;
     float maxSpeed = trainToBeSimulated.MaxSpeed;
 
@@ -335,23 +333,37 @@ internal class Simulation {
 
     }
 
+    if (generatedSimulationTicks[generatedSimulationTicks.Count - 1].latitude.IsNanOrInfOrZero() ||
+        generatedSimulationTicks[generatedSimulationTicks.Count - 1].longitude.IsNanOrInfOrZero()) {
+      generatedSimulationTicks.RemoveAt(generatedSimulationTicks.Count - 1);
+    }
 
-    //change last data to have 0 speed and set isAtStop=true
-    generatedSimulationTicks.RemoveAt(generatedSimulationTicks.Count - 1);
-    generatedSimulationTicks[generatedSimulationTicks.Count - 1].speedKmh = 0.0f;
-    generatedSimulationTicks[generatedSimulationTicks.Count - 1].isAtStop = true;
+    // Make sure simulation ends at exactly the length of the route.
+    for (int i = 1; i <= timeSpentAtStopSeconds; i++) {
+      if (i >= generatedSimulationTicks.Count) {
+        Logger.Trace($"timeSpentAtStopSeconds >= generatedSimulationTicks.Count ({timeSpentAtStopSeconds} >={generatedSimulationTicks.Count})");
+        break;
+      }
+      generatedSimulationTicks[generatedSimulationTicks.Count - i].speedKmh = 0.0f;
+      generatedSimulationTicks[generatedSimulationTicks.Count - i].isAtStop = true;
+      generatedSimulationTicks[generatedSimulationTicks.Count - i].distance = (float)routeLengthMeters;
+    }
 
     List<TickData> res;
     
     if (!tickLength.Equals(DefaultTimeInterval)) {
-      res = DownsampleTickData(generatedSimulationTicks, tickLength);
+      stoppingDistances = CalculateStoppingDistances(routeToBeSimulated, stopPoints);
+      res = DownsampleTickData(generatedSimulationTicks, tickLength, timeSpentAtStopSeconds, Math.Max(slowZoneLengthMeters, doorsOpenThreshold));
+
+      Logger.Info($"New simulation created, reduced tick count: {generatedSimulationTicks.Count}->{res.Count}, route length meters={routeLengthMeters}");
     } else {
       res = generatedSimulationTicks;
+      Logger.Info($"New simulation created, tick count: {res.Count}, route length meters={routeLengthMeters}");
     }
     
     SimulationData newSim = new(res, trainToBeSimulated, routeToBeSimulated);
     LatestSimulation = newSim;
-    Logger.Debug($"Simulation had tickData.Count={generatedSimulationTicks.Count}, res.Count={res.Count} mPoints.Count={mPointsList.Count}, route length meters={routeLengthMeters}");
+
     return newSim;
   }
 
@@ -382,69 +394,47 @@ internal class Simulation {
     Logger.Debug(line);
   }
 
-  private static List<TickData> DownsampleTickData(List<TickData> ticks, int tickLength) {
+  private static List<TickData> DownsampleTickData(List<TickData> ticks, int tickLength, int timeSpentAtStopSeconds, double stopBufferMeters) {
     int n = ticks.Count;
-    List<(int Start, int End)> intervals = new List<(int Start, int End)>();
-
-    // 1) Find runs of isAtStop==true and build ±10 windows
-    for (int i = 0; i < n; i++) {
-      if (ticks[i].isAtStop) {
-        int runStart = i;
-        while (i + 1 < n && ticks[i + 1].isAtStop)
-          i++;
-        int runEnd = i;
-
-        int wStart = Math.Max(0, runStart - TickBufferAroundStops);
-        int wEnd = Math.Min(n - 1, runEnd + TickBufferAroundStops);
-        intervals.Add((wStart, wEnd));
-      }
-    }
-
-    // Merge overlapping/adjacent intervals
-    List<(int Start, int End)> merged = intervals
-      .OrderBy(iv => iv.Start)
-      .Aggregate(new List<(int Start, int End)>(), (list, iv) => {
-        if (list.Count == 0 || iv.Start > list.Last().End + 1)
-          list.Add(iv);
-        else {
-          (int Start, int End) last = list[list.Count - 1];
-          list[list.Count - 1] = (last.Start, Math.Max(last.End, iv.End));
-        }
-
-        return list;
-      });
-
-    // 2) Walk once, preserving windows and sampling outside
     List<TickData> result = new List<TickData>(n);
-    int currentWindow = 0;
-    int sinceLastKept = tickLength; // Force the very first tick to be kept
 
-    for (int i = 0; i < n; i++) {
-      // Check if i is inside the current window
-      bool inWindow = false;
-      while (currentWindow < merged.Count && merged[currentWindow].End < i)
-        currentWindow++;
-      if (currentWindow < merged.Count &&
-          merged[currentWindow].Start <= i && i <= merged[currentWindow].End) {
-        inWindow = true;
+    // Always keep first and last tick
+    result.Add(ticks[0]);
+
+    int atStop = 0;
+
+    for (int i = 1; i < n - 1; i++) {
+      TickData currentTick = ticks[i];
+
+      // Determine distances from previous and next stop
+      double distanceFromPreviousStop = GetDistanceFromPreviousStop(currentTick.distance);
+      double distanceToNextStop = GetDistanceToNextStop(currentTick.distance, ticks.Last().distance);
+
+      if (currentTick.isAtStop) {
+        ++atStop;
+      } else if (atStop == timeSpentAtStopSeconds) {
+        VisitNextStop();
+        atStop = 0;
       }
 
-      if (inWindow) {
-        // Always keep, but do NOT reset outside counter
-        result.Add(ticks[i]);
+      // Within stop buffer, or at stop? Always keep
+      if (distanceFromPreviousStop <= stopBufferMeters || distanceToNextStop <= stopBufferMeters || currentTick.isAtStop) {
+        result.Add(currentTick);
+        continue;
       }
-      else {
-        // Outside any window: sample at most once per X
-        sinceLastKept++;
-        if (sinceLastKept >= tickLength) {
-          result.Add(ticks[i]);
-          sinceLastKept = 0;
-        }
+
+      // Outside of stop buffer, select one tick per `tickLength`
+      if ((i % tickLength) == 0) {
+        result.Add(currentTick);
       }
     }
+
+    // Always keep the last tick
+    result.Add(ticks[n - 1]);
 
     return result;
   }
+
 
 
   public static void StartSimulationPlayback() {

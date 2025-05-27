@@ -175,8 +175,13 @@ public class SimulationViewModel : ViewModelBase {
       SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength, StopApproachSpeed, SlowZoneLengthMeters, StopArrivalThresholdMeters, TimeSpentAtStopSeconds, DoorsOpenThreshold);
 
       FileManager.SaveSimulationData(createdSimulation);
+      PlaySimulationButtonEnabled = true;
+      StopSimulationButtonEnabled = false;
+      CreateSimulationButtonEnabled = true;
+      _simulationRunning = false;
+      _simulationPaused = false;
+      PlaySimulationButtonText = "Play";
     }
-    StopSimulationButton();
   }
 
   public void SetTrainsToUI() {
