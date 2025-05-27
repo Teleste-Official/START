@@ -13,6 +13,7 @@ internal class SettingsManager {
   private static readonly string DATA_DIR = Path.Combine(Directory.GetCurrentDirectory(), "START-data");
   private static readonly double DEFAULT_LONGITUDE = 23.76227433384882;
   private static readonly double DEFAULT_LATITUDE = 61.49741016814548;
+  private static readonly string DEFAULT_REST_API_URL = "";
 
   public static Settings CurrentSettings;
 
@@ -34,7 +35,7 @@ internal class SettingsManager {
       Path.Combine(DATA_DIR, "Simulations")
     };
 
-    Settings? settings = new(DEFAULT_LONGITUDE, DEFAULT_LATITUDE, "", newRouteDirectories, newTrainDirectories, newSimulationDirectories);
+    Settings? settings = new(DEFAULT_LONGITUDE, DEFAULT_LATITUDE, DEFAULT_REST_API_URL, newRouteDirectories, newTrainDirectories, newSimulationDirectories);
 
     // Save the settings
     FileManager.SaveSettings(settings);
