@@ -38,15 +38,19 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
 
   private static readonly string REST_API_CONTENT_KEY = "tick";
 
-  public TrainPointProvider() {
+  private int _currentTickIndex;
 
+
+  public TrainPointProvider() {
+    _currentTickIndex = 0;
   }
 
   /// <summary>
   /// Starts the simulation playback.
   /// </summary>
   public void StartSimulation() {
-    StopSimulation(); // Ensure no previous simulation is running
+    CancelToken();
+    _currentTickIndex = 0;
     _cancellationTokenSource = new CancellationTokenSource();
 
     Logger.Info("Starting simulation playback...");
@@ -57,13 +61,33 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   /// Stops the simulation playback.
   /// </summary>
   public void StopSimulation() {
+    Logger.Info("Stopping simulation playback...");
+    CancelToken();
+    _currentTickIndex = 0;
+  }
+
+  public void PauseSimulation() {
+    Logger.Info($"Pause simulation playback at index {_currentTickIndex}");
+    CancelToken();
+  }
+
+  public void ResumeSimulation() {
+    CancelToken();
+    _cancellationTokenSource = new CancellationTokenSource();
+
+    Logger.Info($"Resume simulation playback from index {_currentTickIndex}");
+    Catch.TaskRun(() => RunTimerAsync(_cancellationTokenSource.Token));
+  }
+
+
+  private void CancelToken() {
     if (_cancellationTokenSource != null) {
-      Logger.Info("Stopping simulation playback...");
       _cancellationTokenSource.Cancel();
       _cancellationTokenSource.Dispose();
       _cancellationTokenSource = null;
     }
   }
+
 
   /// <summary>
   /// Plays the simulation by sending TickData to the server,
@@ -73,7 +97,7 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
     try {
       _prevCoords = (Simulation.LatestSimulation.TickData.First<TickData>().longitude,
         Simulation.LatestSimulation.TickData.First<TickData>().latitude);
-      int tickPointIndex = 0;
+      //int tickPointIndex = 0;
 
       string url = SettingsManager.CurrentSettings.RestAPIUrl;
       int amountOfTicks = Simulation.LatestSimulation.TickData.Count;
@@ -81,35 +105,35 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
       while (true) {
         cancellationToken.ThrowIfCancellationRequested(); // Exit if simulation is stopped
 
-        if (tickPointIndex >= amountOfTicks) {
+        if (_currentTickIndex >= amountOfTicks) {
           Logger.Info("All ticks processed. Ending simulation.");
           break;
         }
 
         DateTime tickStartTime = DateTime.UtcNow;
 
-        TickData tickData = Simulation.LatestSimulation.TickData[tickPointIndex];
+        TickData tickData = Simulation.LatestSimulation.TickData[_currentTickIndex];
         _prevCoords = (tickData.longitude, tickData.latitude);
 
         if (url != "") {
-          Logger.Debug($"Processing tick #{tickPointIndex + 1}: {tickData}");
+          Logger.Trace($"Processing tick #{_currentTickIndex + 1}: {tickData}");
 
           bool success = await SendTickRequestAsync(url, tickData, cancellationToken);
           if (!success) {
-            Logger.Error($"Failed to process tick #{tickPointIndex + 1}. Stopping simulation.");
+            Logger.Error($"Failed to process tick #{_currentTickIndex + 1}. Stopping simulation.");
             break;
           }
           TimeSpan elapsedTime = DateTime.UtcNow - tickStartTime;
           if (elapsedTime < TickInterval) {
             TimeSpan delay = TickInterval - elapsedTime;
-            Logger.Debug($"Tick #{tickPointIndex + 1} completed early. Waiting additional {delay.TotalMilliseconds}ms.");
+            Logger.Trace($"Tick #{_currentTickIndex + 1} completed early. Waiting additional {delay.TotalMilliseconds}ms.");
             await Task.Delay(delay, cancellationToken);
           }
         } else {
           await Task.Delay(TickInterval, cancellationToken);
         }
 
-        tickPointIndex++;
+        _currentTickIndex++;
         OnDataChanged(); // Notify listeners of data change
       }
     }
@@ -132,20 +156,19 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
       StringContent jsonContent = new StringContent(jsonTickData, Encoding.UTF8, "application/json");
       content.Add(jsonContent, REST_API_CONTENT_KEY);
 
-      Logger.Debug($"Sending tick data to {url}");
       HttpResponseMessage response = await HttpClient.PostAsync(url, content, cancellationToken);
 
       if (response.IsSuccessStatusCode) {
-        Logger.Info($"Tick data successfully sent: {response.StatusCode}");
+        Logger.Info($"Tick: {tickData} sent succesfully, Response: {response.StatusCode}");
         return true;
       }
       else {
-        Logger.Warn($"Failed to send tick data. Response: {response.StatusCode}, Content: {await response.Content.ReadAsStringAsync()}");
+        Logger.Warn($"Failed to send tick: {tickData}, Response: {response.StatusCode}, Content: {await response.Content.ReadAsStringAsync()}");
         return false;
       }
     }
     catch (OperationCanceledException) {
-      Logger.Info("Tick request canceled.");
+      Logger.Info($"Request canceled for tick {tickData}.");
       return false;
     }
     catch (Exception ex) {

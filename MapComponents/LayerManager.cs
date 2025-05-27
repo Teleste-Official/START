@@ -207,6 +207,7 @@ internal class LayerManager {
   /// </summary>
   /// <returns>(AnimatedPointLayer) Animation layer</returns>
   public static AnimatedPointLayer CreateAnimationLayer() {
+    Logger.Debug("CreateAnimationLayer()");
     AnimatedPointLayer? animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
     if (trainPointProvider == null) {
       trainPointProvider = new TrainPointProvider();
@@ -232,11 +233,20 @@ internal class LayerManager {
   ///   Removes the animation layer
   /// </summary>
   public static void RemoveAnimationLayer() {
+    Logger.Debug("RemoveAnimationLayer()");
     AnimatedPointLayer? animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
     if (animationLayer != null)
       MapViewControl.map.Layers.Remove(animationLayer);
     trainPointProvider?.StopSimulation();
     trainPointProvider = null;
+  }
+
+  public static void PauseAnimationPlayBack() {
+    trainPointProvider?.PauseSimulation();
+  }
+
+  public static void ResumeAnimationPlayBack() {
+    trainPointProvider?.ResumeSimulation();
   }
 
   /// <summary>

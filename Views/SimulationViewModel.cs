@@ -38,16 +38,31 @@ public class SimulationViewModel : ViewModelBase {
   public List<bool> StopsBooleans { get; set; }
   public List<RouteCoordinate> Stops { get; set; }
 
-  private bool _startSimulationButtonEnabled;
+  private bool _playSimulationButtonEnabled;
   private bool _stopSimulationButtonEnabled;
   private bool _createSimulationButtonEnabled;
+  private bool _pauseSimulationButtonEnabled;
 
-  public bool StartSimulationButtonEnabled {
-    get => _startSimulationButtonEnabled;
+  private bool _simulationRunning;
+  private bool _simulationPaused;
+
+  private string _playSimulationButtonText = "Play";
+  public string PlaySimulationButtonText {
+    get => _playSimulationButtonText;
     set {
-      if (_startSimulationButtonEnabled != value) {
-        _startSimulationButtonEnabled = value;
-        RaisePropertyChanged(nameof(StartSimulationButtonEnabled));
+      if (_playSimulationButtonText != value) {
+        _playSimulationButtonText = value;
+        RaisePropertyChanged(nameof(PlaySimulationButtonText));
+      }
+    }
+  }
+
+  public bool PlaySimulationButtonEnabled {
+    get => _playSimulationButtonEnabled;
+    set {
+      if (_playSimulationButtonEnabled != value) {
+        _playSimulationButtonEnabled = value;
+        RaisePropertyChanged(nameof(PlaySimulationButtonEnabled));
       }
     }
   }
@@ -94,6 +109,8 @@ public class SimulationViewModel : ViewModelBase {
     StopApproachSpeed = 20;
     DoorsOpenThreshold = 300;
     TimeSpentAtStopSeconds = 10;
+    _simulationRunning = false;
+    _simulationPaused = false;
     SetTrainsToUI();
 
     Stops = DataManager.GetStops();
@@ -106,18 +123,48 @@ public class SimulationViewModel : ViewModelBase {
     LayerManager.ClearFocusedStopsLayer();
 
     CreateSimulationButtonEnabled = true;
-    StartSimulationButtonEnabled = false;
+    PlaySimulationButtonEnabled = false;
   }
 
-  public void StartSimulationButton() {
-
-
-    if (Simulation.LatestSimulation != null) {
-      Simulation.StartAnimationPlayback();
-      StopSimulationButtonEnabled = true;
-      StartSimulationButtonEnabled = false;
-      CreateSimulationButtonEnabled = false;
+  public void PlaySimulationButton() {
+    if (!_simulationPaused && !_simulationRunning) {
+      if (Simulation.LatestSimulation != null) {
+        _simulationRunning = true;
+        Simulation.StartSimulationPlayback();
+        StopSimulationButtonEnabled = true;
+        PlaySimulationButtonText = "Pause";
+        CreateSimulationButtonEnabled = false;
+      }
+    } else if (_simulationRunning) {
+      PauseSimulation();
+    } else {
+      ResumeSimulation();
     }
+
+  }
+
+  public void PauseSimulation() {
+    PlaySimulationButtonText = "Resume";
+    _simulationPaused = true;
+    _simulationRunning = false;
+    Simulation.PauseSimulationPlayback();
+  }
+
+  public void ResumeSimulation() {
+    PlaySimulationButtonText = "Pause";
+    _simulationPaused = false;
+    _simulationRunning = true;
+    Simulation.ResumeSimulationPlayback();
+  }
+
+  public void StopSimulationButton() {
+    PlaySimulationButtonEnabled = true;
+    StopSimulationButtonEnabled = false;
+    CreateSimulationButtonEnabled = true;
+    _simulationRunning = false;
+    _simulationPaused = false;
+    PlaySimulationButtonText = "Play";
+    Simulation.StopSimulationPlayback();
   }
 
   public void CreateSimulationButton() {
@@ -128,15 +175,8 @@ public class SimulationViewModel : ViewModelBase {
       SimulationData createdSimulation = Simulation.GenerateSimulationData(StopsDictionary, selectedTrain, selectedRoute, TickLength, StopApproachSpeed, SlowZoneLengthMeters, StopArrivalThresholdMeters, TimeSpentAtStopSeconds, DoorsOpenThreshold);
 
       FileManager.SaveSimulationData(createdSimulation);
-      StartSimulationButtonEnabled = true;
     }
-  }
-
-  public void StopSimulationButton() {
-    StartSimulationButtonEnabled = true;
-    StopSimulationButtonEnabled = false;
-    CreateSimulationButtonEnabled = true;
-    Simulation.StopAnimationPlayback();
+    StopSimulationButton();
   }
 
   public void SetTrainsToUI() {
