@@ -20,7 +20,8 @@ namespace SmartTrainApplication.Data;
 /// Functions used for saving and loading data to and from files
 /// </summary>
 internal class FileManager {
-  private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); 
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
   public static FilePickerFileType JSON { get; } = new("json") {
     Patterns = new[] { "*.json" },
     AppleUniformTypeIdentifiers = new[] { "public.json" },
@@ -155,73 +156,118 @@ internal class FileManager {
     if (route == null) return;
 
     string filePath = route.FilePath;
-    
+
     // Save the current train route
     JsonSerializerOptions jsonOptions = new() { WriteIndented = true };
     File.WriteAllText(filePath, JsonSerializer.Serialize(route, jsonOptions));
-    
+
     Logger.Debug($"Route \"{route.Name}\" saved to {filePath}");
   }
 
   /// <summary>
   /// Imports all Json-files from folders defined by user in settings view. Also sets current train route.
   /// </summary>
-  /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
-  /// <returns>Returns available routes a list of strings</returns>
-    public static List<TrainRoute> ReadRoutesFromFolder(List<string> savedPaths) {
-    List<string> files = new();
-    List<string> paths = new();
-
-    //Create default folder if it doesn't exist
+  /// <param name="filePaths">List if file path strings to search in</param>
+  /// <returns>Returns found routes a list of TrainRoutes</returns>
+  public static List<TrainRoute> ReadRoutesFromFolder(List<string> filePaths) {
+    // Create default folder if it doesn't exist
     try {
       if (!Directory.Exists(GetRouteDirectory())) Directory.CreateDirectory(GetRouteDirectory());
     } catch (Exception ex) {
       Logger.Debug(ex.Message);
     }
 
+    JsonSerializerOptions jsonOptions = new() { IncludeFields = true };
 
-    try {
-      foreach (string path in savedPaths) {
-        Logger.Debug(path);
-        if (Directory.Exists(path)) {
-          IEnumerable<string> filesInFolder = Directory.EnumerateFiles(path, "*.json");
+    List<TrainRoute> validTrainRoutes = new();
 
-          foreach (string file in filesInFolder) {
-            string fileAsString = "";
-            using (StreamReader sr = File.OpenText(file)) {
-              string s;
-              while ((s = sr.ReadLine()) != null) fileAsString += s;
+    foreach (string path in filePaths) {
+      if (Directory.Exists(path)) {
+        IEnumerable<string> filesInFolder = Directory.EnumerateFiles(path, "*.json");
+
+        foreach (string filePath in filesInFolder) {
+          string fileAsString = ReadFileAsString(filePath);
+
+          try {
+            // Attempt to deserialize the route
+            TrainRoute trainRoute = JsonSerializer.Deserialize<TrainRoute>(fileAsString, jsonOptions);
+
+            if (trainRoute == null) {
+              Logger.Warn($"Failed to deserialize route in file: {filePath}");
+              continue;
             }
 
-            if (fileAsString.Contains("Coords")) {
-              files.Add(fileAsString);
-              paths.Add(file);
+            // Validate the train route and log any issues
+            if (ValidateTrainRoute(trainRoute, filePath)) {
+              trainRoute.FilePath = filePath;
+              trainRoute.Id = DataManager.CreateId();
+              validTrainRoutes.Add(trainRoute);
             }
+          }
+          catch (Exception ex) {
+            Logger.Warn($"Failed to read or parse route file: {filePath}. Error: {ex.Message}");
           }
         }
       }
-    } catch (Exception ex) {
-      Logger.Error($"ReadRoutesFromFolder() error: {ex}");
     }
 
-
-    // Deserialize the JSON strings into objects and add to list
-    JsonSerializerOptions jsonOptions = new() { IncludeFields = true };
-    
-    List<TrainRoute> trainRoutes = new();
-    for (int i = 0; i < files.Count; i++) {
-      TrainRoute? importedTrainRoute = JsonSerializer.Deserialize<TrainRoute>(files[i], jsonOptions);
-      importedTrainRoute.FilePath = paths[i];
-      importedTrainRoute.Id = DataManager.CreateId();
-      trainRoutes.Add(importedTrainRoute);
-    }
-
-    if (trainRoutes.Count != 0) {
+    if (validTrainRoutes.Count != 0) {
       DataManager.CurrentTrainRoute = 0;
     }
-    
-    return trainRoutes;
+
+    Logger.Debug($"Routes read: {string.Join(", ", validTrainRoutes.Select(t => t.Name))}");
+    return validTrainRoutes;
+  }
+
+  private static bool ValidateTrainRoute(TrainRoute route, string filePath) {
+    // Validate Name
+    if (string.IsNullOrWhiteSpace(route.Name)) {
+      Logger.Warn($"Validation failed for route in file: {filePath}: Route name cannot be empty.");
+      return false;
     }
+
+    // Validate Coords
+    if (route.Coords == null || route.Coords.Count == 0) {
+      Logger.Warn($"Validation failed for route in file: {filePath}: Coords must exist and cannot be empty.");
+      return false;
+    }
+
+    foreach (RouteCoordinate coord in route.Coords) {
+      if (!ValidateCoordinate(coord, filePath)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static bool ValidateCoordinate(RouteCoordinate coord, string filePath) {
+    // Validate Longitude
+    if (string.IsNullOrWhiteSpace(coord.Longitude) || !IsValidDecimalString(coord.Longitude)) {
+      Logger.Warn($"Validation failed for route in file: {filePath}: Invalid Longitude \"{coord.Longitude}\".");
+      return false;
+    }
+
+    // Validate Latitude
+    if (string.IsNullOrWhiteSpace(coord.Latitude) || !IsValidDecimalString(coord.Latitude)) {
+      Logger.Warn($"Validation failed for route in file: {filePath}: Invalid Latitude \"{coord.Latitude}\".");
+      return false;
+    }
+
+    // Validate Type
+    HashSet<string> validTypes = new() { "NORMAL", "STOP", "TUNNEL", "TUNNEL_STOP", "TUNNEL_ENTRANCE", "TUNNEL_ENTRANCE_STOP" };
+    if (!validTypes.Contains(coord.Type)) {
+      Logger.Warn($"Validation failed for route in file: {filePath}: Type \"{coord.Type}\" is invalid.");
+      return false;
+    }
+
+    return true;
+  }
+
+  private static bool IsValidDecimalString(string value) {
+    // Ensure the value contains only digits and at most one dot
+    return System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+(\.\d+)?$");
+  }
 
   /// <summary>
   /// Changes currently active train route
@@ -247,7 +293,6 @@ internal class FileManager {
   /// </summary>
   /// <param name="sim">(SimulationData) Route's simulation data</param>
   public static void SaveSimulationData(SimulationData sim) {
-
     string fileName = GetSimulationFileName(sim);
 
     string path = Path.Combine(GetSimulationDirectory(), fileName);
@@ -290,50 +335,64 @@ internal class FileManager {
   /// <summary>
   /// Imports all train Json-files from folders defined by user in settings view.
   /// </summary>
-  /// <param name="SavedPaths">Takes the list of saved paths from settings</param>
+  /// <param name="filePaths">Takes the list of saved paths from settings</param>
   /// <returns>Returns imported trains</returns>
-  public static List<Train> ReadTrainsFromFolder(List<string> SavedPaths) {
-    List<Train> Trains = new();
-    List<string> Paths = new();
+  public static List<Train> ReadTrainsFromFolder(List<string> filePaths) {
+    List<Train> trains = new();
 
     try {
       if (!Directory.Exists(GetTrainDirectory())) Directory.CreateDirectory(GetTrainDirectory());
-    } catch (Exception ex) {
-      Logger.Debug(ex.Message);
+    }
+    catch (Exception ex) {
+      Logger.Error(ex.Message);
     }
 
-    if (SavedPaths == null) return Trains;
+    if (filePaths.Count == 0) return trains;
 
-    JsonSerializerOptions Json_options = new() { IncludeFields = true };
+    JsonSerializerOptions jsonOptions = new() { IncludeFields = true };
 
-    try {
-      foreach (string Path in SavedPaths) {
-        Logger.Debug(Path);
-        if (Directory.Exists(Path)) {
-          IEnumerable<string> FilesInFolder = Directory.EnumerateFiles(Path, "*.json");
+    foreach (string filePath in filePaths) {
+      if (Directory.Exists(filePath)) {
+        IEnumerable<string> filesInFolder = Directory.EnumerateFiles(filePath, "*.json");
 
-          foreach (string file in FilesInFolder) {
-            string FileAsString = "";
-            using (StreamReader sr = File.OpenText(file)) {
-              string S;
-              while ((S = sr.ReadLine()) != null) FileAsString += S;
+        foreach (string file in filesInFolder) {
+          string fileAsString = ReadFileAsString(file);
+
+          if (!fileAsString.Contains("MaxSpeed")) {
+            Logger.Warn($"MaxSpeed missing for train, not importing: {file}");
+          }
+          else if (!fileAsString.Contains("Acceleration")) {
+            Logger.Warn($"Acceleration missing for train, not importing: {file}");
+          }
+          else {
+            try {
+              Train train = JsonSerializer.Deserialize<Train>(fileAsString, jsonOptions);
+              train.FilePath = file;
+              train.Id = DataManager.CreateId();
+              trains.Add(train);
             }
-
-            if (FileAsString.Contains("MaxSpeed")) {
-              Train? LoadedTrain = JsonSerializer.Deserialize<Train>(FileAsString, Json_options);
-              LoadedTrain.FilePath = file;
-              LoadedTrain.Id = DataManager.CreateId();
-              Trains.Add(LoadedTrain);
+            catch (Exception ex) {
+              Logger.Warn($"Failed to read or deserialize train in file: {file}. Error: {ex.Message}");
             }
           }
         }
       }
     }
-    catch (Exception Ex) {
-      Logger.Debug(Ex.Message);
+
+    Logger.Debug($"Trains read: {string.Join(", ", trains.Select(t => t.Name))}");
+
+    return trains;
+  }
+
+
+  public static string ReadFileAsString(string filePath) {
+    string fileAsString = "";
+    using (StreamReader sr = File.OpenText(filePath)) {
+      string S;
+      while ((S = sr.ReadLine()) != null) fileAsString += S;
     }
 
-    return Trains;
+    return fileAsString;
   }
 
   /// <summary>
@@ -352,8 +411,6 @@ internal class FileManager {
     catch (Exception ex) {
       Logger.Error($"Trying to save train \"{train.Name}\" to \"{path}\", error: {ex}");
     }
-
-
   }
 
   public static void SaveSettings(Settings settings) {
@@ -422,8 +479,8 @@ internal class FileManager {
     if (currentRouteDirectories.Count == 0) {
       return DEFAULT_ROUTE_DIR;
     }
-    return currentRouteDirectories[0];
 
+    return currentRouteDirectories[0];
   }
 
   public static string GetTrainDirectory() {
@@ -431,6 +488,7 @@ internal class FileManager {
     if (currentTrainDirectories.Count == 0) {
       return DEFAULT_TRAIN_DIR;
     }
+
     return currentTrainDirectories[0];
   }
 
@@ -439,7 +497,7 @@ internal class FileManager {
     if (currentSimulationDirectories.Count == 0) {
       return DEFAULT_SIMULATION_DIR;
     }
+
     return currentSimulationDirectories[0];
   }
-
 }
