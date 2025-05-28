@@ -148,7 +148,6 @@ public class RouteEditorViewModel : ViewModelBase {
   public bool AddingNew { get; set; }
 
   public RouteEditorViewModel() {
-    Logger.Debug("RouteEditorViewModel");
 
     if (DataManager.TrainRoutes.Count == 0)
       LayerManager.ImportNewRoute(SettingsManager.CurrentSettings.RouteDirectories);

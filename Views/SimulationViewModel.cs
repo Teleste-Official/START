@@ -117,7 +117,6 @@ public class SimulationViewModel : ViewModelBase {
 
     // Switch view in file manager
     FileManager.CurrentView = "Simulation";
-    Logger.Debug($"Current view: {FileManager.CurrentView}");
     LayerManager.ClearFocusedStopsLayer();
 
     CreateSimulationButtonEnabled = true;

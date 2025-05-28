@@ -1,6 +1,7 @@
 ﻿#region
 
 using Avalonia.Controls;
+using NLog;
 using SmartTrainApplication.Data;
 
 #endregion
@@ -8,6 +9,8 @@ using SmartTrainApplication.Data;
 namespace SmartTrainApplication.Views;
 
 public class MainWindowViewModel : ViewModelBase {
+  private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
   private UserControl _currentView = new RouteEditorView { DataContext = new RouteEditorViewModel() };
   private UserControl _bottomBar = new BottomBarView { DataContext = new BottomBarViewModel() };
 
@@ -15,6 +18,7 @@ public class MainWindowViewModel : ViewModelBase {
     get => _currentView;
     set {
       if (_currentView != value) {
+        Logger.Trace($"Changing current view from {_currentView} to {value}");
         _currentView = value;
         RaisePropertyChanged(nameof(CurrentView));
       }

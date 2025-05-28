@@ -46,7 +46,6 @@ internal class SettingsViewModel : ViewModelBase {
     // Switch view in file manager
     // TODO make this better...
     FileManager.CurrentView = "Settings";
-    Logger.Debug($"Current view: {FileManager.CurrentView}");
   }
 
   public void ResetButton() {
