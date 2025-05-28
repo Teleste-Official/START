@@ -193,18 +193,17 @@ internal class Simulation {
     TickData tickData = new(mPointsList[0].Y, mPointsList[0].X, false, 0, false, 0, 0, false);
 
     int pointIndex = 1;
+    int constantSpeedVariance = 0; // Add small variance constant speeds.
     double nextLat = mPointsList[pointIndex].Y;
     double nextLon = mPointsList[pointIndex].X;
     bool isGpsFix = true;
 
-    double travelDistance = RouteGeneration.CalculateTrainMovement(tickData.speedKmh, DefaultTimeInterval, acceleration);
+    double travelDistance = 0;//RouteGeneration.CalculateTrainMovement(tickData.speedKmh, DefaultTimeInterval, acceleration);
     double pointDistance = RouteGeneration.CalculatePointDistance(tickData.longitude, nextLon, tickData.latitude, nextLat);
-
 
     bool isRunning = true;
 
     stoppingDistances = CalculateStoppingDistances(routeToBeSimulated, stopPoints);
-
 
     List<TickData> generatedSimulationTicks = new();
     while (isRunning) {
@@ -244,11 +243,19 @@ internal class Simulation {
         break;
       }
 
+      if (Math.Abs(maxSpeed - tickData.speedKmh) < 1.1 ||
+          (stopApproachSpeed > 2 && Math.Abs(stopApproachSpeed - tickData.speedKmh) < 1.1)) {
+        constantSpeedVariance = constantSpeedVariance == 0 ? 1 : 0;
+
+      } else {
+        constantSpeedVariance = 0;
+      }
+
       generatedSimulationTicks.Add(new TickData(
         tickData.latitude,
         tickData.longitude,
         isGpsFix,
-        tickData.speedKmh,
+        tickData.speedKmh+constantSpeedVariance,
         false,
         tickData.distance,
         tickData.timeSecs,
