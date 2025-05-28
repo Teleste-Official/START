@@ -23,7 +23,7 @@ public partial class MapViewControl {
   /// </summary>
   /// <param name="mapControl">(IMapControl) Mapsui map control</param>
   public void Setup(IMapControl mapControl) {
-    _editManager = InitEditMode(mapControl, EditMode.Modify);
+    _editManager = InitEditMode(mapControl, EditMode.None);
     //InitEditWidgets(mapControl.Map);
     _mapControl = mapControl;
   }
