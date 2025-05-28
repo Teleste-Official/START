@@ -29,10 +29,7 @@ public class SimulationViewModel : ViewModelBase {
   // How long the train will stop at a given platform/stop.
   public int TimeSpentAtStopSeconds { get; set; }
 
-
-
-  // TBD if this should be configurable or calculated internally.
-  //public int TickBufferAroundStops { get; set; }
+  public int SimulationStartingTick { get; set; }
 
   public Dictionary<RouteCoordinate, bool> StopsDictionary { get; set; }
   public List<bool> StopsBooleans { get; set; }
@@ -109,6 +106,7 @@ public class SimulationViewModel : ViewModelBase {
     StopApproachSpeed = 20;
     DoorsOpenThreshold = 300;
     TimeSpentAtStopSeconds = 10;
+    SimulationStartingTick = 1;
     _simulationRunning = false;
     _simulationPaused = false;
     SetTrainsToUI();
@@ -130,7 +128,7 @@ public class SimulationViewModel : ViewModelBase {
     if (!_simulationPaused && !_simulationRunning) {
       if (Simulation.LatestSimulation != null) {
         _simulationRunning = true;
-        Simulation.StartSimulationPlayback();
+        Simulation.StartSimulationPlayback(SimulationStartingTick);
         StopSimulationButtonEnabled = true;
         PlaySimulationButtonText = "Pause";
         CreateSimulationButtonEnabled = false;

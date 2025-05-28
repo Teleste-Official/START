@@ -40,9 +40,8 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
 
   private int _currentTickIndex;
 
-
-  public TrainPointProvider() {
-    _currentTickIndex = 0;
+  public TrainPointProvider(int startingIndex) {
+    _currentTickIndex = startingIndex;
   }
 
   /// <summary>
@@ -50,10 +49,10 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   /// </summary>
   public void StartSimulation() {
     CancelToken();
-    _currentTickIndex = 0;
+    //_currentTickIndex = 0;
     _cancellationTokenSource = new CancellationTokenSource();
 
-    Logger.Info("Starting simulation playback...");
+    Logger.Info($"Starting simulation playback from index {_currentTickIndex}");
     Catch.TaskRun(() => RunTimerAsync(_cancellationTokenSource.Token));
   }
 
@@ -61,7 +60,7 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
   /// Stops the simulation playback.
   /// </summary>
   public void StopSimulation() {
-    Logger.Info("Stopping simulation playback...");
+    Logger.Info("Stopping simulation playback");
     CancelToken();
     _currentTickIndex = 0;
   }
@@ -77,6 +76,11 @@ internal sealed class TrainPointProvider : MemoryProvider, IDynamic, IDisposable
 
     Logger.Info($"Resume simulation playback from index {_currentTickIndex}");
     Catch.TaskRun(() => RunTimerAsync(_cancellationTokenSource.Token));
+  }
+
+  public void SetCurrentTickIndex(int index) {
+    Logger.Debug($"Set current tick index to {index}");
+    _currentTickIndex = index;
   }
 
 

@@ -26,7 +26,7 @@ namespace SmartTrainApplication;
 internal class LayerManager {
   private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-  private static TrainPointProvider? trainPointProvider = new TrainPointProvider();
+  private static TrainPointProvider? trainPointProvider = new TrainPointProvider(245);
   private static WritableLayer? _targetLayer =
     MapViewControl.map.Layers.FirstOrDefault(f => f.Name == "Layer 3") as WritableLayer;
 
@@ -206,11 +206,13 @@ internal class LayerManager {
   ///   Creates a new, if doesn't already exist, layer for animations
   /// </summary>
   /// <returns>(AnimatedPointLayer) Animation layer</returns>
-  public static AnimatedPointLayer CreateAnimationLayer() {
+  public static AnimatedPointLayer CreateAnimationLayer(int startingTickIndex) {
     Logger.Debug("CreateAnimationLayer()");
     AnimatedPointLayer? animationLayer = (AnimatedPointLayer)MapViewControl.map.Layers.FirstOrDefault(l => l.Name == "Playback");
     if (trainPointProvider == null) {
-      trainPointProvider = new TrainPointProvider();
+      trainPointProvider = new TrainPointProvider(startingTickIndex);
+    } else {
+      trainPointProvider.SetCurrentTickIndex(startingTickIndex);
     }
 
     if (animationLayer == null) {

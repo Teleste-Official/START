@@ -437,10 +437,10 @@ internal class Simulation {
 
 
 
-  public static void StartSimulationPlayback() {
+  public static void StartSimulationPlayback(int startingTickIndex) {
     //LogLatestSimulation();
     LayerManager.RemoveAnimationLayer();
-    LayerManager.CreateAnimationLayer();
+    LayerManager.CreateAnimationLayer(startingTickIndex);
   }
 
   public static void PauseSimulationPlayback() {
