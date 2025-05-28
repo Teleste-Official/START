@@ -115,7 +115,7 @@
 
         <TextBlock FontWeight="Bold">Starting tick index:</TextBlock>
         <NumericUpDown Value="{Binding SimulationStartingTick}"
-                       Minimum="1"
+                       Minimum="0"
                        Increment="10" />
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">

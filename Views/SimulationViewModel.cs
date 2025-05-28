@@ -106,7 +106,7 @@ public class SimulationViewModel : ViewModelBase {
     StopApproachSpeed = 20;
     DoorsOpenThreshold = 300;
     TimeSpentAtStopSeconds = 10;
-    SimulationStartingTick = 1;
+    SimulationStartingTick = 0;
     _simulationRunning = false;
     _simulationPaused = false;
     SetTrainsToUI();
